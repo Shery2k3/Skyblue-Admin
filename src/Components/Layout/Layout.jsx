@@ -7,7 +7,10 @@ import {
   VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Footer, Content } = Layout;
+import logo from "/logo.png";
+
+import routeItems from "../RouteItems/RouteItems";
 
 const siderStyle = {
   overflow: "auto",
@@ -27,45 +30,49 @@ const CustomLayout = ({ children }) => {
   } = theme.useToken();
 
   return (
-    <Layout hasSider style={{ height: "100vh" }}>
+    <Layout hasSider>
       <Sider
         trigger={null}
         collapsible
         collapsed={collapsed}
         style={siderStyle}
       >
-        <div className="demo-logo-vertical" />
+        <div
+          style={{
+            color: "#87CEEB",
+            padding: "20px 0px",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <img
+            style={{
+              width: "80%",
+            }}
+            src={logo}
+            alt="Logo"
+          />
+        </div>
         <Menu
           theme="dark"
           mode="inline"
           defaultSelectedKeys={["1"]}
-          items={[
-            {
-              key: "1",
-              icon: <UserOutlined />,
-              label: "nav 1",
-            },
-            {
-              key: "2",
-              icon: <VideoCameraOutlined />,
-              label: "nav 2",
-            },
-            {
-              key: "3",
-              icon: <UploadOutlined />,
-              label: "nav 3",
-            },
-          ]}
+          items={routeItems}
         />
       </Sider>
       <Layout
         style={{
+          background: "#F1FBFF",
           marginInlineStart: collapsed ? 80 : 200,
           transition: "margin-inline-start 0.3s ease", // Smooth transition
         }}
       >
         <Header
           style={{
+            position: "fixed",
+            width: "100%",
             padding: 0,
             background: colorBgContainer,
           }}
@@ -83,15 +90,29 @@ const CustomLayout = ({ children }) => {
         </Header>
         <Content
           style={{
-            margin: "24px 16px",
-            padding: 24,
-            minHeight: 280,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
+            margin: "78px 16px 0px 16px",
+            overflow: "initial",
           }}
         >
-          {children}
+          <div
+            style={{
+              minHeight: "calc(100vh - 147px)",
+              padding: 24,
+              background: "#fff",
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            {children}
+          </div>
         </Content>
+        <Footer
+          style={{
+            background: "#F1FBFF",
+            textAlign: "center",
+          }}
+        >
+          SkyBlue Wholesale ©2024 Created by ByteSync Studio
+        </Footer>
       </Layout>
     </Layout>
   );
