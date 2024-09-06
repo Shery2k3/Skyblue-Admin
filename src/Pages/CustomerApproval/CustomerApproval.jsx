@@ -93,14 +93,13 @@ const CustomerApproval = () => {
             <div key={index} className="document-item">
               {doc.toLowerCase().endsWith('.pdf') ? (
                 <Button icon={<FilePdfOutlined />} onClick={() => showDocument(doc)}>
-                  View PDF
+                  PDF
                 </Button>
               ) : (
                 <Image
-                  width={50}
                   src={doc}
                   preview={{
-                    mask: <EyeOutlined />
+                    mask: <EyeOutlined />,
                   }}
                 />
               )}
@@ -141,7 +140,7 @@ const CustomerApproval = () => {
           open={modalVisible}
           onCancel={() => setModalVisible(false)}
           footer={null}
-          width={800}
+          width={1000}
         >
           {selectedDocument && selectedDocument.toLowerCase().endsWith('.pdf') ? (
             <iframe
