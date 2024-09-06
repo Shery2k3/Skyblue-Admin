@@ -48,12 +48,7 @@ const routeItems = [
   {
     key: "7",
     icon: <UserOutlined />,
-    label: <Link to="/customers">Customers</Link>,
-  },
-  {
-    key: "8",
-    icon: <TagOutlined />,
-    label: <Link to="/customer-roles">Customer Roles</Link>,
+    label: <Link to="/customer">Customers</Link>,
   },
   {
     key: "9",
