@@ -154,7 +154,7 @@ const CustomerApproval = () => {
     <CustomLayout>
       <div className="customer-approval-container">
         <h1>Customer Approval</h1>
-        <Table dataSource={dataSource} columns={columns} />
+        <Table dataSource={dataSource} columns={columns} scroll={{ x: "max-content" }} />
         <Modal
           title="Document Viewer"
           open={modalVisible}

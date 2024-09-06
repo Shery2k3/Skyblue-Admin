@@ -26,9 +26,10 @@
 }
 .approve-button.ant-btn-primary:hover,
 .approve-button.ant-btn-primary:focus {
-    background-color: #389e0d;
-    border-color: #389e0d;
+    background-color: #389e0d !important;
+    border-color: #389e0d !important;
 }
+
 .ant-popover-buttons .ant-btn-primary {
     background-color: #52c41a;
     border-color: #52c41a;
