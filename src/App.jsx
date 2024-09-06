@@ -4,6 +4,7 @@ import Customer from './Pages/Customer/Customer';
 import Vendors from './Pages/Vendors/Vendors';
 import Orders from './Pages/Orders/Orders';
 import OrdersDetails from './Pages/Orders/OrderDetail';
+import BestSeller from './Pages/BestSeller/BestSeller';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
         <Route path="/vendors" element={<Vendors />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:id" element={<OrdersDetails />} />
-        <Route path="/best-seller" element={<Dashboard />} />
+        <Route path="/best-seller" element={<BestSeller />} />
         <Route path="/customer" element={<Customer />} />
         <Route path="/customer-roles" element={<Dashboard />} />
         <Route path="/discount" element={<Dashboard />} />
