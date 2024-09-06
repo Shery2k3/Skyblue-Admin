@@ -1,13 +1,74 @@
-.image-grid {
+.customer-approval-container {
+    padding: 24px;
+}
+
+.customer-approval-container h1 {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.document-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-  }
-  
-  .image-item {
+}
+
+.document-item {
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 4px;
     background-color: #f9f9f9;
-    max-height: 50px;
-  }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ant-table-wrapper {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ant-table-thead>tr>th {
+    background-color: #f0f2f5;
+}
+
+.ant-btn-primary {
+    background-color: #52c41a;
+    border-color: #52c41a;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+    background-color: #73d13d;
+    border-color: #73d13d;
+}
+
+.approve-button.ant-btn-primary {
+    background-color: #52c41a;
+    border-color: #52c41a;
+}
+
+.approve-button.ant-btn-primary:hover,
+.approve-button.ant-btn-primary:focus {
+    background-color: #389e0d;
+    border-color: #507540;
+}
+
+/* Style for Popconfirm */
+.ant-popover-buttons .ant-btn-primary {
+    background-color: #52c41a;
+    border-color: #52c41a;
+}
+
+.ant-popover-buttons .ant-btn-primary:hover,
+.ant-popover-buttons .ant-btn-primary:focus {
+    background-color: #389e0d;
+    border-color: #389e0d;
+}
+
+.ant-btn.css-dev-only-do-not-override-14i19y2.ant-btn-primary.approve-button:hover,
+.ant-btn.css-dev-only-do-not-override-14i19y2.ant-btn-primary.approve-button:focus {
+    background-color: #389e0d;
+    border-color: #389e0d;
+}
