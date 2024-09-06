@@ -1,5 +1,6 @@
 import './App.css';
 import Dashboard from './Pages/Dashboard/Dashboard';
+import Customer from './Pages/Customer/Customer';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
         <Route path="/vendors" element={<Dashboard />} />
         <Route path="/orders" element={<Dashboard />} />
         <Route path="/best-seller" element={<Dashboard />} />
-        <Route path="/customers" element={<Dashboard />} />
+        <Route path="/customer" element={<Customer />} />
         <Route path="/customer-roles" element={<Dashboard />} />
         <Route path="/discount" element={<Dashboard />} />
         <Route path="/email" element={<Dashboard />} />

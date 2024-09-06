@@ -1,0 +1,177 @@
+import CustomLayout from "../../Components/Layout/Layout";
+import { Table, Button, Modal, Checkbox, Select, message } from "antd";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import API_BASE_URL from '../../constants.js'
+
+const { Option } = Select;
+
+const Customer = () => {
+  const [dataSource, setDataSource] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [availableRoles, setAvailableRoles] = useState([]);
+  const [selectedRoles, setSelectedRoles] = useState([]);
+  const [removedRoles, setRemovedRoles] = useState([]);
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    fetchCustomers();
+    fetchRoles();
+  }, []);
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/customer/all`);
+      const data = response.data.map((customer) => ({
+        key: customer.id,
+        id: customer.id,
+        name: `${customer.firstName} ${customer.lastName}`,
+        email: customer.email,
+        company: customer.company,
+        phone: customer.phone,
+        active: customer.active,
+        roles: customer.roles,
+      }));
+      setDataSource(data);
+    } catch (error) {
+      console.error("Error fetching customer data:", error);
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/customer/roles`);
+      setAvailableRoles(response.data);
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+    }
+  };
+
+  const handleEdit = (customer) => {
+    setSelectedCustomer(customer);
+    setIsActive(customer.active);
+    setSelectedRoles(customer.roles.map(role => role.name));
+    setRemovedRoles([]);
+    setIsModalVisible(true);
+  };
+
+  const handleOk = async () => {
+    const payload = {};
+    if (isActive !== selectedCustomer.active) {
+      payload.active = isActive;
+    }
+    if (selectedRoles.length > 0) {
+      payload.roles = availableRoles
+        .filter(role => selectedRoles.includes(role.Name))
+        .map(role => role.Id);
+    }
+    if (removedRoles.length > 0) {
+      payload.removeRoles = availableRoles
+        .filter(role => removedRoles.includes(role.Name))
+        .map(role => role.Id);
+    }
+
+    if (Object.keys(payload).length > 0) {
+      try {
+        await axios.patch(`${API_BASE_URL}/admin/customer/${selectedCustomer.id}`, payload);
+        message.success('Customer updated successfully');
+        fetchCustomers();
+      } catch (error) {
+        console.error("Error updating customer:", error);
+        message.error('Failed to update customer');
+      }
+    }
+
+    setIsModalVisible(false);
+  };
+
+  const handleRoleChange = (newRoles) => {
+    const added = newRoles.filter(role => !selectedRoles.includes(role));
+    const removed = selectedRoles.filter(role => !newRoles.includes(role));
+    
+    setSelectedRoles(newRoles);
+    setRemovedRoles([...removedRoles, ...removed]);
+  };
+  
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Company',
+      dataIndex: 'company',
+      key: 'company',
+    },
+    {
+      title: 'Phone',
+      dataIndex: 'phone',
+      key: 'phone',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'active',
+      key: 'active',
+      render: (active) => active ? "Active" : "Inactive",
+    },
+    {
+      title: 'Roles',
+      dataIndex: 'roles',
+      key: 'roles',
+      render: (roles) => roles.map(role => role.name).join(", "),
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Button onClick={() => handleEdit(record)}>Edit</Button>
+      ),
+    },
+  ];
+
+  return (
+    <CustomLayout pageTitle="Customer">
+      <Table dataSource={dataSource} columns={columns} scroll={{ x: "max-content" }} />
+      <Modal
+        title="Edit Customer"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Checkbox
+          checked={isActive}
+          onChange={(e) => setIsActive(e.target.checked)}
+        >
+          Active
+        </Checkbox>
+        <br />
+        <br />
+        <Select
+          mode="multiple"
+          style={{ width: '100%' }}
+          placeholder="Select roles"
+          value={selectedRoles}
+          onChange={handleRoleChange}
+        >
+          {availableRoles.map(role => (
+            <Option key={role.Id} value={role.Name}>{role.Name}</Option>
+          ))}
+        </Select>
+      </Modal>
+    </CustomLayout>
+  );
+}
+
+
+export default Customer;
