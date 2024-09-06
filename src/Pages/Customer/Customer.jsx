@@ -1,5 +1,5 @@
 import CustomLayout from "../../Components/Layout/Layout";
-import { Table, Button, Modal, Checkbox, Select, message, Pagination, Input } from "antd";
+import { Table, Button, Modal, Checkbox, Select, message, Pagination, Input, Space, Row, Col } from "antd";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import API_BASE_URL from '../../constants.js'
@@ -231,71 +231,81 @@ const Customer = () => {
 
   return (
     <CustomLayout pageTitle="Customer">
-      <div style={{ marginBottom: 16 }}>
-        <Input
-          placeholder="First Name"
-          value={searchFirstName}
-          onChange={(e) => setSearchFirstName(e.target.value)}
-          style={{ width: 200, marginRight: 8 }}
+      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Row justify="center">
+          <Col xs={24} sm={20} md={16} lg={12}>
+            <Space.Compact style={{ width: '100%' }}>
+              <Input
+                placeholder="First Name"
+                value={searchFirstName}
+                onChange={(e) => setSearchFirstName(e.target.value)}
+              />
+              <Input
+                placeholder="Last Name"
+                value={searchLastName}
+                onChange={(e) => setSearchLastName(e.target.value)}
+              />
+              <Input
+                placeholder="Phone Number"
+                value={searchPhoneNumber}
+                onChange={(e) => setSearchPhoneNumber(e.target.value)}
+              />
+              <Button onClick={handleSearch} type="primary">
+                Search
+              </Button>
+            </Space.Compact>
+          </Col>
+        </Row>
+
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          scroll={{ x: "max-content" }}
+          pagination={false}
+          loading={isFetching}
         />
-        <Input
-          placeholder="Last Name"
-          value={searchLastName}
-          onChange={(e) => setSearchLastName(e.target.value)}
-          style={{ width: 200, marginRight: 8 }}
-        />
-        <Input
-          placeholder="Phone Number"
-          value={searchPhoneNumber}
-          onChange={(e) => setSearchPhoneNumber(e.target.value)}
-          style={{ width: 200, marginRight: 8 }}
-        />
-        <Button onClick={handleSearch} type="primary">
-          Search
-        </Button>
-      </div>
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        scroll={{ x: "max-content" }}
-        pagination={false}
-        loading={isFetching}
-      />
-      <Pagination
-        current={currentPage}
-        total={totalCustomers}
-        pageSize={pageSize}
-        onChange={handlePageChange}
-        showSizeChanger={false}
-        showQuickJumper
-        showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
-        disabled={isFetching || isStartingFetch}
-      />
+
+        <Row justify="center" style={{ marginTop: '20px' }}>
+          <Col>
+            <Pagination
+              current={currentPage}
+              total={totalCustomers}
+              pageSize={pageSize}
+              onChange={handlePageChange}
+              showSizeChanger={false}
+              showQuickJumper
+              showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+              disabled={isFetching || isStartingFetch}
+            />
+          </Col>
+        </Row>
+      </Space>
+
       <Modal
         title="Edit Customer"
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <Checkbox
-          checked={isActive}
-          onChange={(e) => setIsActive(e.target.checked)}
-        >
-          Active
-        </Checkbox>
-        <br />
-        <br />
-        <Select
-          mode="multiple"
-          style={{ width: '100%' }}
-          placeholder="Select roles"
-          value={selectedRoles}
-          onChange={handleRoleChange}
-        >
-          {availableRoles.map(role => (
-            <Option key={role.Id} value={role.Name}>{role.Name}</Option>
-          ))}
-        </Select>
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Checkbox
+            checked={isActive}
+            onChange={(e) => setIsActive(e.target.checked)}
+          >
+            Active
+          </Checkbox>
+          <Select
+            mode="multiple"
+            style={{ width: '100%' }}
+            placeholder="Select roles"
+            value={selectedRoles}
+            onChange={handleRoleChange}
+          >
+            {availableRoles.map(role => (
+              <Option key={role.Id} value={role.Name}>{role.Name}</Option>
+            ))}
+          </Select>
+        </Space>
       </Modal>
     </CustomLayout>
   );
