@@ -2,6 +2,8 @@ import './App.css';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Customer from './Pages/Customer/Customer';
 import Vendors from './Pages/Vendors/Vendors';
+import Orders from './Pages/Orders/Orders';
+import OrdersDetails from './Pages/Orders/OrderDetail';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -13,7 +15,8 @@ function App() {
         <Route path="/categories" element={<Dashboard />} />
         <Route path="/products" element={<Dashboard />} />
         <Route path="/vendors" element={<Vendors />} />
-        <Route path="/orders" element={<Dashboard />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/:id" element={<OrdersDetails />} />
         <Route path="/best-seller" element={<Dashboard />} />
         <Route path="/customer" element={<Customer />} />
         <Route path="/customer-roles" element={<Dashboard />} />
