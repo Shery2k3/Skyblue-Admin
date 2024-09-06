@@ -151,7 +151,7 @@ const CustomerApproval = () => {
   ];
 
   return (
-    <CustomLayout>
+    <CustomLayout pageTitle="Customer Requests" menuKey="8">
       <div className="customer-approval-container">
         <h1>Customer Approval</h1>
         <Table dataSource={dataSource} columns={columns} scroll={{ x: "max-content" }} />

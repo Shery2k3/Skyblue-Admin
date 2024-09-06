@@ -6,7 +6,7 @@ import API_BASE_URL from "../../constants.js";
 const Email = () => {
 
   return (
-    <CustomLayout pageTitle="Email">
+    <CustomLayout pageTitle="Email" menuKey="10">
 
     </CustomLayout>
   );

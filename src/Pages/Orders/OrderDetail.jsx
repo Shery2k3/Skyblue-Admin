@@ -100,7 +100,7 @@ const OrdersDetails = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Order Details">
+    <CustomLayout pageTitle="Order Details" menuKey="5">
       <Descriptions
         title="Order Details"
         layout="vertical"
