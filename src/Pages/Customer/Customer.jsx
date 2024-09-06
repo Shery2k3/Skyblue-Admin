@@ -1,10 +1,18 @@
 import CustomLayout from "../../Components/Layout/Layout";
-import { Table, Button, Modal, Checkbox, Select, message, Pagination } from "antd";
-import { useEffect, useState } from "react";
+import { Table, Button, Modal, Checkbox, Select, message, Pagination, Input } from "antd";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import API_BASE_URL from '../../constants.js'
 
 const { Option } = Select;
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 const Customer = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -18,37 +26,90 @@ const Customer = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [totalPages, setTotalPages] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isStartingFetch, setIsStartingFetch] = useState(false);
+  const [searchFirstName, setSearchFirstName] = useState('');
+  const [searchLastName, setSearchLastName] = useState('');
+  const [searchPhoneNumber, setSearchPhoneNumber] = useState('');
+
+  const fetchCustomers = useCallback(
+    debounce(async (page) => {
+      if (isFetching) return;
+      setIsStartingFetch(false);  // Reset the starting fetch state
+      setIsFetching(true);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/admin/customer/all?size=${pageSize}&page=${page}`);
+        const { data, totalCustomers, totalPages, pageNumber } = response.data;
+
+        const formattedData = data.map((customer) => ({
+          key: customer.id,
+          id: customer.id,
+          name: `${customer.firstName} ${customer.lastName}`,
+          email: customer.email,
+          company: customer.company,
+          phone: customer.phone,
+          active: customer.active,
+          roles: customer.roles,
+        }));
+
+        setDataSource(formattedData);
+        setTotalCustomers(totalCustomers);
+        setTotalPages(totalPages);
+        setCurrentPage(pageNumber);
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      } finally {
+        setIsFetching(false);
+      }
+    }, 300),
+    [isFetching, pageSize]
+  );
+
+  const searchCustomers = useCallback(
+    debounce(async (page) => {
+      if (isFetching) return;
+      setIsStartingFetch(false);
+      setIsFetching(true);
+      try {
+        const params = {
+          size: pageSize,
+          page: page
+        };
+        if (searchFirstName) params.firstName = searchFirstName;
+        if (searchLastName) params.lastName = searchLastName;
+        if (searchPhoneNumber) params.phoneNumber = searchPhoneNumber;
+
+        const response = await axios.get(`${API_BASE_URL}/admin/customer/all`, { params });
+        const { data, totalCustomers, totalPages, pageNumber } = response.data;
+
+        const formattedData = data.map((customer) => ({
+          key: customer.id,
+          id: customer.id,
+          name: `${customer.firstName} ${customer.lastName}`,
+          email: customer.email,
+          company: customer.company,
+          phone: customer.phone,
+          active: customer.active,
+          roles: customer.roles,
+        }));
+
+        setDataSource(formattedData);
+        setTotalCustomers(totalCustomers);
+        setTotalPages(totalPages);
+        setCurrentPage(pageNumber);
+      } catch (error) {
+        console.error("Error searching customer data:", error);
+      } finally {
+        setIsFetching(false);
+      }
+    }, 300),
+    [isFetching, pageSize, searchFirstName, searchLastName, searchPhoneNumber]
+  );
 
   useEffect(() => {
     fetchCustomers(currentPage);
     fetchRoles();
   }, [currentPage]);
-
-  const fetchCustomers = async (page) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/admin/customer/all?size=${pageSize}&page=${page}`);
-      const { data, totalCustomers, totalPages, pageNumber } = response.data;
-      console.log(data)
-      
-      const formattedData = data.map((customer) => ({
-        key: customer.id,
-        id: customer.id,
-        name: `${customer.firstName} ${customer.lastName}`,
-        email: customer.email,
-        company: customer.company,
-        phone: customer.phone,
-        active: customer.active,
-        roles: customer.roles,
-      }));
-      
-      setDataSource(formattedData);
-      setTotalCustomers(totalCustomers);
-      setTotalPages(totalPages);
-      setCurrentPage(pageNumber);
-    } catch (error) {
-      console.error("Error fetching customer data:", error);
-    }
-  };
 
   const fetchRoles = async () => {
     try {
@@ -100,17 +161,30 @@ const Customer = () => {
   const handleRoleChange = (newRoles) => {
     const added = newRoles.filter(role => !selectedRoles.includes(role));
     const removed = selectedRoles.filter(role => !newRoles.includes(role));
-    
+
     setSelectedRoles(newRoles);
     setRemovedRoles([...removedRoles, ...removed]);
   };
-  
+
   const handleCancel = () => {
     setIsModalVisible(false);
   };
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    if (!isFetching && !isStartingFetch) {
+      setIsStartingFetch(true);
+      setCurrentPage(page);
+      if (searchFirstName || searchLastName || searchPhoneNumber) {
+        searchCustomers(page);
+      } else {
+        fetchCustomers(page);
+      }
+    }
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    searchCustomers(1);
   };
 
   const columns = [
@@ -157,11 +231,35 @@ const Customer = () => {
 
   return (
     <CustomLayout pageTitle="Customer">
-      <Table 
-        dataSource={dataSource} 
-        columns={columns} 
+      <div style={{ marginBottom: 16 }}>
+        <Input
+          placeholder="First Name"
+          value={searchFirstName}
+          onChange={(e) => setSearchFirstName(e.target.value)}
+          style={{ width: 200, marginRight: 8 }}
+        />
+        <Input
+          placeholder="Last Name"
+          value={searchLastName}
+          onChange={(e) => setSearchLastName(e.target.value)}
+          style={{ width: 200, marginRight: 8 }}
+        />
+        <Input
+          placeholder="Phone Number"
+          value={searchPhoneNumber}
+          onChange={(e) => setSearchPhoneNumber(e.target.value)}
+          style={{ width: 200, marginRight: 8 }}
+        />
+        <Button onClick={handleSearch} type="primary">
+          Search
+        </Button>
+      </div>
+      <Table
+        dataSource={dataSource}
+        columns={columns}
         scroll={{ x: "max-content" }}
         pagination={false}
+        loading={isFetching}
       />
       <Pagination
         current={currentPage}
@@ -171,6 +269,7 @@ const Customer = () => {
         showSizeChanger={false}
         showQuickJumper
         showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+        disabled={isFetching || isStartingFetch}
       />
       <Modal
         title="Edit Customer"
