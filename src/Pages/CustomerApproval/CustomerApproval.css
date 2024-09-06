@@ -1,0 +1,13 @@
+.image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .image-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px;
+    background-color: #f9f9f9;
+    max-height: 50px;
+  }

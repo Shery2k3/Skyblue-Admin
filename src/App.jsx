@@ -5,6 +5,7 @@ import Vendors from './Pages/Vendors/Vendors';
 import Orders from './Pages/Orders/Orders';
 import OrdersDetails from './Pages/Orders/OrderDetail';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import CustomerApproval from './Pages/CustomerApproval/CustomerApproval';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/orders/:id" element={<OrdersDetails />} />
         <Route path="/best-seller" element={<Dashboard />} />
         <Route path="/customer" element={<Customer />} />
+        <Route path="/customer-approval" element={<CustomerApproval />} />
         <Route path="/customer-roles" element={<Dashboard />} />
         <Route path="/discount" element={<Dashboard />} />
         <Route path="/email" element={<Dashboard />} />
