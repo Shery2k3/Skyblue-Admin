@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import CustomLayout from '../../Components/Layout/Layout';
 import axios from 'axios';
 import API_BASE_URL from '../../constants';
-import { Table, Image, Button, Modal, message, Popconfirm } from 'antd';
-import { CheckOutlined, EyeOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { Table, Image, Button, Modal, message, Popconfirm, Space, Carousel } from 'antd';
+import { CheckOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import './CustomerApproval.css';
 
 const CustomerApproval = () => {
   const [dataSource, setDataSource] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [selectedDocuments, setSelectedDocuments] = useState([]);
+  const [currentDocIndex, setCurrentDocIndex] = useState(0);
 
   useEffect(() => {
     fetchUsers();
@@ -47,10 +48,42 @@ const CustomerApproval = () => {
     }
   };
 
-  const showDocument = (doc) => {
-    setSelectedDocument(doc);
+  const showDocuments = (documents) => {
+    setSelectedDocuments(documents);
+    setCurrentDocIndex(0);
     setModalVisible(true);
   };
+
+  const renderDocument = useCallback((doc) => {
+    if (doc.toLowerCase().endsWith('.pdf')) {
+      return (
+        <iframe
+          src={`${doc}#toolbar=0`}
+          width="100%"
+          height="500px"
+          title="PDF Viewer"
+        />
+      );
+    } else {
+      return (
+        <div className="carousel-image-container">
+          <img
+            src={doc}
+            alt="Document"
+            className="carousel-image"
+          />
+        </div>
+      );
+    }
+  }, []);
+
+  const handlePrevious = useCallback(() => {
+    setCurrentDocIndex((prev) => (prev > 0 ? prev - 1 : prev));
+  }, []);
+
+  const handleNext = useCallback(() => {
+    setCurrentDocIndex((prev) => (prev < selectedDocuments.length - 1 ? prev + 1 : prev));
+  }, [selectedDocuments.length]);
 
   const columns = [
     {
@@ -88,24 +121,11 @@ const CustomerApproval = () => {
       dataIndex: 'documents',
       key: 'documents',
       render: (documents) => (
-        <div className="document-grid">
-          {documents.map((doc, index) => (
-            <div key={index} className="document-item">
-              {doc.toLowerCase().endsWith('.pdf') ? (
-                <Button icon={<FilePdfOutlined />} onClick={() => showDocument(doc)}>
-                  PDF
-                </Button>
-              ) : (
-                <Image
-                  src={doc}
-                  preview={{
-                    mask: <EyeOutlined />,
-                  }}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        <Space>
+          <Button onClick={() => showDocuments(documents)}>
+            View Documents ({documents.length})
+          </Button>
+        </Space>
       ),
     },
     {
@@ -142,19 +162,22 @@ const CustomerApproval = () => {
           footer={null}
           width={1000}
         >
-          {selectedDocument && selectedDocument.toLowerCase().endsWith('.pdf') ? (
-            <iframe
-              src={`${selectedDocument}#toolbar=0`}
-              width="100%"
-              height="500px"
-              title="PDF Viewer"
-            />
-          ) : (
-            <Image
-              src={selectedDocument}
-              style={{ maxWidth: '100%', maxHeight: '500px' }}
-            />
-          )}
+          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+            {selectedDocuments.length > 0 && renderDocument(selectedDocuments[currentDocIndex])}
+            <Space style={{ width: '100%', justifyContent: 'center' }}>
+              <Button
+                onClick={handlePrevious}
+                icon={<LeftOutlined />}
+                disabled={currentDocIndex === 0}
+              />
+              <span>{`${currentDocIndex + 1} / ${selectedDocuments.length}`}</span>
+              <Button
+                onClick={handleNext}
+                icon={<RightOutlined />}
+                disabled={currentDocIndex === selectedDocuments.length - 1}
+              />
+            </Space>
+          </Space>
         </Modal>
       </div>
     </CustomLayout>

@@ -1,117 +1,82 @@
 .customer-approval-container {
     padding: 24px;
 }
-
 .customer-approval-container h1 {
     margin-bottom: 24px;
     text-align: center;
     font-size: 28px;
     color: #1a1a1a;
 }
-
-.document-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.document-item {
-    width: 100px;
-    height: 100px;
-    border: 1px solid #e8e8e8;
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f5f5f5;
-    transition: all 0.3s ease;
-}
-
-.document-item:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.document-item .ant-image {
-    width: 100%;
-    height: 100%;
-}
-
-.document-item .ant-image-img {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-}
-
-.document-item .ant-btn {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    border: none;
-    background-color: #f5f5f5;
-}
-
-.document-item .ant-btn .anticon {
-    font-size: 24px;
-    margin-bottom: 4px;
-}
-
 .ant-table-wrapper {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-
 .ant-table-thead > tr > th {
     background-color: #f0f2f5;
     font-weight: 600;
 }
-
 .ant-table-tbody > tr > td {
     padding: 16px;
 }
-
 .approve-button.ant-btn-primary {
     background-color: #52c41a;
     border-color: #52c41a;
     transition: all 0.3s ease;
 }
-
 .approve-button.ant-btn-primary:hover,
 .approve-button.ant-btn-primary:focus {
     background-color: #389e0d;
     border-color: #389e0d;
 }
-
 .ant-popover-buttons .ant-btn-primary {
     background-color: #52c41a;
     border-color: #52c41a;
 }
-
 .ant-popover-buttons .ant-btn-primary:hover,
 .ant-popover-buttons .ant-btn-primary:focus {
     background-color: #389e0d;
     border-color: #389e0d;
 }
-
 .ant-modal-content {
     border-radius: 8px;
 }
-
 .ant-modal-header {
     border-bottom: 1px solid #f0f0f0;
     padding: 16px 24px;
 }
-
 .ant-modal-body {
     padding: 24px;
 }
-
 .ant-modal-footer {
     border-top: 1px solid #f0f0f0;
     padding: 16px 24px;
+}
+.ant-carousel .slick-slide {
+    text-align: center;
+    background: #f0f2f5;
+    overflow: hidden;
+}
+.ant-carousel .slick-slide img {
+    max-width: 100%;
+    max-height: 500px;
+    margin: auto;
+}
+.ant-space-vertical {
+    width: 100%;
+}
+
+.carousel-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 500px;
+    width: 100%;
+    background-color: #f0f2f5;
+}
+
+.carousel-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
