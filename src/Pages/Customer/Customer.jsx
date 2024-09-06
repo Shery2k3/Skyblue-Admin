@@ -1,5 +1,5 @@
 import CustomLayout from "../../Components/Layout/Layout";
-import { Table, Button, Modal, Checkbox, Select, message } from "antd";
+import { Table, Button, Modal, Checkbox, Select, message, Pagination } from "antd";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import API_BASE_URL from '../../constants.js'
@@ -14,16 +14,23 @@ const Customer = () => {
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [removedRoles, setRemovedRoles] = useState([]);
   const [isActive, setIsActive] = useState(false);
+  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    fetchCustomers();
+    fetchCustomers(currentPage);
     fetchRoles();
-  }, []);
+  }, [currentPage]);
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = async (page) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/customer/all`);
-      const data = response.data.map((customer) => ({
+      const response = await axios.get(`${API_BASE_URL}/admin/customer/all?size=${pageSize}&page=${page}`);
+      const { data, totalCustomers, totalPages, pageNumber } = response.data;
+      console.log(data)
+      
+      const formattedData = data.map((customer) => ({
         key: customer.id,
         id: customer.id,
         name: `${customer.firstName} ${customer.lastName}`,
@@ -33,7 +40,11 @@ const Customer = () => {
         active: customer.active,
         roles: customer.roles,
       }));
-      setDataSource(data);
+      
+      setDataSource(formattedData);
+      setTotalCustomers(totalCustomers);
+      setTotalPages(totalPages);
+      setCurrentPage(pageNumber);
     } catch (error) {
       console.error("Error fetching customer data:", error);
     }
@@ -76,7 +87,7 @@ const Customer = () => {
       try {
         await axios.patch(`${API_BASE_URL}/admin/customer/${selectedCustomer.id}`, payload);
         message.success('Customer updated successfully');
-        fetchCustomers();
+        fetchCustomers(currentPage);
       } catch (error) {
         console.error("Error updating customer:", error);
         message.error('Failed to update customer');
@@ -96,6 +107,10 @@ const Customer = () => {
   
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   const columns = [
@@ -142,10 +157,24 @@ const Customer = () => {
 
   return (
     <CustomLayout pageTitle="Customer">
-      <Table dataSource={dataSource} columns={columns} scroll={{ x: "max-content" }} />
+      <Table 
+        dataSource={dataSource} 
+        columns={columns} 
+        scroll={{ x: "max-content" }}
+        pagination={false}
+      />
+      <Pagination
+        current={currentPage}
+        total={totalCustomers}
+        pageSize={pageSize}
+        onChange={handlePageChange}
+        showSizeChanger={false}
+        showQuickJumper
+        showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+      />
       <Modal
         title="Edit Customer"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
       >
@@ -172,6 +201,5 @@ const Customer = () => {
     </CustomLayout>
   );
 }
-
 
 export default Customer;
