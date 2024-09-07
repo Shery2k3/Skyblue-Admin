@@ -147,7 +147,7 @@ const Vendors = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Vendors" menuKey="4" menuKey="4">
+    <CustomLayout pageTitle="Vendors" menuKey="4">
       <div style={{ textAlign: "right" }}>
         <Button type="primary" size="medium" onClick={handleAdd}>
           Add Vendor
