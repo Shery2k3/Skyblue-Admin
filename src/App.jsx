@@ -9,7 +9,6 @@ import Email from './Pages/Email/Email';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import CustomerApproval from './Pages/CustomerApproval/CustomerApproval';
 import Discounts from './Pages/Discount/Discount';
-import CustomerApproval from './Pages/CustomerApproval/CustomerApproval';
 
 function App() {
   return (
