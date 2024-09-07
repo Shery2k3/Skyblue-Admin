@@ -1,105 +1,13 @@
-import React, { useState } from "react";
 import CustomLayout from "../../Components/Layout/Layout";
-import { Form, Input, Button, Upload, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import API_BASE_URL from "../../constants";
+import API_BASE_URL from "../../constants.js";
 
 const Email = () => {
-  const [form] = Form.useForm();
-  const [body, setBody] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleFormSubmit = (values) => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("subject", values.subject);
-    formData.append("body", body);
-
-    if (values.upload && values.upload.file) {
-      formData.append("file", values.upload.file.originFileObj);
-    }
-
-    axios
-      .post(`${API_BASE_URL}/email/save`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then((response) => {
-        message.success("Email saved successfully!");
-        form.resetFields();
-        setBody("");
-      })
-      .catch((error) => {
-        message.error("Failed to save email. Please try again.");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  const handleBodyChange = (value) => {
-    setBody(value);
-  };
 
   return (
     <CustomLayout pageTitle="Email" menuKey="10">
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Emails</h2>
-      <Form
-        form={form}
-        onFinish={handleFormSubmit}
-        layout="vertical"
-        style={{ maxWidth: 800, margin: "0 auto" }}
-      >
-        <Form.Item
-          label="Name"
-          name="name"
-          rules={[{ required: true, message: "Please input your name!" }]}
-        >
-          <Input placeholder="Enter your name" />
-        </Form.Item>
 
-        <Form.Item
-          label="Subject"
-          name="subject"
-          rules={[{ required: true, message: "Please input the subject!" }]}
-        >
-          <Input placeholder="Enter the subject" />
-        </Form.Item>
-
-        <Form.Item
-          label="Upload Image"
-          name="upload"
-          valuePropName="file"
-          getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
-        >
-          <Upload
-            name="image"
-            listType="picture"
-            maxCount={1}
-            beforeUpload={() => false} // prevent automatic upload
-          >
-            <Button icon={<UploadOutlined />}>Click to Upload</Button>
-          </Upload>
-        </Form.Item>
-
-        <Form.Item label="Body" required>
-          <ReactQuill
-            value={body}
-            onChange={handleBodyChange}
-            style={{ minHeight: "200px" }}
-            placeholder="Write your email here..."
-          />
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading}>
-            Save
-          </Button>
-        </Form.Item>
-      </Form>
     </CustomLayout>
   );
 };
