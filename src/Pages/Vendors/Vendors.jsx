@@ -115,7 +115,7 @@ const Vendors = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Vendors">
+    <CustomLayout pageTitle="Vendors" menuKey="4">
       <Table
         dataSource={dataSource}
         columns={columns}

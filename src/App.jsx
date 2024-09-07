@@ -7,6 +7,7 @@ import OrdersDetails from './Pages/Orders/OrderDetail';
 import BestSeller from './Pages/BestSeller/BestSeller';
 import Email from './Pages/Email/Email';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import CustomerApproval from './Pages/CustomerApproval/CustomerApproval';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/orders/:id" element={<OrdersDetails />} />
         <Route path="/best-seller" element={<BestSeller />} />
         <Route path="/customer" element={<Customer />} />
+        <Route path="/customer-approval" element={<CustomerApproval />} />
         <Route path="/customer-roles" element={<Dashboard />} />
         <Route path="/discount" element={<Dashboard />} />
         <Route path="/email" element={<Email />} />

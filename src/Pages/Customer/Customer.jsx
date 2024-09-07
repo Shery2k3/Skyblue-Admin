@@ -1,5 +1,5 @@
 import CustomLayout from "../../Components/Layout/Layout";
-import { Table, Button, Modal, Checkbox, Select, message, Pagination, Input, Space, Row, Col } from "antd";
+import { Table, Button, Modal, Checkbox, Select, message, Pagination, Input, Space, Row, Col, Tag } from "antd";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import API_BASE_URL from '../../constants.js'
@@ -24,7 +24,7 @@ const Customer = () => {
   const [isActive, setIsActive] = useState(false);
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [isStartingFetch, setIsStartingFetch] = useState(false);
@@ -35,7 +35,7 @@ const Customer = () => {
   const fetchCustomers = useCallback(
     debounce(async (page) => {
       if (isFetching) return;
-      setIsStartingFetch(false);  // Reset the starting fetch state
+      setIsStartingFetch(false);
       setIsFetching(true);
       try {
         const response = await axios.get(`${API_BASE_URL}/admin/customer/all?size=${pageSize}&page=${page}`);
@@ -212,7 +212,8 @@ const Customer = () => {
       title: 'Status',
       dataIndex: 'active',
       key: 'active',
-      render: (active) => active ? "Active" : "Inactive",
+      render: (active) =>
+        active ? <Tag color='green'>{"ACTIVE"}</Tag> : <Tag color='volcano'>{"INACTIVE"}</Tag> ,
     },
     {
       title: 'Roles',
@@ -230,7 +231,7 @@ const Customer = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Customer">
+    <CustomLayout pageTitle="Customer" menuKey="7"> 
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Row justify="center">
           <Col xs={24} sm={20} md={16} lg={12}>

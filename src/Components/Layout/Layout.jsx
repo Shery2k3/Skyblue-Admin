@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -23,8 +23,17 @@ const siderStyle = {
   scrollbarColor: "unset",
 };
 
-const CustomLayout = ({ children }) => {
+const CustomLayout = ({ pageTitle, menuKey, children }) => {
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+    document.title = `SkyBlue | ${pageTitle}`;
+  }, [pageTitle]);
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -58,7 +67,7 @@ const CustomLayout = ({ children }) => {
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          defaultSelectedKeys={menuKey}
           items={routeItems}
         />
       </Sider>

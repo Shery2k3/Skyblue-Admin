@@ -73,7 +73,7 @@ const BestSeller = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Order Details">
+    <CustomLayout pageTitle="Best Sellers" menuKey="6">
       <Table
         dataSource={dataSource}
         columns={columns}

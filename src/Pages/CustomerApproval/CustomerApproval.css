@@ -1,0 +1,82 @@
+.customer-approval-container {
+    padding: 24px;
+}
+.customer-approval-container h1 {
+    margin-bottom: 24px;
+    text-align: center;
+    font-size: 28px;
+    color: #1a1a1a;
+}
+.customer-approval-container .ant-table-wrapper {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.customer-approval-container .ant-table-thead > tr > th {
+    background-color: #f0f2f5;
+    font-weight: 600;
+}
+.customer-approval-container .ant-table-tbody > tr > td {
+    padding: 16px;
+}
+.customer-approval-container .approve-button.ant-btn-primary {
+    background-color: #52c41a;
+    border-color: #52c41a;
+    transition: all 0.3s ease;
+}
+.customer-approval-container .approve-button.ant-btn-primary:hover,
+.customer-approval-container .approve-button.ant-btn-primary:focus {
+    background-color: #389e0d !important;
+    border-color: #389e0d !important;
+}
+.customer-approval-container .ant-popover-buttons .ant-btn-primary {
+    background-color: #52c41a;
+    border-color: #52c41a;
+}
+.customer-approval-container .ant-popover-buttons .ant-btn-primary:hover,
+.customer-approval-container .ant-popover-buttons .ant-btn-primary:focus {
+    background-color: #389e0d;
+    border-color: #389e0d;
+}
+.customer-approval-container .ant-modal-content {
+    border-radius: 8px;
+}
+.customer-approval-container .ant-modal-header {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 16px 24px;
+}
+.customer-approval-container .ant-modal-body {
+    padding: 24px;
+}
+.customer-approval-container .ant-modal-footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 16px 24px;
+}
+.customer-approval-container .ant-carousel .slick-slide {
+    text-align: center;
+    background: #f0f2f5;
+    overflow: hidden;
+}
+.customer-approval-container .ant-carousel .slick-slide img {
+    max-width: 100%;
+    max-height: 500px;
+    margin: auto;
+}
+.customer-approval-container .ant-space-vertical {
+    width: 100%;
+}
+
+.customer-approval-container .carousel-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 500px;
+    width: 100%;
+    background-color: #f0f2f5;
+}
+
+.customer-approval-container .carousel-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}

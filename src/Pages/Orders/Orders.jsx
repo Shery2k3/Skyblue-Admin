@@ -80,7 +80,7 @@ const Orders = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Orders">
+    <CustomLayout pageTitle="Orders" menuKey="5">
       <Table
         dataSource={dataSource}
         columns={columns}
