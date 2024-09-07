@@ -9,6 +9,8 @@ import Email from './Pages/Email/Email';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import CustomerApproval from './Pages/CustomerApproval/CustomerApproval';
 import Discounts from './Pages/Discount/Discount';
+import Banner from './Pages/Banner/Banner'
+import AddBanner from './Pages/Banner/AddBanner';
 
 function App() {
   return (
@@ -29,7 +31,8 @@ function App() {
         <Route path="/discounts" element={<Discounts />} />
         <Route path="/email" element={<Email />} />
         <Route path="/notice" element={<Dashboard />} />
-        <Route path="/banners" element={<Dashboard />} />
+        <Route path="/banners" element={<Banner />} />
+        <Route path="/banners/add-banner" element={<AddBanner />} />
       </Routes>
     </Router>
   );
