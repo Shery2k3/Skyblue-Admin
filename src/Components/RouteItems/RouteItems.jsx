@@ -58,7 +58,7 @@ const routeItems = [
   {
     key: "9",
     icon: <DollarOutlined />,
-    label: <Link to="/discount">Discount</Link>,
+    label: <Link to="/discounts">Discounts</Link>,
   },
   {
     key: "10",

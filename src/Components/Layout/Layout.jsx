@@ -80,10 +80,11 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
       >
         <Header
           style={{
+            background: "#001529",
             position: "fixed",
             width: "100%",
             padding: 0,
-            background: colorBgContainer,
+            zIndex: 10,
           }}
         >
           <Button
@@ -94,6 +95,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
               fontSize: "16px",
               width: 64,
               height: 64,
+              color: "#fff",
             }}
           />
         </Header>

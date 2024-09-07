@@ -1,23 +1,13 @@
 import CustomLayout from "../../Components/Layout/Layout";
-import {
-  Table,
-  Button,
-  Modal,
-  Checkbox,
-  Select,
-  message,
-  Input,
-  Tag,
-} from "antd";
+import { Table, Button, Modal, Checkbox, message, Input, Tag } from "antd";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import API_BASE_URL from "../../constants.js";
 
-const { Option } = Select;
-
 const Vendors = () => {
   const [dataSource, setDataSource] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAddModalVisible, setAddModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -43,8 +33,45 @@ const Vendors = () => {
     }
   };
 
+  const addVendor = async () => {
+    if (!name || !email) {
+      message.error("Please provide all necessary details");
+      return;
+    }
+
+    try {
+      const payload = {
+        name: name,
+        email: email,
+        active: isActive,
+        description: "Vendor Description",
+        adminComment: "Admin Comment",
+        displayOrder: 0,
+        metaKeywords: "keywords",
+        metaDescription: "meta description",
+        metaTitle: "meta title",
+        pageSize: 10,
+        allowCustomersToSelectPageSize: false,
+        pageSizeOptions: "10,20,50",
+      };
+      await axios.post(`${API_BASE_URL}/admin/create-vendors`, payload);
+      message.success("Vendor added successfully");
+      fetchVendors();
+      setAddModal(false);
+    } catch (error) {
+      console.error("Error adding vendor: ", error);
+      message.error("Failed to add Vendor");
+    }
+  };
+
+  const handleAdd = () => {
+    setName("");
+    setEmail("");
+    setIsActive(false);
+    setAddModal(true);
+  };
+
   const handleEdit = (vendor) => {
-    console.log(vendor);
     setSelectedVendor(vendor);
     setName(vendor.name);
     setIsActive(vendor.active);
@@ -83,6 +110,7 @@ const Vendors = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    setAddModal(false);
   };
 
   const columns = [
@@ -102,7 +130,11 @@ const Vendors = () => {
       key: "active",
       align: "center",
       render: (active) =>
-        active ? <Tag color='green'>{"ACTIVE"}</Tag> : <Tag color='volcano'>{"INACTIVE"}</Tag> ,
+        active ? (
+          <Tag color="green">{"ACTIVE"}</Tag>
+        ) : (
+          <Tag color="volcano">{"INACTIVE"}</Tag>
+        ),
     },
     {
       title: "Action",
@@ -116,15 +148,54 @@ const Vendors = () => {
 
   return (
     <CustomLayout pageTitle="Vendors" menuKey="4">
+      <div style={{ textAlign: "right" }}>
+        <Button type="primary" size="medium" onClick={handleAdd}>
+          Add Vendor
+        </Button>
+      </div>
+      <br />
       <Table
         dataSource={dataSource}
         columns={columns}
         scroll={{ x: "max-content" }}
       />
+
+      {/*To Edit an already existing vendor*/}
       <Modal
+      centered
         title="Edit Vendor"
         open={isModalVisible}
         onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Checkbox
+          checked={isActive}
+          onChange={(e) => setIsActive(e.target.checked)}
+        >
+          Active
+        </Checkbox>
+        <br />
+        <br />
+        <Input
+          placeholder="Vendor Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <br />
+        <br />
+        <Input
+          placeholder="Vendor Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </Modal>
+
+      {/*To add a new vendor*/}
+      <Modal
+      centered
+        title="Add Vendor"
+        open={isAddModalVisible}
+        onOk={addVendor}
         onCancel={handleCancel}
       >
         <Checkbox
