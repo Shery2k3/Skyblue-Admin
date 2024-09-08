@@ -11,6 +11,7 @@ import CustomerApproval from './Pages/CustomerApproval/CustomerApproval';
 import Discounts from './Pages/Discount/Discount';
 import Banner from './Pages/Banner/Banner'
 import AddBanner from './Pages/Banner/AddBanner';
+import Category from './Pages/Category/Category';
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/categories" element={<Dashboard />} />
+        <Route path="/categories" element={<Category />} />
         <Route path="/products" element={<Dashboard />} />
         <Route path="/vendors" element={<Vendors />} />
         <Route path="/orders" element={<Orders />} />
