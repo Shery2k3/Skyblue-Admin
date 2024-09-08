@@ -1,11 +1,55 @@
 import React, { useEffect, useState } from 'react';
 import CustomLayout from '../../Components/Layout/Layout';
-import { Table, Button, Modal, Form, Input, Select, Switch, message, Space, Tag } from 'antd';
-import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Form, Input, Select, Switch, message, Space, Tag, Typography, Pagination } from 'antd';
+import { EditOutlined, PlusOutlined, SearchOutlined, CaretRightOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import API_BASE_URL from '../../constants';
+import styled from 'styled-components';
 
 const { Option } = Select;
+const { Title } = Typography;
+
+const StyledTable = styled(Table)`
+  .ant-table-tbody > tr > td {
+    padding: 12px 16px;
+  }
+  .category-path {
+    display: flex;
+    align-items: center;
+  }
+  .category-icon {
+    margin-right: 8px;
+  }
+  .leaf-category {
+    font-weight: bold;
+  }
+`;
+
+const StyledButton = styled(Button)`
+  margin-left: 8px;
+`;
+
+const CenteredFooter = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+`;
+
+const CategoryPath = styled.div`
+  display: flex;
+  align-items: center;
+  .category-level {
+    display: flex;
+    align-items: center;
+  }
+  .category-name {
+    margin-left: 4px;
+  }
+  .leaf-category {
+    font-weight: bold;
+  }
+`;
 
 const Category = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -13,6 +57,8 @@ const Category = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [form] = Form.useForm();
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
 
   useEffect(() => {
     fetchCategories();
@@ -100,37 +146,44 @@ const Category = () => {
     setIsModalVisible(false);
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   const columns = [
     {
       title: 'Category Path',
       dataIndex: 'path',
       key: 'path',
-      render: (text, record) => (
-        <span style={{ marginLeft: `${record.level * 20}px` }}>{text}</span>
-      )
+      render: (_, record) => renderCategoryPath(record),
+      align: "left",
     },
     {
       title: 'Status',
       dataIndex: 'published',
       key: 'published',
+      width: 120,
       render: (published) => (
         <Tag color={published ? 'green' : 'red'}>
           {published ? 'Published' : 'Unpublished'}
         </Tag>
-      )
+      ),
+      align: "center",
     },
     {
       title: 'Action',
       key: 'action',
+      width: 100,
       render: (_, record) => (
-        <Button
+        <StyledButton
           type="primary"
           icon={<EditOutlined />}
           onClick={() => showModal(record)}
         >
           Edit
-        </Button>
+        </StyledButton>
       ),
+      align: "center",
     },
   ];
 
@@ -138,34 +191,63 @@ const Category = () => {
     fetchCategories(searchTerm);
   };
 
+  const renderCategoryPath = (record) => {
+    const levels = record.path.split(' >> ');
+    return (
+      <CategoryPath>
+        {levels.map((level, index) => (
+          <span key={index} className="category-level">
+            {index > 0 && <CaretRightOutlined style={{ marginLeft: 8, marginRight: 8 }} />}
+            <span className={index === levels.length - 1 ? 'category-name leaf-category' : 'category-name'}>
+              {level}
+            </span>
+          </span>
+        ))}
+      </CategoryPath>
+    );
+  };
+
   return (
     <CustomLayout pageTitle="Categories" menuKey={2}>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Space>
           <Input
             placeholder="Search categories"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onPressEnter={handleSearch}
+            style={{ width: 250 }}
           />
           <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
             Search
           </Button>
         </Space>
-        <Button
+        <StyledButton
           type="primary"
           icon={<PlusOutlined />}
           onClick={() => showModal()}
+          size="large"
         >
           Add Category
-        </Button>
+        </StyledButton>
       </div>
-      <Table
-        dataSource={dataSource}
+      <StyledTable
+        dataSource={dataSource.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
         columns={columns}
-        footer={() => `Total categories: ${dataSource.length}`}
+        pagination={false}
         scroll={{ x: "max-content" }}
       />
+      <CenteredFooter>
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={dataSource.length}
+          onChange={handlePageChange}
+          showQuickJumper
+          showTotal={(total) => `Total categories: ${total}`}
+          showSizeChanger={false}
+        />
+      </CenteredFooter>
       <Modal
         title={editingCategory ? "Edit Category" : "Add Category"}
         open={isModalVisible}
