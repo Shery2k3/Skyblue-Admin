@@ -11,6 +11,7 @@ import CustomerApproval from './Pages/CustomerApproval/CustomerApproval';
 import Discounts from './Pages/Discount/Discount';
 import Banner from './Pages/Banner/Banner'
 import AddBanner from './Pages/Banner/AddBanner';
+import Notification from './Pages/Notification/NotificationForm';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/notice" element={<Dashboard />} />
         <Route path="/banners" element={<Banner />} />
         <Route path="/banners/add-banner" element={<AddBanner />} />
+        <Route path="/notification" element={<Notification />} />
       </Routes>
     </Router>
   );
