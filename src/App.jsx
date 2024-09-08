@@ -31,10 +31,10 @@ function App() {
         <Route path="/customer-roles" element={<Dashboard />} />
         <Route path="/discounts" element={<Discounts />} />
         <Route path="/email" element={<Email />} />
-        <Route path="/notice" element={<Dashboard />} />
+        <Route path="/notice" element={<Notification />} />
         <Route path="/banners" element={<Banner />} />
         <Route path="/banners/add-banner" element={<AddBanner />} />
-        <Route path="/notification" element={<Notification />} />
+
       </Routes>
     </Router>
   );

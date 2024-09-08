@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Input, Button, message } from "antd";
+import { Form, Input, Button, message, Typography } from "antd";
 import axios from "axios";
 import CustomLayout from "../../Components/Layout/Layout";
 import ReactQuill from "react-quill"; // Rich Text Editor
@@ -7,6 +7,7 @@ import "react-quill/dist/quill.snow.css"; // Quill styles
 import EmojiPicker from "emoji-picker-react"; // Emoji Picker
 
 const Notification = () => {
+    const { Title } = Typography;
     const [form] = Form.useForm();
     const [content, setContent] = useState(""); // For rich text editor content
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -36,6 +37,10 @@ const Notification = () => {
 
     return (
         <CustomLayout pageTitle="notification" menuKey="11">
+            <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+                Send Notification
+            </Title>
+
             <Form
                 form={form}
                 layout="vertical"
