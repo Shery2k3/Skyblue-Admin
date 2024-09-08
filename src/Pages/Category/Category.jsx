@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CustomLayout from '../../Components/Layout/Layout';
 import { Table, Button, Modal, Form, Input, Select, Switch, message, Space, Tag } from 'antd';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import API_BASE_URL from '../../constants';
 
@@ -11,15 +11,18 @@ const Category = () => {
   const [dataSource, setDataSource] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [form] = Form.useForm();
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
-  const fetchCategories = async () => {
+  const fetchCategories = async (search = '') => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/category/all`);
+      const response = await axios.get(`${API_BASE_URL}/admin/category/all`, {
+        params: { search }
+      });
       const flatData = flattenCategories(response.data);
       setDataSource(flatData);
     } catch (error) {
@@ -131,9 +134,24 @@ const Category = () => {
     },
   ];
 
+  const handleSearch = () => {
+    fetchCategories(searchTerm);
+  };
+
   return (
     <CustomLayout pageTitle="Categories" menuKey={2}>
-      <div style={{ marginBottom: 16, textAlign: 'right' }}>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
+        <Space>
+          <Input
+            placeholder="Search categories"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onPressEnter={handleSearch}
+          />
+          <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
+            Search
+          </Button>
+        </Space>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -147,7 +165,7 @@ const Category = () => {
         columns={columns}
         footer={() => `Total categories: ${dataSource.length}`}
         scroll={{ x: "max-content" }}
-        />
+      />
       <Modal
         title={editingCategory ? "Edit Category" : "Add Category"}
         open={isModalVisible}
