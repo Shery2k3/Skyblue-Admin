@@ -164,7 +164,7 @@ const Category = () => {
       key: 'published',
       width: 120,
       render: (published) => (
-        <Tag color={published ? 'green' : 'red'}>
+        <Tag color={published ? 'green' : 'red'} style={{ display: 'block', textAlign: 'center' }}>
           {published ? 'Published' : 'Unpublished'}
         </Tag>
       ),
@@ -175,13 +175,15 @@ const Category = () => {
       key: 'action',
       width: 100,
       render: (_, record) => (
-        <StyledButton
-          type="primary"
-          icon={<EditOutlined />}
-          onClick={() => showModal(record)}
-        >
-          Edit
-        </StyledButton>
+        <div style={{ textAlign: 'center' }}>
+          <StyledButton
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => showModal(record)}
+          >
+            Edit
+          </StyledButton>
+        </div>
       ),
       align: "center",
     },
