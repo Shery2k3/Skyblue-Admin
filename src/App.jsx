@@ -12,6 +12,7 @@ import Discounts from './Pages/Discount/Discount';
 import Banner from './Pages/Banner/Banner'
 import AddBanner from './Pages/Banner/AddBanner';
 import Category from './Pages/Category/Category';
+import Notification from './Pages/Notification/NotificationForm';
 
 function App() {
   return (
@@ -31,9 +32,10 @@ function App() {
         <Route path="/customer-roles" element={<Dashboard />} />
         <Route path="/discounts" element={<Discounts />} />
         <Route path="/email" element={<Email />} />
-        <Route path="/notice" element={<Dashboard />} />
+        <Route path="/notice" element={<Notification />} />
         <Route path="/banners" element={<Banner />} />
         <Route path="/banners/add-banner" element={<AddBanner />} />
+
       </Routes>
     </Router>
   );
