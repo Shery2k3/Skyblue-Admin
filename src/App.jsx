@@ -13,6 +13,7 @@ import Banner from './Pages/Banner/Banner'
 import AddBanner from './Pages/Banner/AddBanner';
 import Category from './Pages/Category/Category';
 import Notification from './Pages/Notification/NotificationForm';
+import Product from './Pages/Product/Product';
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/categories" element={<Category />} />
-        <Route path="/products" element={<Dashboard />} />
+        <Route path="/products" element={<Product />} />
         <Route path="/vendors" element={<Vendors />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:id" element={<OrdersDetails />} />
