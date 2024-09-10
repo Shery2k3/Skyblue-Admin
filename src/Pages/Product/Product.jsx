@@ -57,6 +57,7 @@ const Product = () => {
       title: 'Image',
       dataIndex: 'imageUrl',
       key: 'imageUrl',
+      align: 'center',
       render: (text) => (
         <img
           src={text}
@@ -78,8 +79,7 @@ const Product = () => {
       key: 'Price',
       align: 'center',
       render: (text) => (
-        <Text style={{ fontSize: '16px', color: '#1890ff', fontWeight: 'bold' }}>
-          {/* <DollarCircleOutlined style={{ marginRight: '4px' }} /> */}
+        <Text style={{ fontSize: '14px', color: '#000000', fontWeight: 'bold' }}>
           ${text}
         </Text>
       )
@@ -89,6 +89,11 @@ const Product = () => {
       dataIndex: 'StockQuantity',
       key: 'StockQuantity',
       align: 'center',
+      render: (text) => (
+        <Text style={{ fontSize: '14px', color: '#000000', fontWeight: 'bold' }}>
+          ${text}
+        </Text>
+      )
     },
     {
       title: 'Published',
@@ -107,8 +112,8 @@ const Product = () => {
   return (
     <CustomLayout pageTitle="Products" menuKey={3}>
       <Card style={{ borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
-          <Space size="large" >
+        <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
+          <Space size="large" wrap>
             <Input
               placeholder="Category"
               value={category}
