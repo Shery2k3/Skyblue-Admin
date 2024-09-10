@@ -1,87 +1,151 @@
 import React, { useState } from "react";
-import { Form, Input, Button, message, Typography } from "antd";
+import { Form, Input, Button, message, Typography, Table, Modal, Upload } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import CustomLayout from "../../Components/Layout/Layout";
-import ReactQuill from "react-quill"; // Rich Text Editor
-import "react-quill/dist/quill.snow.css"; // Quill styles
-import EmojiPicker from "emoji-picker-react"; // Emoji Picker
 
 const Notification = () => {
     const { Title } = Typography;
     const [form] = Form.useForm();
-    const [content, setContent] = useState(""); // For rich text editor content
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false); // For modal visibility
+    const [tableData, setTableData] = useState([]); // Data for the table
+    const [loading, setLoading] = useState(false); // For loading state of table
 
     const onFinish = (values) => {
-        const notificationData = {
-            ...values,
-            message: content, // Include the rich text content
+        const newData = {
+            key: tableData.length + 1,
+            title: values.title,
+            image: values.image, // Assuming the image URL is part of form values
         };
 
+        // Simulate a POST request (ok something to do later bbahiya)
         axios
-            .post("/api/send-notification", notificationData)
+            .post("/api/upload-notice", newData)
             .then((response) => {
-                message.success("Notification sent successfully!");
+                message.success("Notice uploaded successfully!");
                 form.resetFields();
-                setContent(""); // Reset the rich text editor
+                setTableData([...tableData, newData]); // Add new notice to the table
+                setIsModalVisible(false); // Close modal after success
             })
             .catch((error) => {
-                message.error("Failed to send notification.");
+                message.error("Failed to upload notice.");
             });
     };
 
-    const handleEmojiClick = (emojiObject) => {
-        setContent((prevContent) => prevContent + emojiObject.emoji);
-        setShowEmojiPicker(false);
+    const showModal = () => {
+        setIsModalVisible(true);
     };
 
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
+    const columns = [
+        {
+            title: "Notice Title",
+            dataIndex: "title",
+            key: "title",
+        },
+        {
+            title: "Image",
+            dataIndex: "image",
+            key: "image",
+            render: (text) => (
+                <div className="image-container">
+                    <img src={text} alt="Notice" className="notice-image" />
+                </div>
+            ),
+        },
+    ];
+
     return (
-        <CustomLayout pageTitle="notification" menuKey="11">
+        <CustomLayout pageTitle="Notices" menuKey="11">
             <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
-                Send Notification
+                Notice Board
             </Title>
 
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={onFinish}
-                style={{
-                    maxWidth: 600,
-                    margin: "0 auto",
-                    padding: 20,
-                    background: "#fff",
-                    borderRadius: 8,
-                }}
+            <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showModal}
+                style={{ marginBottom: 20 }}
             >
-                <Form.Item
-                    label="Notification Title"
-                    name="title"
-                    rules={[{ required: true, message: "Please input the notification title!" }]}
+                Upload New Notice
+            </Button>
+
+            {/* Table showing notices */}
+            <Table
+                columns={columns}
+                dataSource={tableData}
+                loading={loading}
+                pagination={false}
+                style={{ marginBottom: 40 }}
+            />
+
+            {/* Modal for adding new notice */}
+            <Modal
+                title="Upload Notice Image"
+                visible={isModalVisible}
+                onCancel={handleCancel}
+                footer={null}
+            >
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={onFinish}
+                    style={{
+                        maxWidth: 600,
+                        margin: "0 auto",
+                        padding: 20,
+                        background: "#fff",
+                        borderRadius: 8,
+                    }}
                 >
-                    <Input placeholder="Enter notification title" />
-                </Form.Item>
+                    <Form.Item
+                        label="Notice Title"
+                        name="title"
+                        rules={[{ required: true, message: "Please input the notice title!" }]}
+                    >
+                        <Input placeholder="Enter notice title" />
+                    </Form.Item>
 
-                <Form.Item label="Notification Message">
-                    {/* Rich Text Editor */}
-                    <ReactQuill value={content} onChange={setContent} placeholder="Enter notification message" />
-                    <div style={{ display: "flex", alignItems: "center", marginTop: 8 }}>
-                        <Button type="link" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
-                            Add Emoji
-                        </Button>
-                        {showEmojiPicker && (
-                            <div style={{ marginLeft: 10 }}>
-                                <EmojiPicker onEmojiClick={handleEmojiClick} />
+                    <Form.Item
+                        label="Notice Image"
+                        name="image"
+                        rules={[{ required: true, message: "Please upload a notice image!" }]}
+                    >
+                        <Upload
+                            listType="picture-card"
+                            beforeUpload={() => false} // Prevent automatic upload
+                            maxCount={1}
+                        >
+                            <div>
+                                <PlusOutlined />
+                                <div style={{ marginTop: 8 }}>Upload</div>
                             </div>
-                        )}
-                    </div>
-                </Form.Item>
+                        </Upload>
+                    </Form.Item>
 
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Send Notification
-                    </Button>
-                </Form.Item>
-            </Form>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* CSS for hover effect */}
+            <style jsx>{`
+                .notice-image {
+                    width: 50px;
+                    height: 50px;
+                    transition: transform 0.3s ease;
+                }
+
+                .image-container:hover .notice-image {
+                    transform: scale(2);
+                }
+            `}</style>
         </CustomLayout>
     );
 };
