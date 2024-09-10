@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Select, Pagination, Tag } from 'antd';
+import { Table, Input, Button, Select, Pagination, Tag, Space, Typography, Card } from 'antd';
+import { SearchOutlined, DollarCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import CustomLayout from '../../Components/Layout/Layout';
 import API_BASE_URL from '../../constants';
 
 const { Option } = Select;
+const { Title, Text } = Typography;
 
 const Product = () => {
   const [products, setProducts] = useState([]);
@@ -55,27 +57,44 @@ const Product = () => {
       title: 'Image',
       dataIndex: 'imageUrl',
       key: 'imageUrl',
-      render: (text) => <img src={text} alt="product" style={{ width: 50 }} />,
+      render: (text) => (
+        <img
+          src={text}
+          alt="product"
+          style={{ width: '100%', height: 'auto', maxWidth: 70, maxHeight: 70, objectFit: 'contain' }}
+        />
+      ),
     },
     {
       title: 'Name',
       dataIndex: 'Name',
       key: 'Name',
+      align: 'center',
+      render: (text) => <Text strong>{text}</Text>
     },
     {
       title: 'Price',
       dataIndex: 'Price',
       key: 'Price',
+      align: 'center',
+      render: (text) => (
+        <Text style={{ fontSize: '16px', color: '#1890ff', fontWeight: 'bold' }}>
+          {/* <DollarCircleOutlined style={{ marginRight: '4px' }} /> */}
+          ${text}
+        </Text>
+      )
     },
     {
       title: 'Stock Quantity',
       dataIndex: 'StockQuantity',
       key: 'StockQuantity',
+      align: 'center',
     },
     {
       title: 'Published',
       dataIndex: 'Published',
       key: 'Published',
+      align: 'center',
       render: (text) =>
         text ? (
           <Tag color="green">Published</Tag>
@@ -87,51 +106,64 @@ const Product = () => {
 
   return (
     <CustomLayout pageTitle="Products" menuKey={3}>
-      <div style={{ marginBottom: 16 }}>
-        <Input
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          onKeyPress={handleKeyPress}
-          style={{ width: 200, marginRight: 8 }}
+      <Card style={{ borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+          <Space size="large" >
+            <Input
+              placeholder="Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              onKeyDown={handleKeyPress}
+              style={{ width: 200 }}
+              prefix={<SearchOutlined />}
+            />
+            <Input
+              placeholder="Product"
+              value={product}
+              onChange={(e) => setProduct(e.target.value)}
+              onKeyDown={handleKeyPress}
+              style={{ width: 200 }}
+              prefix={<SearchOutlined />}
+            />
+            <Select
+              value={published}
+              onChange={(value) => setPublished(value)}
+              style={{ width: 200 }}
+            >
+              <Option value="1">Published</Option>
+              <Option value="0">Unpublished</Option>
+              <Option value="">All</Option>
+            </Select>
+            <Button type="primary" onClick={handleSearch} icon={<SearchOutlined />}>
+              Search
+            </Button>
+          </Space>
+        </div>
+        <Table
+          columns={columns}
+          dataSource={products}
+          loading={loading}
+          rowKey="Id"
+          pagination={false}
+          scroll={{ x: "max-content" }}
+          style={{ marginBottom: 24 }}
         />
-        <Input
-          placeholder="Product"
-          value={product}
-          onChange={(e) => setProduct(e.target.value)}
-          onKeyPress={handleKeyPress}
-          style={{ width: 200, marginRight: 8 }}
-        />
-        <Select
-          value={published}
-          onChange={(value) => setPublished(value)}
-          style={{ width: 200, marginRight: 8 }}
-        >
-          <Option value="1">Published</Option>
-          <Option value="0">Unpublished</Option>
-          <Option value="">All</Option>
-        </Select>
-        <Button type="primary" onClick={handleSearch}>
-          Search
-        </Button>
-      </div>
-      <Table
-        columns={columns}
-        dataSource={products}
-        loading={loading}
-        rowKey="Id"
-        pagination={false}
-        scroll={{ x: "max-content" }}
-      />
-      <Pagination
-        current={currentPage}
-        total={totalItems}
-        pageSize={20}
-        onChange={handlePageChange}
-        style={{ marginTop: 16 }}
-        showSizeChanger={false}
-      />
-      {error && <div style={{ color: 'red' }}>{error.message}</div>}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Pagination
+            current={currentPage}
+            total={totalItems}
+            pageSize={20}
+            onChange={handlePageChange}
+            showSizeChanger={false}
+            showQuickJumper
+          />
+        </div>
+      </Card>
+      {error && (
+        <div style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>
+          {error.message}
+        </div>
+      )}
     </CustomLayout>
   );
 };
