@@ -1,50 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Image, Button, Popconfirm, message } from 'antd';
+import axios from 'axios';
 
 const BannerTable = () => {
-    const initialData = [
-        {
-            key: '1',
-            id: '101',
-            title: 'Summer Collection',
-            imageUrl: 'https://images.ctfassets.net/hrltx12pl8hq/01rJn4TormMsGQs1ZRIpzX/16a1cae2440420d0fd0a7a9a006f2dcb/Artboard_Copy_231.jpg?fit=fill&w=600&h=600',
-        },
-        {
-            key: '2',
-            id: '102',
-            title: 'Winter Sale',
-            imageUrl: 'https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg',
-        },
-        {
-            key: '3',
-            id: '103',
-            title: 'Spring Offers',
-            imageUrl: 'https://images.ctfassets.net/hrltx12pl8hq/01rJn4TormMsGQs1ZRIpzX/16a1cae2440420d0fd0a7a9a006f2dcb/Artboard_Copy_231.jpg?fit=fill&w=600&h=600',
-        },
-    ];
+    const [dataSource, setDataSource] = useState([]);
 
-    // Use state to manage the data in the table
-    const [dataSource, setDataSource] = useState(initialData);
+    useEffect(() => {
+        // Fetch data from the API
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/admin/slider/banner');
+                const data = response.data.map(item => ({
+                    key: item.sliderId.toString(),
+                    id: item.sliderId,
+                    title: `Banner ${item.sliderId}`, // Adjust if needed
+                    imageUrl: item.image,
+                }));
+                setDataSource(data);
+            } catch (error) {
+                message.error('Failed to fetch data');
+            }
+        };
 
-    // Function to handle deleting a row
-    const handleDelete = (key) => {
-        setDataSource(dataSource.filter(item => item.key !== key));
-        message.success('Banner deleted successfully');
+        fetchData();
+    }, []);
+
+    const handleDelete = async (key) => {
+        try {
+            // Ensure the URL matches the one tested with cURL
+            await axios.delete(`http://localhost:3000/admin/slider/${key}`);
+
+            // Update the local state to remove the deleted banner
+            setDataSource(dataSource.filter(item => item.key !== key));
+            message.success('Banner deleted successfully');
+        } catch (error) {
+            message.error('Failed to delete banner');
+        }
     };
 
-    // Define the columns for the table
+
     const columns = [
         {
             title: 'ID',
             dataIndex: 'id',
             key: 'id',
             width: 80,
-        },
-        {
-            title: 'Title',
-            dataIndex: 'title',
-            key: 'title',
-            width: 150,
         },
         {
             title: 'Banner Image',

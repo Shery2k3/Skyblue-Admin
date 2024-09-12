@@ -1,91 +1,83 @@
 import React from 'react';
-import { Form, Input, Upload, Button, message, Typography } from 'antd';
+import { Form, Upload, Button, message, Typography } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import CustomLayout from '../../Components/Layout/Layout';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
-const AddBanner = () => {
+const BannerForm = () => {
+    const [form] = Form.useForm();
     const navigate = useNavigate();
 
-    const [form] = Form.useForm();
-    const [fileList, setFileList] = React.useState([]);
-
-    const handleFinish = async (values) => {
+    const onFinish = (values) => {
         const formData = new FormData();
-        formData.append('title', values.title);
+        const file = values.image && values.image[0];  // Get the first file from the fileList
 
-        // Append files to the form data
-        if (fileList.length > 0) {
-            formData.append('image', fileList[0].originFileObj);
-        }
+        if (file && file.originFileObj) {
+            formData.append('image', file.originFileObj);
+            formData.append('type', 'banner');
+            formData.append('displayOrder', 1);
 
-        try {
-            // Replace 'your-backend-url' with your actual backend endpoint
-            await axios.post('your-backend-url/add-banner', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            message.success('Banner added successfully');
-            navigate('/banners'); // Redirect to the banner list page
-        } catch (error) {
-            console.error('There was an error uploading the banner!', error);
-            message.error('Failed to add banner');
+            axios.post('http://localhost:3000/admin/slider/add', formData)
+                .then(response => {
+                    message.success('Banner uploaded successfully!');
+                    form.resetFields();
+                })
+                .catch(error => {
+                    message.error('Failed to upload banner');
+                });
+        } else {
+            message.error('Please upload a valid image.');
         }
     };
 
-    const handleUploadChange = ({ fileList }) => {
-        // Update fileList to contain only the first selected file
-        setFileList(fileList.slice(-1));
+    const goToBannerPage = () => {
+        navigate('/banners');
     };
 
     return (
         <CustomLayout pageTitle="Add Banner" menuKey="12">
-            <div style={{ padding: '20px' }}>
-                <Title level={2}>Add New Banner</Title>
+            <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+                <Title level={2} style={{ textAlign: 'center', color: '#00273E' }}>Add Banner</Title>
                 <Form
                     form={form}
+                    onFinish={onFinish}
                     layout="vertical"
-                    onFinish={handleFinish}
-                    style={{ maxWidth: '600px', margin: '0 auto' }}
                 >
                     <Form.Item
-                        name="title"
-                        label="Banner Title"
-                        rules={[{ required: true, message: 'Please enter the banner title!' }]}
-                    >
-                        <Input placeholder="Enter banner title" />
-                    </Form.Item>
-
-                    <Form.Item
+                        label="Upload Image"
                         name="image"
-                        label="Upload Banner Image"
-                        rules={[{ required: true, message: 'Please upload a banner image!' }]}
+                        valuePropName="fileList"
+                        getValueFromEvent={(e) => e && e.fileList}
+                        rules={[{ required: true, message: 'Please upload an image!' }]}
                     >
                         <Upload
                             name="image"
                             listType="picture"
-                            fileList={fileList}
-                            onChange={handleUploadChange}
-                            beforeUpload={() => false} // Prevent auto upload
-                            maxCount={1} // Restrict to one file
+                            beforeUpload={() => false}  // Prevent automatic upload
                         >
-                            <Button icon={<UploadOutlined />}>Click to upload</Button>
+                            <Button icon={<UploadOutlined />} size="large" block>Click to Upload</Button>
                         </Upload>
                     </Form.Item>
 
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Add Banner
-                        </Button>
-                    </Form.Item>
+                    <Button type="primary" htmlType="submit" size="large" block>Submit</Button>
                 </Form>
+
+                {/* New Button for navigating to the Banner List */}
+                <Button
+                    style={{ marginTop: '20px' }}
+                    type="default"
+                    size="large"
+                    block
+                    onClick={goToBannerPage}
+                >
+                    Go to Banner List
+                </Button>
             </div>
         </CustomLayout>
     );
 };
 
-export default AddBanner;
+export default BannerForm;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, Button, message, Typography, Table, Modal, Upload } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -7,20 +7,32 @@ import CustomLayout from "../../Components/Layout/Layout";
 const Notification = () => {
     const { Title } = Typography;
     const [form] = Form.useForm();
-    const [isModalVisible, setIsModalVisible] = useState(false); // For modal visibility
-    const [tableData, setTableData] = useState([]); // Data for the table
-    const [loading, setLoading] = useState(false); // For loading state of table
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [tableData, setTableData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Fetch existing notices
+        axios.get("http://localhost:3000/admin/slider/notice")
+            .then((response) => {
+                setTableData(response.data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                message.error("Failed to fetch notices.");
+                setLoading(false);
+            });
+    }, []);
 
     const onFinish = (values) => {
         const newData = {
             key: tableData.length + 1,
-            title: values.title,
-            image: values.image, // Assuming the image URL is part of form values
+            image: values.image.file.originFileObj, // Handle the image file accordingly
         };
 
-        // Simulate a POST request (ok something to do later bbahiya)
-        axios
-            .post("/api/upload-notice", newData)
+
+        // Simulate a POST request
+        axios.post("/api/upload-notice", newData)
             .then((response) => {
                 message.success("Notice uploaded successfully!");
                 form.resetFields();
@@ -41,11 +53,7 @@ const Notification = () => {
     };
 
     const columns = [
-        {
-            title: "Notice Title",
-            dataIndex: "title",
-            key: "title",
-        },
+
         {
             title: "Image",
             dataIndex: "image",
@@ -73,7 +81,6 @@ const Notification = () => {
                 Upload New Notice
             </Button>
 
-            {/* Table showing notices */}
             <Table
                 columns={columns}
                 dataSource={tableData}
@@ -82,10 +89,9 @@ const Notification = () => {
                 style={{ marginBottom: 40 }}
             />
 
-            {/* Modal for adding new notice */}
             <Modal
                 title="Upload Notice Image"
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={handleCancel}
                 footer={null}
             >
@@ -134,8 +140,7 @@ const Notification = () => {
                 </Form>
             </Modal>
 
-            {/* CSS for hover effect */}
-            <style jsx>{`
+            <style>{`
                 .notice-image {
                     width: 50px;
                     height: 50px;
