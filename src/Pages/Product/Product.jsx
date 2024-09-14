@@ -4,6 +4,7 @@ import { SearchOutlined, DollarCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import CustomLayout from '../../Components/Layout/Layout';
 import API_BASE_URL from '../../constants';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -17,6 +18,7 @@ const Product = () => {
   const [published, setPublished] = useState('');
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
 
   const fetchProducts = async (page = 1) => {
     setLoading(true);
@@ -91,7 +93,7 @@ const Product = () => {
       align: 'center',
       render: (text) => (
         <Text style={{ fontSize: '14px', color: '#000000', fontWeight: 'bold' }}>
-          ${text}
+          {text}
         </Text>
       )
     },
@@ -107,6 +109,22 @@ const Product = () => {
           <Tag color="red">Unpublished</Tag>
         ),
     },
+    {
+      title: 'Actions',
+      key: 'actions',
+      align: 'center',
+      render: (text, record) => (
+        <Button
+          type="link"
+          onClick={() => {
+            console.log(`Navigating to /edit-product/${record.Id}`);
+            navigate(`/edit-product/${record.Id}`);
+          }}
+        >
+          Edit
+        </Button>
+      ),
+    }
   ];
 
   return (
@@ -142,6 +160,7 @@ const Product = () => {
             <Button type="primary" onClick={handleSearch} icon={<SearchOutlined />}>
               Search
             </Button>
+            <Button type="primary" onClick={() => navigate('/edit-product')}>Add Product</Button>
           </Space>
         </div>
         <Table

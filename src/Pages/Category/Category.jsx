@@ -211,27 +211,29 @@ const Category = () => {
 
   return (
     <CustomLayout pageTitle="Categories" menuKey={2}>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Space>
+      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
+        <Space size="large" wrap>
           <Input
             placeholder="Search categories"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onPressEnter={handleSearch}
             style={{ width: 250 }}
+            prefix={<SearchOutlined />}
           />
           <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
             Search
           </Button>
+          <StyledButton
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => showModal()}
+            size="large"
+            style={{ backgroundColor: 'green', borderColor: 'green' }}
+          >
+            Add Category
+          </StyledButton>
         </Space>
-        <StyledButton
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => showModal()}
-          size="large"
-        >
-          Add Category
-        </StyledButton>
       </div>
       <StyledTable
         dataSource={dataSource.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
