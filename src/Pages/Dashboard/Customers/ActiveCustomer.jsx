@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
-import { Table, message, Pagination, Card, Badge } from "antd";
-import axios from "axios"; // Assuming you're using axios for API calls
+import { Table, message, Pagination, Card, Spin, Badge } from "antd";
+import axios from "axios";
+import API_BASE_URL from '../../../constants.js';
 
 const ActiveCustomer = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(4); // Adjust the page size as needed
+  const [pageSize] = useState(5); // Adjust the page size as needed
 
   useEffect(() => {
     const fetchCustomers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('https://jsonplaceholder.typicode.com/users');
+        // Assuming you're fetching the customer data from this API
+        const response = await axios.get(`${API_BASE_URL}/admin/activeCustomers`); // Replace with your actual API URL
+        console.log("Response:", response.data);
         setCustomers(response.data);
       } catch (error) {
         console.error('Error fetching customers:', error);
@@ -37,54 +40,65 @@ const ActiveCustomer = () => {
   const columns = [
     {
       title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      dataIndex: 'Email', // Note: "Email" is case-sensitive based on your API data.
+      key: 'Email',
       render: (email) => <strong>{email}</strong>,
     },
     {
       title: 'Approved',
-      dataIndex: 'approved', // This field doesn't exist in the API data
+      dataIndex: 'approved',
       key: 'approved',
-      render: () => <Badge status="success" text="Yes" />, // Assuming approved
+      render: () => <Badge status="success" text="Yes" />, // Assuming every customer is approved
     },
     {
-      title: 'Product Count',
-      dataIndex: 'Product Count',
-      key: 'Product Count',
-      render: () => <Badge count={Math.floor(Math.random() * 10) + 1} />,
+      title: 'Quantity Count',
+      key: 'Quantity Count',
+      render: (record) => {
+        // Summing total quantity of products from all orders for each customer
+        const totalQuantity = record.orders.reduce(
+          (total, order) => total + order.totalQuantity,
+          0
+        );
+        return <Badge count={totalQuantity} />;
+      },
     },
     {
-      title: 'Buy Amount',
-      dataIndex: 'Buy Amount',
+      title: 'Amount Excl Tax',
       key: 'Buy Amount',
-      render: () => `$${(Math.random() * 1000).toFixed(2)}`,
+      render: (record) => {
+        // Summing the order subtotal for each customer
+        const totalAmount = record.orders.reduce(
+          (total, order) => total + order.orderSubtotalExclTax,
+          0
+        );
+        return `$${totalAmount.toFixed(2)}`;
+      },
     },
     {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-      render: (address) => (
-        <div>
-          {address?.street || 'N/A'}
-          <br />
-          {address?.city || ''}, {address?.state || ''} {address?.zipcode || ''}
-        </div>
-      ),
-    },
+      title: 'Order Count',
+      key: 'Order Count',
+      render: (record) => {
+        console.log("Record", record);
+        return record.length; // Assuming 'length' is the property from the backend
+      }
+    }
   ];
+  
 
   return (
     <Card bordered={false} style={{ marginTop: '20px' }}>
       {loading ? (
-        <div>Loading customers...</div>
+        <Spin tip="Loading customers..." size="large" />
       ) : (
-        <div>
-          <Table
-            dataSource={displayedCustomers}
-            columns={columns}
-            pagination={false}
-            rowKey={(record) => record.id}
-          />
+        <>
+        <Table
+  dataSource={displayedCustomers}
+  columns={columns}
+  pagination={false}
+  rowKey={(record) => record.Email}
+  scroll={{ x: "max-content" }}
+/>
+
           <Pagination
             style={{ marginTop: '20px', textAlign: 'center' }}
             current={currentPage}
@@ -92,7 +106,7 @@ const ActiveCustomer = () => {
             total={customers.length}
             onChange={handlePageChange}
           />
-        </div>
+        </>
       )}
     </Card>
   );

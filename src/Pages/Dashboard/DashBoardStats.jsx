@@ -5,14 +5,34 @@ import {
   RiseOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
+import API_BASE_URL from '../../constants.js'
 
 const DashBoardStats = () => {
-  const data = {
-    totalCustomers: 4974,
-    registeredCustomers: 4505,
-    totalOrders: 3175,
-    newOrders: 34,
-  };
+
+  const [data,setData] = useState({
+    totalCustomers: 0,
+    registeredCustomers: 0,
+    totalOrders: 0,
+    newOrders: 0,
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/admin/stats`);
+        setData(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  
 
   return (
     <>

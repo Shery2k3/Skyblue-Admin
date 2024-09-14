@@ -2,6 +2,8 @@ import  { useState, useEffect } from "react";
 import { Table, Button, Pagination, Card } from "antd";
 import axios from "axios"; // Assuming you're using axios for API calls
 
+import API_BASE_URL from '../../../constants.js'
+
 const BestSellerByAmount = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -69,6 +71,7 @@ const BestSellerByAmount = () => {
             columns={columns}
             pagination={false}
             rowKey={(record) => record.id}
+            scroll={{ x: "max-content" }}
           />
           <Pagination
             style={{ marginTop: '20px', textAlign: 'center' }}

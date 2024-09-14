@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Table, Button, Pagination, Card } from "antd";
-import axios from "axios"; // Assuming you're using axios for API calls
+import { Table, Button, Pagination, Card, Spin } from "antd";
+import axios from "axios";
+import API_BASE_URL from "../../../constants";
 
 const BestSellerByQuantity = () => {
   const [data, setData] = useState([]);
@@ -12,7 +13,8 @@ const BestSellerByQuantity = () => {
     const fetchBestSellers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('https://api.example.com/best-sellers/quantity');
+        const response = await axios.get(`${API_BASE_URL}/admin/bestSellerByQuantity`);
+        console.log(response.data);
         setData(response.data);
       } catch (error) {
         console.error('Error fetching best sellers:', error);
@@ -33,25 +35,19 @@ const BestSellerByQuantity = () => {
   const columns = [
     {
       title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'Name',
+      key: 'Name',
     },
     {
       title: 'Total Quantity',
-      dataIndex: 'totalQuantity',
-      key: 'totalQuantity',
-    },
-    {
-      title: 'Total Amount (Excl. Tax)',
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
-      render: (amount) => `$${amount.toFixed(2)}`,
+      dataIndex: 'Quantity',
+      key: 'Quantity',
     },
     {
       title: 'Action',
       key: 'action',
       render: (record) => (
-        <Button type="link" onClick={() => window.location.href = `/product/${record.id}`}>
+        <Button type="link" onClick={() => window.location.href = `/product/${record.ProductId}`}>
           View
         </Button>
       ),
@@ -61,14 +57,17 @@ const BestSellerByQuantity = () => {
   return (
     <Card bordered={false} title="Best Sellers by Quantity" style={{ marginBottom: '20px' }}>
       {loading ? (
-        <div>Loading...</div>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+          <Spin size="large" />
+        </div>
       ) : (
         <>
           <Table
             dataSource={displayedData}
             columns={columns}
             pagination={false}
-            rowKey={(record) => record.id}
+            rowKey={(record) => record.ProductId}
+            scroll={{ x: "max-content" }}
           />
           <Pagination
             style={{ marginTop: '20px', textAlign: 'center' }}

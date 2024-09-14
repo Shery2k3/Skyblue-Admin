@@ -53,9 +53,8 @@ const Dashboard = () => {
             {/* Active Customers */}
             <Col xs={24} md={12}>
               <Card
-                title="Active Customers"
+                title="Customers Activity"
                 bordered={false}
-                style={{ height: "100%" }}
               >
                 <ActiveCustomer />
               </Card>
@@ -66,7 +65,6 @@ const Dashboard = () => {
               <Card
                 title="New Customers"
                 bordered={false}
-                style={{ height: "100%" }}
               >
                 <NewCustomers />
               </Card>

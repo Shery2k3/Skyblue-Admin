@@ -1,0 +1,14 @@
+.menu-visible .ant-layout-sider {
+  transform: translateX(0);
+}
+
+.menu-hidden .ant-layout-sider {
+  transform: translateX(-100%);
+}
+
+.menu-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}

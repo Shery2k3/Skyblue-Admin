@@ -7,18 +7,40 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import API_BASE_URL from '../../../constants.js';
 
 // Define colors for the pie chart
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF6384"];
 
 const Chart = () => {
-  // Data for the PieChart
-  const orderTotalData = [
-    { name: "Today", value: 5 },
-    { name: "Week", value: 10 },
-    { name: "Month", value: 100 },
-    { name: "Year", value: 150 },
-  ];
+  const [orderTotalData, setOrderTotalData] = useState([
+    { name: "Today", value: 0 },
+    { name: "Week", value: 0 },
+    { name: "Month", value: 0 },
+    { name: "Year", value: 0 },
+  ]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/admin/orderValue`);
+        const data = response.data.values;
+        setOrderTotalData([
+          { name: "Today", value: data.today },
+          { name: "Week", value: data.thisWeek },
+          { name: "Month", value: data.thisMonth },
+          { name: "Year", value: data.thisYear },
+        ]);
+        console.log(data)
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Card title="Order Total" style={{ height: "100%" }}>
@@ -45,6 +67,13 @@ const Chart = () => {
           <Legend />
         </PieChart>
       </ResponsiveContainer>
+      <div style={{ marginTop: "20px", textAlign: "center" }}>
+        {orderTotalData.map((entry, index) => (
+          <p key={index} style={{ color: COLORS[index % COLORS.length], fontSize: "16px", margin: "5px 0" }}>
+            {entry.name}: {entry.value}
+          </p>
+        ))}
+      </div>
     </Card>
   );
 };
