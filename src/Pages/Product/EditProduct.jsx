@@ -31,14 +31,26 @@ const EditProduct = () => {
   const [roles, setRoles] = useState([]);
   const [imageUrl, setImageUrl] = useState('');
   const [newImage, setNewImage] = useState(null);
+  const [discounts, setDiscounts] = useState([]);
+  const [initialValues, setInitialValues] = useState({});
 
   useEffect(() => {
     fetchCategories();
     fetchRoles();
+    fetchDiscounts();
     if (id) {
       fetchProductDetails();
     }
   }, [id]);
+
+  const fetchDiscounts = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/discount/product`);
+      setDiscounts(response.data);
+    } catch (error) {
+      message.error('Failed to fetch discounts');
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -78,7 +90,7 @@ const EditProduct = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/admin/product/${id}`);
       const product = response.data;
-      form.setFieldsValue({
+      const formValues = {
         Name: product.Name,
         Price: product.Price,
         FullDescription: product.FullDescription,
@@ -97,14 +109,17 @@ const EditProduct = () => {
         OldPrice: product.OldPrice,
         ItemLocation: product.ItemLocation,
         BoxQty: product.BoxQty,
-      });
+        DiscountId: product.Discount?.Id,
+      };
+
       // Set tier prices
       product.TierPrices.forEach((tp, index) => {
-        form.setFieldsValue({
-          [`Price${index + 1}`]: tp.Price,
-          [`Role${index + 1}`]: tp.CustomerRoleId,
-        });
+        formValues[`Price${index + 1}`] = tp.Price;
+        formValues[`Role${index + 1}`] = tp.CustomerRoleId;
       });
+
+      setInitialValues(formValues);
+      form.setFieldsValue(formValues);
       setImageUrl(product.ImageUrl);
     } catch (error) {
       message.error('Failed to fetch product details');
@@ -116,35 +131,35 @@ const EditProduct = () => {
     try {
       const updatedFields = {};
       Object.keys(values).forEach(key => {
-        if (values[key] !== form.getFieldValue(key)) {
+        if (values[key] !== initialValues[key]) {
           updatedFields[key] = values[key];
         }
       });
-  
+
       // Handle tier prices
       for (let i = 1; i <= 5; i++) {
         const roleKey = `Role${i}`;
         const priceKey = `Price${i}`;
-        if (values[roleKey] && values[priceKey]) {
+        if (values[roleKey] !== initialValues[roleKey] || values[priceKey] !== initialValues[priceKey]) {
           updatedFields[roleKey] = values[roleKey];
           updatedFields[priceKey] = values[priceKey];
         }
       }
-  
+
       const formData = new FormData();
       Object.keys(updatedFields).forEach(key => {
         formData.append(key, updatedFields[key]);
       });
-  
+
       if (newImage) {
         formData.append('images', newImage);
       }
-  
+
       // Log the form data
       for (let pair of formData.entries()) {
         console.log(pair[0] + ': ' + pair[1]);
       }
-  
+
       if (id) {
         await axios.patch(`${API_BASE_URL}/admin/product/${id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -228,6 +243,14 @@ const EditProduct = () => {
 
               <Form.Item name="OldPrice" label="Old Price">
                 <InputNumber min={0} step={0.01} />
+              </Form.Item>
+
+              <Form.Item name="DiscountId" label="Discount">
+                <Select placeholder="Select a discount">
+                  {discounts.map(discount => (
+                    <Option key={discount.Id} value={discount.Id}>{discount.Name}</Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Space>
 
