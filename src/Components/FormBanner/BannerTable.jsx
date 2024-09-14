@@ -1,36 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Image, Button, Popconfirm, message } from 'antd';
+import { Table, Image, Button, Popconfirm, message, Modal, Form, Input, InputNumber } from 'antd';
 import axios from 'axios';
 
 const BannerTable = () => {
     const [dataSource, setDataSource] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [editingBanner, setEditingBanner] = useState(null);
+    const [form] = Form.useForm();
+
+    // Fetch data from the API
+    const fetchData = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/admin/slider/banner');
+            const data = response.data.map(item => ({
+                key: item.sliderId.toString(),
+                id: item.sliderId,
+                title: `Banner ${item.sliderId}`, // Adjust if needed
+                imageUrl: item.image,
+                link: item.link || 'N/A', // Add the link field with a default value
+            }));
+            setDataSource(data);
+        } catch (error) {
+            message.error('Failed to fetch data');
+        }
+    };
 
     useEffect(() => {
-        // Fetch data from the API
-        const fetchData = async () => {
-            try {
-                const response = await axios.get('http://localhost:3000/admin/slider/banner');
-                const data = response.data.map(item => ({
-                    key: item.sliderId.toString(),
-                    id: item.sliderId,
-                    title: `Banner ${item.sliderId}`, // Adjust if needed
-                    imageUrl: item.image,
-                }));
-                setDataSource(data);
-            } catch (error) {
-                message.error('Failed to fetch data');
-            }
-        };
-
         fetchData();
     }, []);
 
     const handleDelete = async (key) => {
         try {
-            // Ensure the URL matches the one tested with cURL
             await axios.delete(`http://localhost:3000/admin/slider/${key}`);
-
-            // Update the local state to remove the deleted banner
             setDataSource(dataSource.filter(item => item.key !== key));
             message.success('Banner deleted successfully');
         } catch (error) {
@@ -38,6 +39,33 @@ const BannerTable = () => {
         }
     };
 
+    const handleUpdate = (record) => {
+        setEditingBanner(record);
+        form.setFieldsValue({
+            displayOrder: 0,
+            link: record.link,
+        });
+        setIsModalVisible(true);
+    };
+
+    const handleOk = async () => {
+        try {
+            const values = await form.validateFields();
+            console.log(editingBanner)
+            await axios.patch(`http://localhost:3000/admin/slider/${editingBanner.id}`, values);
+            message.success('Banner updated successfully');
+            setIsModalVisible(false);
+
+            // Reload data to reflect changes in the table
+            fetchData();
+        } catch (error) {
+            message.error('Failed to update banner');
+        }
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
 
     const columns = [
         {
@@ -54,31 +82,77 @@ const BannerTable = () => {
             width: 150,
         },
         {
+            title: 'Link',
+            dataIndex: 'link',
+            key: 'link',
+            render: (text) => (
+                <a href={text} target="_blank" rel="noopener noreferrer">
+                    {text}
+                </a>
+            ),
+            width: 200,
+        },
+        {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <Popconfirm
-                    title="Are you sure to delete this banner?"
-                    onConfirm={() => handleDelete(record.key)}
-                    okText="Yes"
-                    cancelText="No"
-                >
-                    <Button type="primary" danger>
-                        Delete
+                <>
+                    <Popconfirm
+                        title="Are you sure to delete this banner?"
+                        onConfirm={() => handleDelete(record.key)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <Button type="primary" danger>
+                            Delete
+                        </Button>
+                    </Popconfirm>
+                    <Button type="default" onClick={() => handleUpdate(record)} style={{}}>
+                        Update
                     </Button>
-                </Popconfirm>
+                </>
             ),
-            width: 120,
+            width: 180,
         },
     ];
 
     return (
-        <Table
-            dataSource={dataSource}
-            columns={columns}
-            pagination={false} // Disable pagination if not needed
-            scroll={{ x: 'max-content' }}
-        />
+        <>
+            <Table
+                dataSource={dataSource}
+                columns={columns}
+                pagination={false}
+                scroll={{ x: 'max-content' }}
+            />
+            <Modal
+                title="Update Banner"
+                open={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                okText="Update"
+                cancelText="Cancel"
+            >
+                <Form form={form} layout="vertical">
+                    <Form.Item
+                        label="Display Order"
+                        name="displayOrder"
+                        rules={[{ required: true, message: 'Please enter the display order' }]}
+                    >
+                        <InputNumber min={0} />
+                    </Form.Item>
+                    <Form.Item
+                        label="Link"
+                        name="link"
+                        rules={[{ required: true, message: 'Please enter the link' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item>
+
+                    </Form.Item>
+                </Form>
+            </Modal>
+        </>
     );
 };
 

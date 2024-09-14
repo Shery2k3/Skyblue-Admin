@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Upload, Button, message, Typography } from 'antd';
+import { Form, Upload, Button, message, Typography, Input } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import CustomLayout from '../../Components/Layout/Layout';
 import axios from 'axios';
@@ -19,6 +19,13 @@ const BannerForm = () => {
             formData.append('image', file.originFileObj);
             formData.append('type', 'banner');
             formData.append('displayOrder', 1);
+            formData.append('link', values.link);  // Add the URL field value to the form data
+
+            // Log the formData content
+            console.log('Form Data:');
+            for (let pair of formData.entries()) {
+                console.log(`${pair[0]}: ${pair[1]}`);
+            }
 
             axios.post('http://localhost:3000/admin/slider/add', formData)
                 .then(response => {
@@ -62,10 +69,17 @@ const BannerForm = () => {
                         </Upload>
                     </Form.Item>
 
+                    <Form.Item
+                        label="link"
+                        name="link"
+                        rules={[{ required: true, message: 'Please enter a URL!' }]}
+                    >
+                        <Input placeholder="Enter banner URL" />
+                    </Form.Item>
+
                     <Button type="primary" htmlType="submit" size="large" block>Submit</Button>
                 </Form>
 
-                {/* New Button for navigating to the Banner List */}
                 <Button
                     style={{ marginTop: '20px' }}
                     type="default"

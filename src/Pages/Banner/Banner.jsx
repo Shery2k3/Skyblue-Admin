@@ -5,10 +5,10 @@ import BannerTable from '../../Components/FormBanner/BannerTable';
 import CustomLayout from "../../Components/Layout/Layout";
 
 const Banner = () => {
-    const navigate = useNavigate(); // Hook for navigation
+    const navigate = useNavigate();
 
     const goToAddBannerPage = () => {
-        navigate('/banners/add-banner'); // Navigate to the form page
+        navigate('/banners/add-banner');
     };
 
     return (
