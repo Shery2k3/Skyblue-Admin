@@ -90,6 +90,14 @@ const EditProduct = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/admin/product/${id}`);
       const product = response.data;
+  
+      // Extract the discount ID from the product details
+      const discountId = product.Discount?.[0]?.Discount_Id;
+      
+      // Find the discount name from the discounts state
+      const discount = discounts.find(d => d.Id === discountId);
+      const discountName = discount ? discount.Name : '';
+  
       const formValues = {
         Name: product.Name,
         Price: product.Price,
@@ -100,6 +108,7 @@ const EditProduct = () => {
         StockQuantity: product.StockQuantity,
         Published: product.Published,
         CategoryId: product.Category?.Id,
+        CategoryName: product.Category?.Name,
         VisibleIndividually: product.VisibleIndividually,
         MarkAsNew: product.MarkAsNew,
         AllowedQuantities: product.AllowedQuantities,
@@ -109,15 +118,16 @@ const EditProduct = () => {
         OldPrice: product.OldPrice,
         ItemLocation: product.ItemLocation,
         BoxQty: product.BoxQty,
-        DiscountId: product.Discount?.Id,
+        DiscountId: discountId,
+        DiscountName: discountName,
       };
-
+  
       // Set tier prices
       product.TierPrices.forEach((tp, index) => {
         formValues[`Price${index + 1}`] = tp.Price;
         formValues[`Role${index + 1}`] = tp.CustomerRoleId;
       });
-
+  
       setInitialValues(formValues);
       form.setFieldsValue(formValues);
       setImageUrl(product.ImageUrl);
@@ -228,8 +238,8 @@ const EditProduct = () => {
               <TextArea rows={4} />
             </Form.Item>
 
-            <Form.Item name="CategoryId" label="Category">
-              <Select placeholder="Select a category">
+            <Form.Item name="CategoryId" label="Category" initialValue={initialValues.CategoryId}>
+              <Select placeholder={initialValues.CategoryName || "Select a category"}>
                 {categories.map(category => (
                   <Option key={category.id} value={category.id}>{category.name}</Option>
                 ))}
@@ -245,8 +255,8 @@ const EditProduct = () => {
                 <InputNumber min={0} step={0.01} />
               </Form.Item>
 
-              <Form.Item name="DiscountId" label="Discount">
-                <Select placeholder="Select a discount">
+              <Form.Item name="DiscountId" label="Discount" initialValue={initialValues.DiscountId}>
+                <Select placeholder={initialValues.DiscountName || "Select a discount"}>
                   {discounts.map(discount => (
                     <Option key={discount.Id} value={discount.Id}>{discount.Name}</Option>
                   ))}
