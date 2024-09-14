@@ -51,7 +51,7 @@ const BannerTable = () => {
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            console.log(editingBanner)
+
             await axios.patch(`http://localhost:3000/admin/slider/${editingBanner.id}`, values);
             message.success('Banner updated successfully');
             setIsModalVisible(false);
