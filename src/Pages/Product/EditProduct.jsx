@@ -176,7 +176,7 @@ const EditProduct = () => {
         });
         message.success('Product updated successfully');
       } else {
-        await axios.post(`${API_BASE_URL}/admin/product`, formData, {
+        await axios.post(`${API_BASE_URL}/admin/product/add`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         message.success('Product added successfully');

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Select, Pagination, Tag, Space, Typography, Card } from 'antd';
-import { SearchOutlined, DollarCircleOutlined } from '@ant-design/icons';
+import { Table, Input, Button, Select, Pagination, Tag, Space, Typography, Card, Popconfirm } from 'antd';
+import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import CustomLayout from '../../Components/Layout/Layout';
 import API_BASE_URL from '../../constants';
@@ -51,6 +51,16 @@ const Product = () => {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
+    }
+  };
+
+  const handleDelete = async (productId) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/admin/product/${productId}`);
+      // Refresh the product list after successful deletion
+      fetchProducts(currentPage);
+    } catch (err) {
+      setError(err);
     }
   };
 
@@ -114,15 +124,28 @@ const Product = () => {
       key: 'actions',
       align: 'center',
       render: (text, record) => (
-        <Button
-          type="link"
-          onClick={() => {
-            console.log(`Navigating to /edit-product/${record.Id}`);
-            navigate(`/edit-product/${record.Id}`);
-          }}
-        >
-          Edit
-        </Button>
+        <Space>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => {
+              console.log(`Navigating to /edit-product/${record.Id}`);
+              navigate(`/edit-product/${record.Id}`);
+            }}
+          >
+            Edit
+          </Button>
+          <Popconfirm
+            title="Are you sure you want to delete this product?"
+            onConfirm={() => handleDelete(record.Id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" danger icon={<DeleteOutlined />}>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
       ),
     }
   ];
