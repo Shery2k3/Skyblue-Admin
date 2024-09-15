@@ -16,7 +16,6 @@ import {
   DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
 import CustomLayout from "../../Components/Layout/Layout";
 import API_BASE_URL from "../../constants";
 import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
@@ -77,7 +76,7 @@ const Product = () => {
 
   const handleDelete = async (productId) => {
     try {
-      await axios.delete(`${API_BASE_URL}/admin/product/${productId}`);
+      await axiosInstance.delete(`${API_BASE_URL}/admin/product/${productId}`);
       // Refresh the product list after successful deletion
       fetchProducts(currentPage);
     } catch (err) {

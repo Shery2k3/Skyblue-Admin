@@ -186,12 +186,12 @@ const EditProduct = () => {
       }
 
       if (id) {
-        await axios.patch(`${API_BASE_URL}/admin/product/${id}`, formData, {
+        await axiosInstance.patch(`${API_BASE_URL}/admin/product/${id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         message.success('Product updated successfully');
       } else {
-        await axios.post(`${API_BASE_URL}/admin/product/add`, formData, {
+        await axiosInstance.post(`${API_BASE_URL}/admin/product/add`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         message.success('Product added successfully');
@@ -235,7 +235,7 @@ const EditProduct = () => {
 
     setDeletingTierPrice(true);
     try {
-      await axios.delete(`${API_BASE_URL}/admin/product/tier-price`, {
+      await axiosInstance.delete(`${API_BASE_URL}/admin/product/tier-price`, {
         data: {
           customerRoleId: roleId,
           productId: id

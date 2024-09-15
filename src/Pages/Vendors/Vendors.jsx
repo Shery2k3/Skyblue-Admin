@@ -60,7 +60,7 @@ const Vendors = () => {
         allowCustomersToSelectPageSize: false,
         pageSizeOptions: "10,20,50",
       };
-      await axios.post(`${API_BASE_URL}/admin/create-vendors`, payload);
+      await axiosInstance.post(`${API_BASE_URL}/admin/create-vendors`, payload);
       message.success("Vendor added successfully");
       fetchVendors();
       setAddModal(false);
@@ -99,7 +99,7 @@ const Vendors = () => {
 
     if (Object.keys(payload).length > 0) {
       try {
-        await axios.patch(
+        await axiosInstance.patch(
           `${API_BASE_URL}/admin/editvendor/${selectedVendor.id}`,
           payload
         );
