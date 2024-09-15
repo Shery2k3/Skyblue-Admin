@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Table, Button, Pagination, Card } from "antd";
 import axios from "axios"; // Assuming you're using axios for API calls
 
@@ -14,7 +14,9 @@ const BestSellerByAmount = () => {
     const fetchBestSellers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('https://api.example.com/best-sellers/amount');
+        const response = await axios.get(`${API_BASE_URL}/admin/bestSellerByAmount`);
+        //console.log("response.data", response.data);
+        // Assuming response.data is an array of objects
         setData(response.data);
       } catch (error) {
         console.error('Error fetching best sellers:', error);
@@ -35,25 +37,25 @@ const BestSellerByAmount = () => {
   const columns = [
     {
       title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'Name',
+      key: 'Name',
     },
     {
       title: 'Total Quantity',
-      dataIndex: 'totalQuantity',
-      key: 'totalQuantity',
+      dataIndex: 'Quantity',
+      key: 'Quantity',
     },
     {
       title: 'Total Amount (Excl. Tax)',
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
-      render: (amount) => `$${amount.toFixed(2)}`,
+      dataIndex: 'Amount',
+      key: 'Amount',
+      render: (amount) => `$${amount.toFixed(2)}`, // Format amount as currency
     },
     {
       title: 'Action',
       key: 'action',
       render: (record) => (
-        <Button type="link" onClick={() => window.location.href = `/product/${record.id}`}>
+        <Button type="link" onClick={() => window.location.href = `/edit-product/${record.ProductId}`}>
           View
         </Button>
       ),
@@ -70,7 +72,7 @@ const BestSellerByAmount = () => {
             dataSource={displayedData}
             columns={columns}
             pagination={false}
-            rowKey={(record) => record.id}
+            rowKey={(record) => record.ProductId}
             scroll={{ x: "max-content" }}
           />
           <Pagination

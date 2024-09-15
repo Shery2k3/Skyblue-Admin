@@ -14,7 +14,7 @@ const BestSellerByQuantity = () => {
       setLoading(true);
       try {
         const response = await axios.get(`${API_BASE_URL}/admin/bestSellerByQuantity`);
-        console.log(response.data);
+        //console.log(response.data);
         setData(response.data);
       } catch (error) {
         console.error('Error fetching best sellers:', error);
@@ -47,7 +47,7 @@ const BestSellerByQuantity = () => {
       title: 'Action',
       key: 'action',
       render: (record) => (
-        <Button type="link" onClick={() => window.location.href = `/product/${record.ProductId}`}>
+        <Button type="link" onClick={() => window.location.href = `/edit-product/${record.ProductId}`}>
           View
         </Button>
       ),

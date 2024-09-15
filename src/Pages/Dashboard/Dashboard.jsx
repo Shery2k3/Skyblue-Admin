@@ -11,7 +11,7 @@ import BestSellerByQuantity from "./BestSeller/BestSellerByQuantity";
 
 const Dashboard = () => {
   return (
-    <CustomLayout pageTitle="Dashboard" menuKey="1">
+    <CustomLayout pageTitle="Dashboard">
       <Header style={{ background: "#87CEEB", padding: 0 }}>
         <div
           className="logo"
