@@ -230,7 +230,18 @@ const EditProduct = () => {
         }
       });
       message.success('Tier price deleted successfully');
-      fetchProductDetails(); // Refetch the product details to update the form
+
+      // Shift remaining tier prices up
+      const newValues = { ...form.getFieldsValue() };
+      for (let i = index; i < 5; i++) {
+        newValues[`Role${i}`] = newValues[`Role${i + 1}`] || null;
+        newValues[`Price${i}`] = newValues[`Price${i + 1}`] || null;
+      }
+      // Clear the last tier price
+      newValues[`Role5`] = null;
+      newValues[`Price5`] = null;
+
+      form.setFieldsValue(newValues);
     } catch (error) {
       message.error('Failed to delete tier price');
     } finally {
@@ -407,7 +418,10 @@ const EditProduct = () => {
                     label={`Role ${index}`}
                     style={styles.tierPriceItem}
                   >
-                    <Select style={{ width: '100%' }}>
+                    <Select
+                      style={{ width: '100%' }}
+                      onChange={() => form.setFieldsValue({ [`Price${index}`]: null })}
+                    >
                       {roles.map(role => (
                         <Option key={role.Id} value={role.Id}>{role.Name}</Option>
                       ))}
