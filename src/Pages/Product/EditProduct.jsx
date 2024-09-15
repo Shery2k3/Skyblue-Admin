@@ -13,6 +13,7 @@ import {
   Typography,
   Select,
   Upload,
+  Checkbox
 } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import CustomLayout from '../../Components/Layout/Layout';
@@ -33,6 +34,7 @@ const EditProduct = () => {
   const [newImage, setNewImage] = useState(null);
   const [discounts, setDiscounts] = useState([]);
   const [initialValues, setInitialValues] = useState({});
+  const [disabledPrices, setDisabledPrices] = useState({});
 
   useEffect(() => {
     fetchCategories();
@@ -150,9 +152,9 @@ const EditProduct = () => {
       for (let i = 1; i <= 5; i++) {
         const roleKey = `Role${i}`;
         const priceKey = `Price${i}`;
-        if (values[roleKey] !== initialValues[roleKey] || values[priceKey] !== initialValues[priceKey]) {
+        if (values[roleKey] !== initialValues[roleKey] || values[priceKey] !== initialValues[priceKey] || disabledPrices[i]) {
           updatedFields[roleKey] = values[roleKey];
-          updatedFields[priceKey] = values[priceKey];
+          updatedFields[priceKey] = disabledPrices[i] ? 0 : values[priceKey];
         }
       }
 
@@ -199,6 +201,38 @@ const EditProduct = () => {
       reader.readAsDataURL(file);
       setNewImage(file); // Store the new image file
     }
+  };
+
+  const handleDisablePrice = (index, checked) => {
+    setDisabledPrices(prev => ({ ...prev, [index]: checked }));
+    if (checked) {
+      form.setFieldsValue({ 
+        [`Price${index}`]: 0,
+        [`Role${index}`]: null 
+      });
+    }
+  };
+
+  const styles = {
+    tierPriceContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '10px',
+    },
+    tierPriceItem: {
+      flex: 1,
+      marginRight: '10px',
+    },
+    deleteCheckbox: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      backgroundColor: '#ff4d4f',
+      cursor: 'pointer',
+    },
   };
 
   return (
@@ -330,18 +364,38 @@ const EditProduct = () => {
             {/* Tier Prices */}
             <Title level={4}>Tier Prices</Title>
             {[1, 2, 3, 4, 5].map((index) => (
-              <Space key={index}>
-                <Form.Item name={`Role${index}`} label={`Role ${index}`}>
-                  <Select style={{ width: 120 }}>
+              <div key={index} style={styles.tierPriceContainer}>
+                <Form.Item
+                  name={`Role${index}`}
+                  label={`Role ${index}`}
+                  style={styles.tierPriceItem}
+                >
+                  <Select style={{ width: '100%' }}>
                     {roles.map(role => (
                       <Option key={role.Id} value={role.Id}>{role.Name}</Option>
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item name={`Price${index}`} label={`Price ${index}`}>
-                  <InputNumber min={0} step={0.01} />
+                <Form.Item
+                  name={`Price${index}`}
+                  label={`Price ${index}`}
+                  style={styles.tierPriceItem}
+                >
+                  <InputNumber
+                    min={0}
+                    step={0.01}
+                    disabled={disabledPrices[index]}
+                    style={{ width: '100%' }}
+                  />
                 </Form.Item>
-              </Space>
+                <div style={styles.deleteCheckbox}>
+                  <Checkbox
+                    checked={disabledPrices[index]}
+                    onChange={(e) => handleDisablePrice(index, e.target.checked)}
+                    style={{ color: 'white' }}
+                  />
+                </div>
+              </div>
             ))}
 
             <Form.Item>
