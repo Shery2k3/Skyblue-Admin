@@ -35,6 +35,7 @@ const EditProduct = () => {
   const [discounts, setDiscounts] = useState([]);
   const [initialValues, setInitialValues] = useState({});
   const [disabledPrices, setDisabledPrices] = useState({});
+  const [deletingTierPrice, setDeletingTierPrice] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -206,10 +207,34 @@ const EditProduct = () => {
   const handleDisablePrice = (index, checked) => {
     setDisabledPrices(prev => ({ ...prev, [index]: checked }));
     if (checked) {
-      form.setFieldsValue({ 
+      form.setFieldsValue({
         [`Price${index}`]: 0,
-        [`Role${index}`]: null 
+        [`Role${index}`]: null
       });
+    }
+  };
+
+  const handleDeleteTierPrice = async (index) => {
+    const roleId = form.getFieldValue(`Role${index}`);
+    if (!roleId) {
+      message.error('Please select a role before deleting');
+      return;
+    }
+
+    setDeletingTierPrice(true);
+    try {
+      await axios.delete(`${API_BASE_URL}/admin/product/tier-price`, {
+        data: {
+          customerRoleId: roleId,
+          productId: id
+        }
+      });
+      message.success('Tier price deleted successfully');
+      fetchProductDetails(); // Refetch the product details to update the form
+    } catch (error) {
+      message.error('Failed to delete tier price');
+    } finally {
+      setDeletingTierPrice(false);
     }
   };
 
@@ -254,7 +279,7 @@ const EditProduct = () => {
           <Title level={2} style={{ textAlign: 'center' }}>
             {id ? 'Edit Product' : 'Add Product'}
           </Title>
-          
+
           <div style={styles.imageContainer}>
             {imageUrl && <img src={imageUrl} alt="Product" style={styles.productImage} />}
             <Upload
@@ -382,7 +407,7 @@ const EditProduct = () => {
                     label={`Role ${index}`}
                     style={styles.tierPriceItem}
                   >
-                    <Select style={{ width: '100%' }} disabled={disabledPrices[index]}>
+                    <Select style={{ width: '100%' }}>
                       {roles.map(role => (
                         <Option key={role.Id} value={role.Id}>{role.Name}</Option>
                       ))}
@@ -396,20 +421,25 @@ const EditProduct = () => {
                     <InputNumber
                       min={0}
                       step={0.01}
-                      disabled={disabledPrices[index]}
                       style={{ width: '100%' }}
                     />
                   </Form.Item>
                   <Popconfirm
                     title="Are you sure you want to delete this tier price?"
-                    onConfirm={() => handleDisablePrice(index, !disabledPrices[index])}
+                    onConfirm={() => handleDeleteTierPrice(index)}
                     okText="Yes"
                     cancelText="No"
+                    disabled={!form.getFieldValue(`Role${index}`)}
                   >
-                    <Button 
-                      icon={<DeleteOutlined />} 
-                      style={styles.deleteButton}
+                    <Button
+                      icon={<DeleteOutlined />}
+                      style={{
+                        ...styles.deleteButton,
+                        opacity: form.getFieldValue(`Role${index}`) ? 1 : 0.5,
+                      }}
                       type="text"
+                      disabled={!form.getFieldValue(`Role${index}`)}
+                      loading={deletingTierPrice}
                     />
                   </Popconfirm>
                 </div>
