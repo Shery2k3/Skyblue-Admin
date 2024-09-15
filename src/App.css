@@ -35,4 +35,16 @@ a {
   text-decoration: none;
 }
 
+/* src/App.css */
+@media (max-width: 768px) {
+  .app-content {
+    display: none;
+  }
+  .small-device-warning {
+    display: block;
+  }
+}
 
+.small-device-warning {
+  display: none;
+}

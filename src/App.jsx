@@ -1,4 +1,5 @@
 import './App.css';
+import { useState, useEffect } from 'react';
 import Login from "./Pages/Login/Login";
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Customer from './Pages/Customer/Customer';
@@ -18,8 +19,26 @@ import Product from './Pages/Product/Product';
 import EditProduct from './Pages/Product/EditProduct';
 import Error404 from './Pages/Error404/Error404';
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute';
+import SmallDeviceWarning from './Components/SmallDeviceWarning/SmallDeviceWarning';
 
 function App() {
+  const [isSmallDevice, setIsSmallDevice] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallDevice(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (isSmallDevice) {
+    return <SmallDeviceWarning />;
+  }
+
   return (
     <Router>
       <Routes>

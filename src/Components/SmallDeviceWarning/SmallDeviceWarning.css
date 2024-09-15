@@ -1,0 +1,55 @@
+/* src/Components/SmallDeviceWarning/SmallDeviceWarning.css */
+.small-device-warning-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f1fbff;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .small-device-warning-content {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    max-width: 500px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .small-device-warning-content h1 {
+    font-size: 2.5rem;
+    color: #00273e;
+    margin-bottom: 20px;
+  }
+  
+  .small-device-warning-content p {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  
+  .device-icon {
+    fill: #00273e;
+    margin-bottom: 20px;
+  }
+  
+  .construction-icon {
+    fill: #ffa500;
+    margin-top: 20px;
+  }
+  
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
+  .construction-icon {
+    animation: pulse 2s infinite;
+  }
