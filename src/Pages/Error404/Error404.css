@@ -1,0 +1,98 @@
+/* Full-screen background container */
+.bg-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(rgba(236,252,255, 0.9), rgba(236,252,255, 0.9)), url(/Background/background.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  /* Animation for sliding up */
+  @keyframes slideUp {
+    from {
+        transform: translateY(100vh); 
+        opacity: 0; 
+    }
+    to {
+        transform: translateY(0); 
+        opacity: 1;
+    }
+  }
+  
+  /* Container for the 404 content */
+  .bg-container .container {
+    text-align: center;
+    padding: 20px;
+    background-color: transparent; 
+    font-family: var(--font-primary);
+    color: var(--dark); 
+    animation: slideUp 0.5s ease-out; 
+  }
+  
+  /* Style for the main text */
+  .bg-container .container .text {
+    font-size: 2.5rem;
+    color: var(--dark); 
+    margin-bottom: 10px;
+    font-weight: 800;
+    margin-top: 20px;
+  }
+  
+  .bg-container .container p {
+    font-family: var(--font-primary);
+    font-weight: 600;
+  }
+  
+  /* Style for the link */
+  .bg-container .container .link {
+    display: inline-block;
+    padding: 12px 24px; 
+    font-size: 1.2rem;
+    color: var(--dark); 
+    background-color: rgb(144,218,255); 
+    border: none;
+    border-radius: 4px; 
+    text-decoration: none; 
+    font-weight: 700; 
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin-top: 20px;
+  }
+  
+  /* Hover effect for the link */
+  .bg-container .container .link:hover {
+    background-color: var(--dark); 
+    color: var(--light); 
+  }
+  
+  /* Responsive styling */
+  @media (max-width: 768px) {
+    .bg-container .container .text {
+        font-size: 2rem;
+    }
+  
+    .bg-container .container .link {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .bg-container .container .text {
+        font-size: 1.5rem;
+    }
+  
+    .bg-container .container .link {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+    
+    .bg-container .container img {
+        width: 80%; /* Scale down image on smaller screens */
+        max-width: 300px; /* Set a maximum width for very small screens */
+    }
+  }
+  

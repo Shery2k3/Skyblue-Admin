@@ -1,0 +1,229 @@
+/* General Wrapper for Login Form */
+.wrapper-login {
+  width: 430px;
+  padding: 0;
+  border-radius: 8px;
+  background-color: rgb(236, 252, 255);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+/* Inner Wrapper */
+.inner-wrapper-login {
+  padding-left: 55px;
+  padding-right: 55px;
+  padding-bottom: 30px;
+  padding-top: 0px;
+}
+
+/* Logo Section */
+.wrapper-login .logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0px;
+}
+.logo img {
+  width: 215px;
+  margin: 30px 0 20px 0;
+}
+
+/* Form Group */
+.wrapper-login .input-box {
+  margin-bottom: 15px;
+}
+.wrapper-login h2 {
+  text-align: center;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 20px;
+}
+
+/* Label Styling */
+.wrapper-login label {
+  font-family: var(--font-primary);
+  color: var(--dark);
+  font-weight: 600;
+  margin-left: 0.25rem;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Input Fields */
+.wrapper-login input[type="text"],
+.wrapper-login input[type="email"],
+.wrapper-login input[type="password"] {
+  background-color: transparent;
+  width: 100%;
+  height: 50px;
+  padding: 12px;
+  border: 1.5px solid var(--dark);
+  border-radius: 10px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  font-family: var(--font-primary);
+  font-weight: 550;
+  color: var(--dark);
+}
+
+.wrapper-login input[type="text"]::placeholder,
+.wrapper-login input[type="email"]::placeholder,
+.wrapper-login input[type="password"]::placeholder {
+  color: #00273ead;
+}
+
+/* Remember Me and Forget Password */
+.wrapper-login .remember-forget {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.wrapper-login .remember-forget label {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-primary);
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.remember-me {
+  margin-left: 3px;
+}
+
+.wrapper-login .remember-forget a {
+  color: rgb(20, 84, 134);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  margin-bottom: 3px;
+}
+
+.wrapper-login .remember-forget a:hover {
+  color: var(--secondary);
+}
+
+/* Submit Button */
+.wrapper-login .submit-button {
+  width: 100%;
+  padding: 12px;
+  background-color: rgb(20, 84, 134);
+  color: var(--light);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  font-size: 16px;
+  font-weight: 800;
+  transition: background-color 0.2s ease;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.wrapper-login .submit-button:hover {
+  background-color: var(--secondary);
+}
+
+/* Divider */
+.wrapper-login hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 20px 0px;
+}
+
+/* Register Link */
+.wrapper-login .register_link {
+  text-align: center;
+  padding-top: 10px;
+}
+
+.wrapper-login .register_link p {
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  font-weight: 200;
+  color: var(--dark);
+}
+
+.wrapper-login .register_link a {
+  color: rgb(20, 84, 134);
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.wrapper-login .register_link a:hover {
+  color: var(--secondary);
+}
+.wrapper-login .linebreak h3 {
+  width: 100%;
+  text-align: center;
+  border-bottom: 0.5px solid #0b0322;
+  line-height: 0.1em;
+  margin: 10px 0 20px;
+}
+.wrapper-login .linebreak h3 span {
+  background: rgb(236, 252, 255);
+  padding: 0 10px;
+}
+
+/* Media Queries */
+@media (max-width: 480px) {
+  .logo img {
+    width: 150px;
+    margin: 30px 0 20px 0;
+  }
+
+  .wrapper-login {
+    width: 90vw;
+  }
+
+  .wrapper-login h2 {
+    font-size: 20px;
+    text-align: center;
+    font-family: var(--font-primary);
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .wrapper-login label {
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .wrapper-login input[type="text"],
+  .wrapper-login input[type="email"],
+  .wrapper-login input[type="password"] {
+    height: 40px;
+    font-size: 0.75rem;
+  }
+
+  .wrapper-login .forget-password {
+    font-size: 0.8rem;
+  }
+
+  .wrapper-login .register_link p {
+    font-size: 0.8rem;
+  }
+
+  .inner-wrapper-login {
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-bottom: 30px;
+    padding-top: 0px;
+  }
+}
+
+@media (max-width: 355px) {
+  .wrapper-login {
+    width: 95vw;
+  }
+  
+  .inner-wrapper-login {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 30px;
+    padding-top: 0px;
+  }
+}
