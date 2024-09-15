@@ -14,6 +14,7 @@ import AddBanner from './Pages/Banner/AddBanner';
 import Category from './Pages/Category/Category';
 import Notification from './Pages/Notification/NotificationForm';
 import Product from './Pages/Product/Product';
+import EditProduct from './Pages/Product/EditProduct';
 
 function App() {
   return (
@@ -36,7 +37,8 @@ function App() {
         <Route path="/notice" element={<Notification />} />
         <Route path="/banners" element={<Banner />} />
         <Route path="/banners/add-banner" element={<AddBanner />} />
-
+        <Route path="/edit-product/:id?" element={<EditProduct />} />
+        
       </Routes>
     </Router>
   );
