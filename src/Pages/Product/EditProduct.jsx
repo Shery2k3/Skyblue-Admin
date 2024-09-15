@@ -90,14 +90,14 @@ const EditProduct = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/admin/product/${id}`);
       const product = response.data;
-  
+
       // Extract the discount ID from the product details
       const discountId = product.Discount?.[0]?.Discount_Id;
-      
+
       // Find the discount name from the discounts state
       const discount = discounts.find(d => d.Id === discountId);
       const discountName = discount ? discount.Name : '';
-  
+
       const formValues = {
         Name: product.Name,
         Price: product.Price,
@@ -121,13 +121,13 @@ const EditProduct = () => {
         DiscountId: discountId,
         DiscountName: discountName,
       };
-  
+
       // Set tier prices
       product.TierPrices.forEach((tp, index) => {
         formValues[`Price${index + 1}`] = tp.Price;
         formValues[`Role${index + 1}`] = tp.CustomerRoleId;
       });
-  
+
       setInitialValues(formValues);
       form.setFieldsValue(formValues);
       setImageUrl(product.ImageUrl);
@@ -189,10 +189,15 @@ const EditProduct = () => {
     }
   };
 
-  const handleImageChange = (info) => {
-    if (info.file.status === 'done') {
-      setImageUrl(URL.createObjectURL(info.file.originFileObj));
-      setNewImage(info.file.originFileObj);
+  const handleImageChange = ({ file }) => {
+    // Preview new image before sending
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageUrl(reader.result); // Preview the new image
+      };
+      reader.readAsDataURL(file);
+      setNewImage(file); // Store the new image file
     }
   };
 
@@ -213,18 +218,22 @@ const EditProduct = () => {
             StockQuantity: 10000,
           }}
         >
-          <Space direction="vertical" style={{ width: '100%' }} size="large">
-            {imageUrl && (
-              <img src={imageUrl} alt="Product" style={{ maxWidth: '200px', marginBottom: '20px' }} />
-            )}
-            <Upload
-              accept="image/*"
-              showUploadList={false}
-              onChange={handleImageChange}
-              beforeUpload={() => false}
-            >
-              <Button icon={<UploadOutlined />}>Upload New Image</Button>
-            </Upload>
+          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+
+            {/* Image Upload */}
+            <Form.Item label="Current Image">
+              {imageUrl && <img src={imageUrl} alt="Product" style={{ width: '200px' }} />}
+            </Form.Item>
+
+            <Form.Item label="Upload New Image">
+              <Upload
+                beforeUpload={() => false} // Prevent automatic upload
+                onChange={handleImageChange}
+                showUploadList={false}
+              >
+                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+              </Upload>
+            </Form.Item>
 
             <Form.Item name="Name" label="Name" rules={[{ required: true }]}>
               <Input />
