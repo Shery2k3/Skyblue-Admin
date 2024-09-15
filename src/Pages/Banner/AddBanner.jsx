@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, Upload, Button, message, Typography, Input } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import CustomLayout from '../../Components/Layout/Layout';
-import axios from 'axios';
+import axiosInstance from "../../Api/axiosConfig";
 import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
@@ -27,7 +27,7 @@ const BannerForm = () => {
                 console.log(`${pair[0]}: ${pair[1]}`);
             }
 
-            axios.post('http://localhost:3000/admin/slider/add', formData)
+            axiosInstance.post('http://localhost:3000/admin/slider/add', formData)
                 .then(response => {
                     message.success('Banner uploaded successfully!');
                     form.resetFields();

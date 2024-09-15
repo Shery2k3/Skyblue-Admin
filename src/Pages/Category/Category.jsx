@@ -20,7 +20,6 @@ import {
   SearchOutlined,
   CaretRightOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
 import API_BASE_URL from "../../constants";
 import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
 import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
@@ -154,7 +153,7 @@ const Category = () => {
           updatedFields.Published = values.published;
 
         if (Object.keys(updatedFields).length > 0) {
-          await axios.patch(
+          await axiosInstance.patch(
             `${API_BASE_URL}/admin/category/edit/${editingCategory.id}`,
             updatedFields
           );
@@ -162,7 +161,7 @@ const Category = () => {
         }
       } else {
         // Add new category
-        await axios.post(`${API_BASE_URL}/admin/category/add`, {
+        await axiosInstance.post(`${API_BASE_URL}/admin/category/add`, {
           Name: values.name,
           ParentCategoryId: values.parentId,
           Published: values.published,

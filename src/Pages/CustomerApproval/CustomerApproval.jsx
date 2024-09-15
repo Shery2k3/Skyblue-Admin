@@ -54,7 +54,7 @@ const CustomerApproval = () => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.put(`${API_BASE_URL}/admin/approve/${id}`);
+      await axiosInstance.put(`${API_BASE_URL}/admin/approve/${id}`);
       message.success("Customer approved successfully");
       fetchUsers();
     } catch (error) {
