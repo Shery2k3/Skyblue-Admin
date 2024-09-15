@@ -25,6 +25,24 @@ const siderStyle = {
 
 const CustomLayout = ({ pageTitle, menuKey, children }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [collapsedWidth, setCollapsedWidth] = useState(80)
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setCollapsedWidth(0);
+      } else {
+        setCollapsedWidth(80);
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
 
   useEffect(() => {
     window.scrollTo({
@@ -32,6 +50,13 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
       behavior: "smooth",
     });
     document.title = `SkyBlue | ${pageTitle}`;
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 867);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [pageTitle]);
 
   const {
@@ -43,6 +68,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
       <Sider
         trigger={null}
         collapsible
+        collapsedWidth={collapsedWidth}
         collapsed={collapsed}
         style={siderStyle}
       >
@@ -74,7 +100,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
       <Layout
         style={{
           background: "#F1FBFF",
-          marginInlineStart: collapsed ? 80 : 200,
+          marginInlineStart: collapsed ? collapsedWidth : 200,
           transition: "margin-inline-start 0.3s ease", // Smooth transition
         }}
       >

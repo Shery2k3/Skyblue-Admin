@@ -19,6 +19,14 @@
   font-family: "Poppins", system-ui;
 }
 
+body{
+  width: 100%;
+  height: 100%;
+  background: #F1FBFF;
+  overflow-x: hidden;
+}
+
+
 li {
   list-style: none;
 }
@@ -28,8 +36,3 @@ a {
 }
 
 
-body{
-  width: 100%;
-  height: 100%;
-  background: #F1FBFF;
-}
