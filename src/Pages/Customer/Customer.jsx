@@ -3,6 +3,8 @@ import { Table, Button, Modal, Checkbox, Select, message, Pagination, Input, Spa
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import API_BASE_URL from '../../constants.js'
+import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
+import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
 
 const { Option } = Select;
 
@@ -32,13 +34,17 @@ const Customer = () => {
   const [searchLastName, setSearchLastName] = useState('');
   const [searchPhoneNumber, setSearchPhoneNumber] = useState('');
 
+  const retryRequest = useRetryRequest();
+
   const fetchCustomers = useCallback(
     debounce(async (page) => {
       if (isFetching) return;
       setIsStartingFetch(false);
       setIsFetching(true);
       try {
-        const response = await axios.get(`${API_BASE_URL}/admin/customer/all?size=${pageSize}&page=${page}`);
+        const response = await retryRequest(() =>
+          axiosInstance.get(`${API_BASE_URL}/admin/customer/all?size=${pageSize}&page=${page}`)
+        );
         const { data, totalCustomers, totalPages, pageNumber } = response.data;
 
         const formattedData = data.map((customer) => ({
@@ -79,7 +85,9 @@ const Customer = () => {
         if (searchLastName) params.lastName = searchLastName;
         if (searchPhoneNumber) params.phoneNumber = searchPhoneNumber;
 
-        const response = await axios.get(`${API_BASE_URL}/admin/customer/all`, { params });
+        const response = await retryRequest(() =>
+          axiosInstance.get(`${API_BASE_URL}/admin/customer/all`, { params })
+        );
         const { data, totalCustomers, totalPages, pageNumber } = response.data;
 
         const formattedData = data.map((customer) => ({

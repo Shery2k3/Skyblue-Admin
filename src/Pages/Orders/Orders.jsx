@@ -1,28 +1,28 @@
 import CustomLayout from "../../Components/Layout/Layout";
 import { useNavigate } from "react-router-dom";
-import { Table, Button } from "antd";
+import { Table, Button, Spin } from "antd";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import API_BASE_URL from "../../constants.js";
+import axiosInstance from "../../Api/axiosConfig"; // Import the custom Axios instance
+import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
 
 const Orders = () => {
   const [dataSource, setDataSource] = useState([]);
-  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const retryRequest = useRetryRequest(); // Use the retry logic hook
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/admin/all-orders`);
-      console.log(response.data.datas)
-      const data = response.data.data.map((order) => ({
-        key: order.Id,
-        id: order.Id,
-        orderNo: order.Id,
-        customer: "Arsal",
-        createdOn: new Date(order.CreatedonUtc).toLocaleString('en-US', {
+    const fetchOrders = async () => {
+      setLoading(true);
+      try {
+        // Use retryRequest to fetch orders with retry logic
+        const response = await retryRequest(() => axiosInstance.get(`/admin/all-orders`));
+        const data = response.data.data.map((order) => ({
+          key: order.Id,
+          id: order.Id,
+          orderNo: order.Id,
+          customer: "Arsal",
+          createdOn: new Date(order.CreatedonUtc).toLocaleString('en-US', {
             month: 'numeric',
             day: 'numeric',
             year: 'numeric',
@@ -31,18 +31,22 @@ const Orders = () => {
             second: 'numeric',
             hour12: true,
           }),
-        orderTotal: "$" + order.OrderTotal.toFixed(2),
-      }));
-      setDataSource(data);
-    } catch (error) {
-      console.error("Error fetching customer data:", error);
-    }
-  };
+          orderTotal: "$" + order.OrderTotal.toFixed(2),
+        }));
+        setDataSource(data);
+      } catch (error) {
+        console.error("Error fetching orders data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [retryRequest]);
 
   const handleView = (order) => {
-    navigate(`/orders/${order.orderNo}`)
-  }
-
+    navigate(`/orders/${order.orderNo}`);
+  };
 
   const columns = [
     {
@@ -58,7 +62,7 @@ const Orders = () => {
       align: "center",
     },
     {
-      title: "Create on",
+      title: "Created On",
       dataIndex: "createdOn",
       key: "createdOn",
       align: "center",
@@ -81,11 +85,17 @@ const Orders = () => {
 
   return (
     <CustomLayout pageTitle="Orders" menuKey="5">
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        scroll={{ x: "max-content" }}
-      />
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          scroll={{ x: "max-content" }}
+        />
+      )}
     </CustomLayout>
   );
 };

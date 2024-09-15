@@ -1,8 +1,18 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LabelList,
+} from "recharts";
 import { Card, Row, Col, Typography } from "antd";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import API_BASE_URL from "../../../constants";
+import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
+import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 
 const { Title, Text } = Typography;
 
@@ -15,10 +25,14 @@ const NewCustomers = () => {
     { name: "Year", uv: 0 },
   ]);
 
+  const retryRequest = useRetryRequest(); // Use the retry logic hook
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/admin/newCustomers`);
+        const response = await retryRequest(() =>
+          axiosInstance.get("/admin/newCustomers")
+        );
         const apiData = response.data;
         setData([
           { name: "Today", uv: apiData.today },
@@ -28,12 +42,12 @@ const NewCustomers = () => {
           { name: "Year", uv: apiData.thisYear },
         ]);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [retryRequest]);
 
   return (
     <Card bordered={false} style={{ marginTop: "20px" }}>
@@ -43,7 +57,10 @@ const NewCustomers = () => {
 
       {/* Bar Chart */}
       <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
@@ -56,14 +73,21 @@ const NewCustomers = () => {
       </ResponsiveContainer>
 
       {/* Numbers below the chart */}
-      <div style={{ marginTop: "20px", display: "flex", justifyContent: "center" }}>
+      <div
+        style={{ marginTop: "20px", display: "flex", justifyContent: "center" }}
+      >
         <Row gutter={[16, 16]}>
           {data.map((item, index) => (
             <Col key={index} xs={12} sm={6} style={{ textAlign: "center" }}>
-              <Card bordered={false} style={{ backgroundColor: "#f5f5f5", padding: "10px" }}>
+              <Card
+                bordered={false}
+                style={{ backgroundColor: "#f5f5f5", padding: "10px" }}
+              >
                 <Text strong>{item.name}</Text>
                 <br />
-                <Text style={{ fontSize: "24px", color: "#1890ff" }}>{item.uv}</Text>
+                <Text style={{ fontSize: "24px", color: "#1890ff" }}>
+                  {item.uv}
+                </Text>
               </Card>
             </Col>
           ))}

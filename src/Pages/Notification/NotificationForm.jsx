@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Upload, Button, message, Typography, Modal, Table, Popconfirm, Image } from 'antd';
+import { Form, Upload, Button, message, Typography, Modal, Table, Popconfirm, Image, Spin } from 'antd';
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import CustomLayout from '../../Components/Layout/Layout';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../../Api/axiosConfig'; // Import the custom Axios instance
+import useRetryRequest from '../../Api/useRetryRequest'; // Import the retry hook
 
 const { Title } = Typography;
 
@@ -14,15 +14,17 @@ const Notification = () => {
     const [loading, setLoading] = useState(true);
     const [noticeExists, setNoticeExists] = useState(false); // Track if a notice exists
 
-    const navigate = useNavigate();
+    const retryRequest = useRetryRequest(); // Use the retry logic hook
 
     useEffect(() => {
         fetchNotices();
-    }, []);
+    }, [retryRequest]);
 
     const fetchNotices = async () => {
+        setLoading(true);
         try {
-            const response = await axios.get('http://localhost:3000/admin/slider/notice');
+            // Use retryRequest to fetch notices with retry logic
+            const response = await retryRequest(() => axiosInstance.get('/admin/slider/notice'));
             const data = response.data.map(item => ({
                 key: item.sliderId.toString(),
                 id: item.sliderId,
@@ -32,11 +34,7 @@ const Notification = () => {
             setLoading(false);
 
             // Check if there's already a notice in the system
-            if (data.length > 0) {
-                setNoticeExists(true);  // Set noticeExists to true if a notice is present
-            } else {
-                setNoticeExists(false); // Set noticeExists to false if no notice is present
-            }
+            setNoticeExists(data.length > 0); // Set noticeExists based on the length of data
         } catch (error) {
             message.error('Failed to fetch notices.');
             setLoading(false);
@@ -57,7 +55,7 @@ const Notification = () => {
             formData.append('type', 'notice');
             formData.append('displayOrder', 1); // Example value for displayOrder
 
-            axios.post('http://localhost:3000/admin/slider/add', formData)
+            axiosInstance.post('/admin/slider/add', formData)
                 .then(response => {
                     message.success('Notice uploaded successfully!');
                     form.resetFields();
@@ -74,7 +72,7 @@ const Notification = () => {
 
     const handleDelete = async (key) => {
         try {
-            await axios.delete(`http://localhost:3000/admin/slider/${key}`);
+            await axiosInstance.delete(`/admin/slider/${key}`);
             setTableData(tableData.filter(item => item.key !== key));
             message.success('Notice deleted successfully');
             setNoticeExists(false); // Allow new notice upload after deletion
@@ -121,7 +119,7 @@ const Notification = () => {
     ];
 
     return (
-        <CustomLayout pageTitle="Notices" menuKey="12">
+        <CustomLayout pageTitle="Notices" menuKey="11">
             <Title level={2} style={{ textAlign: 'center', marginBottom: 20 }}>
                 Notice Board
             </Title>
@@ -136,13 +134,18 @@ const Notification = () => {
                 Upload New Notice
             </Button>
 
-            <Table
-                columns={columns}
-                dataSource={tableData}
-                loading={loading}
-                pagination={false}
-                style={{ marginBottom: 40 }}
-            />
+            {loading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+                    <Spin size="large" />
+                </div>
+            ) : (
+                <Table
+                    columns={columns}
+                    dataSource={tableData}
+                    pagination={false}
+                    style={{ marginBottom: 40 }}
+                />
+            )}
 
             <Modal
                 title="Upload Notice Image"

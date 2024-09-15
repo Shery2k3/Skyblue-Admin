@@ -6,10 +6,11 @@ import {
   message,
   Input,
   InputNumber,
+  Spin
 } from "antd";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import API_BASE_URL from "../../constants.js";
+import axiosInstance from "../../Api/axiosConfig"; // Import the custom Axios instance
+import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
 
 const Discounts = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -18,26 +19,32 @@ const Discounts = () => {
   const [selectedDiscount, setSelectedDiscount] = useState(null);
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const retryRequest = useRetryRequest(); // Use the retry logic hook
 
   useEffect(() => {
-    fetchDiscounts();
-  }, []);
+    const fetchDiscounts = async () => {
+      setLoading(true);
+      try {
+        const response = await retryRequest(() => axiosInstance.get(`/admin/alldiscounts`));
+        const data = response.data.map((discount) => ({
+          key: discount.Id,
+          id: discount.Id,
+          name: discount.Name,
+          type: discount.DiscountTypeId,
+          discount: "$" + discount.DiscountAmount,
+        }));
+        setDataSource(data);
+      } catch (error) {
+        console.error("Error fetching discount data:", error);
+        message.error("Failed to fetch discount data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchDiscounts = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/admin/alldiscounts`);
-      const data = response.data.map((discount) => ({
-        key: discount.Id,
-        id: discount.Id,
-        name: discount.Name,
-        type: discount.DiscountTypeId,
-        discount: "$" + discount.DiscountAmount,
-      }));
-      setDataSource(data);
-    } catch (error) {
-      console.error("Error fetching customer data:", error);
-    }
-  };
+    fetchDiscounts();
+  }, [retryRequest]);
 
   const addDiscount = async () => {
     if (!name || !amount || amount <= 0) {
@@ -50,7 +57,7 @@ const Discounts = () => {
         Name: name,
         DiscountAmount: amount,
       };
-      await axios.post(`${API_BASE_URL}/admin/post-discounts`, payload);
+      await retryRequest(() => axiosInstance.post(`/admin/post-discounts`, payload));
       message.success("Discount added successfully");
       fetchDiscounts();
       setAddModal(false);
@@ -75,14 +82,14 @@ const Discounts = () => {
 
   const handleDelete = async (discount) => {
     try {
-      await axios.delete(`${API_BASE_URL}/admin/delete-discount/${discount.id}`);
+      await retryRequest(() => axiosInstance.delete(`/admin/delete-discount/${discount.id}`));
       message.success("Discount deleted successfully");
       fetchDiscounts();
     } catch (error) {
       console.error("Error deleting discount: ", error);
       message.error("Failed to delete discount");
     }
-  }
+  };
 
   const handleOk = async () => {
     if (!name || !amount || amount <= 0) {
@@ -101,10 +108,10 @@ const Discounts = () => {
   
     if (Object.keys(payload).length > 0) {
       try {
-        await axios.patch(
-          `${API_BASE_URL}/admin/editdiscount/${selectedDiscount.id}`,
+        await retryRequest(() => axiosInstance.patch(
+          `/admin/editdiscount/${selectedDiscount.id}`,
           payload
-        );
+        ));
         message.success("Discount updated successfully");
         fetchDiscounts();
       } catch (error) {
@@ -115,7 +122,6 @@ const Discounts = () => {
   
     setIsModalVisible(false);
   };
-  
 
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -145,35 +151,43 @@ const Discounts = () => {
       align: "center",
       render: (_, record) => (
         <>
-        <Button type="primary" onClick={() => handleEdit(record)} style={{ marginRight: 8 }}>
-          Edit
-        </Button>
-        <Button type="primary" onClick={() => handleDelete(record)} danger>
-          Delete
-        </Button>
-      </>
+          <Button type="primary" onClick={() => handleEdit(record)} style={{ marginRight: 8 }}>
+            Edit
+          </Button>
+          <Button type="primary" onClick={() => handleDelete(record)} danger>
+            Delete
+          </Button>
+        </>
       ),
     },
   ];
 
   return (
     <CustomLayout pageTitle="Discounts" menuKey="9">
-      <div style={{ textAlign: "right" }}>
-        <Button type="primary" size="medium" onClick={handleAdd}>
-          Add New Discount
-        </Button>
-      </div>
-      <br />
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        scroll={{ x: "max-content" }}
-      />
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+          <Spin size="large" />
+        </div>
+      ) : (
+        <>
+          <div style={{ textAlign: "right" }}>
+            <Button type="primary" size="medium" onClick={handleAdd}>
+              Add New Discount
+            </Button>
+          </div>
+          <br />
+          <Table
+            dataSource={dataSource}
+            columns={columns}
+            scroll={{ x: "max-content" }}
+          />
+        </>
+      )}
 
-      {/*To Edit an already existing discount*/}
+      {/* Edit existing discount */}
       <Modal
         centered
-        title="Edit discount details"
+        title="Edit Discount Details"
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -198,7 +212,7 @@ const Discounts = () => {
         />
       </Modal>
 
-      {/*To add a new Discount*/}
+      {/* Add new discount */}
       <Modal
         centered
         title="Add New Discount"

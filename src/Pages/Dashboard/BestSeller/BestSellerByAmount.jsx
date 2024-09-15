@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { Table, Button, Pagination, Card } from "antd";
-import axios from "axios"; // Assuming you're using axios for API calls
-
-import API_BASE_URL from '../../../constants.js'
+import { Table, Button, Pagination, Card, Spin } from "antd";
+import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
+import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 
 const BestSellerByAmount = () => {
   const [data, setData] = useState([]);
@@ -10,52 +9,64 @@ const BestSellerByAmount = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5); // Default page size
 
+  const retryRequest = useRetryRequest(); // Use the retry logic hook
+
   useEffect(() => {
     const fetchBestSellers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${API_BASE_URL}/admin/bestSellerByAmount`);
+        // Use retryRequest to fetch best sellers data with retry logic
+        const response = await retryRequest(() =>
+          axiosInstance.get("/admin/bestSellerByAmount")
+        );
         //console.log("response.data", response.data);
-        // Assuming response.data is an array of objects
         setData(response.data);
       } catch (error) {
-        console.error('Error fetching best sellers:', error);
+        console.error("Error fetching best sellers:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchBestSellers();
-  }, []);
+  }, [retryRequest]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  const displayedData = data.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const displayedData = data.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'Name',
-      key: 'Name',
+      title: "Name",
+      dataIndex: "Name",
+      key: "Name",
     },
     {
-      title: 'Total Quantity',
-      dataIndex: 'Quantity',
-      key: 'Quantity',
+      title: "Total Quantity",
+      dataIndex: "Quantity",
+      key: "Quantity",
     },
     {
-      title: 'Total Amount (Excl. Tax)',
-      dataIndex: 'Amount',
-      key: 'Amount',
+      title: "Total Amount (Excl. Tax)",
+      dataIndex: "Amount",
+      key: "Amount",
       render: (amount) => `$${amount.toFixed(2)}`, // Format amount as currency
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: "Action",
+      key: "action",
       render: (record) => (
-        <Button type="link" onClick={() => window.location.href = `/edit-product/${record.ProductId}`}>
+        <Button
+          type="link"
+          onClick={() =>
+            (window.location.href = `/edit-product/${record.ProductId}`)
+          }
+        >
           View
         </Button>
       ),
@@ -63,9 +74,22 @@ const BestSellerByAmount = () => {
   ];
 
   return (
-    <Card bordered={false} title="Best Sellers by Amount" style={{ marginBottom: '20px' }}>
+    <Card
+      bordered={false}
+      title="Best Sellers by Amount"
+      style={{ marginBottom: "20px" }}
+    >
       {loading ? (
-        <div>Loading...</div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "300px",
+          }}
+        >
+          <Spin size="large" />
+        </div>
       ) : (
         <>
           <Table
@@ -76,7 +100,7 @@ const BestSellerByAmount = () => {
             scroll={{ x: "max-content" }}
           />
           <Pagination
-            style={{ marginTop: '20px', textAlign: 'center' }}
+            style={{ marginTop: "20px", textAlign: "center" }}
             current={currentPage}
             pageSize={pageSize}
             total={data.length}

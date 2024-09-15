@@ -1,7 +1,7 @@
-import { Card, Progress, Row, Col, Typography } from 'antd';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../../../constants.js';
+import { Card, Progress, Row, Col, Typography } from "antd";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
+import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 
 const { Title } = Typography;
 
@@ -14,27 +14,32 @@ const OrderCharts = () => {
     allTime: 0,
   });
 
+  const retryRequest = useRetryRequest(); // Use the retry logic hook
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/admin/orderStats`);
+        const response = await retryRequest(() =>
+          axiosInstance.get("/admin/orderStats")
+        );
         setCharts(response.data.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [retryRequest]);
 
   // Calculate progress percentages based on "All Time" total
-  const progressPercent = (amount) => charts.allTime ? Math.min((amount / charts.allTime) * 100, 100) : 0;
+  const progressPercent = (amount) =>
+    charts.allTime ? Math.min((amount / charts.allTime) * 100, 100) : 0;
 
   // Check if charts data is loaded
   const isDataLoaded = charts && charts.allTime !== 0;
 
   return (
-    <Card title="Order Total" style={{ height: '100%' }}>
+    <Card title="Order Total" style={{ height: "100%" }}>
       <Row gutter={[16, 16]}>
         <Col span={24}>
           <Title level={4}>Order Totals</Title>

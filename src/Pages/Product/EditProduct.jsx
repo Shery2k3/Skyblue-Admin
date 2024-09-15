@@ -18,6 +18,8 @@ import {
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import CustomLayout from '../../Components/Layout/Layout';
 import API_BASE_URL from '../../constants';
+import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
+import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -37,6 +39,8 @@ const EditProduct = () => {
   const [disabledPrices, setDisabledPrices] = useState({});
   const [deletingTierPrice, setDeletingTierPrice] = useState(false);
 
+  const retryRequest = useRetryRequest();
+
   useEffect(() => {
     fetchCategories();
     fetchRoles();
@@ -48,7 +52,9 @@ const EditProduct = () => {
 
   const fetchDiscounts = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/discount/product`);
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/discount/product`)
+      );
       setDiscounts(response.data);
     } catch (error) {
       message.error('Failed to fetch discounts');
@@ -57,7 +63,9 @@ const EditProduct = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/category/all`);
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/category/all`)
+      );
       const flattenedCategories = flattenCategories(response.data);
       setCategories(flattenedCategories);
     } catch (error) {
@@ -82,7 +90,9 @@ const EditProduct = () => {
 
   const fetchRoles = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/customer/roles`);
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/customer/roles`)
+      );
       setRoles(response.data);
     } catch (error) {
       message.error('Failed to fetch user roles');
@@ -91,7 +101,9 @@ const EditProduct = () => {
 
   const fetchProductDetails = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/product/${id}`);
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/product/${id}`)
+      );
       const product = response.data;
 
       // Extract the discount ID from the product details

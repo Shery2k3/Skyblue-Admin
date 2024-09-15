@@ -1,47 +1,53 @@
 import CustomLayout from "../../Components/Layout/Layout";
 import { useNavigate } from "react-router-dom";
-import { Table, Button } from "antd";
+import { Table, Button, Spin } from "antd";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import API_BASE_URL from "../../constants.js";
+import axiosInstance from "../../Api/axiosConfig"; // Import the custom Axios instance
+import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
 
 const BestSeller = () => {
   const navigate = useNavigate();
   const [dataSource, setDataSource] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const retryRequest = useRetryRequest(); // Use the retry logic hook
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        // Use retryRequest to fetch products with retry logic
+        const response = await retryRequest(() => axiosInstance.get(`/admin/bestseller?size=100`));
+        const products = response.data;
+
+        const productData = products.map((item) => ({
+          key: item.Id,
+          imageUrl: item.Images[0],
+          productName: item.Name,
+          quantity: item.Quantity,
+          total: "$" + item.Amount.toFixed(2),
+        }));
+
+        setDataSource(productData);
+      } catch (error) {
+        console.error("Error fetching bestseller data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/admin/bestseller?size=100`);
-      const products = response.data;
-
-      const productData = products.map((item) => ({
-        key: item.Id,
-        imageUrl: item.Images[0],
-        productName: item.Name,
-        quantity: item.Quantity,
-        total: "$"+item.Amount.toFixed(2),
-      }));
-
-      setDataSource(productData);
-    } catch (error) {
-      console.error("Error fetching Order data:", error);
-    }
-  };
+  }, [retryRequest]);
 
   const handleView = (product) => {
-    navigate(`/orders/${product.Id}`);
+    navigate(`/edit-product/${product.key}`);
   };
 
   const columns = [
     {
-      title: "image",
+      title: "Image",
       dataIndex: "imageUrl",
-      render: (theImageURL) => (
-        <img alt="product-img" src={theImageURL} style={{ height: 50 }} />
+      render: (imageUrl) => (
+        <img alt="product-img" src={imageUrl} style={{ height: 50 }} />
       ),
       align: "center",
     },
@@ -51,13 +57,13 @@ const BestSeller = () => {
       key: "productName",
     },
     {
-      title: "Total quantity",
+      title: "Total Quantity",
       dataIndex: "quantity",
       key: "quantity",
       align: "center",
     },
     {
-      title: "Total amount",
+      title: "Total Amount",
       dataIndex: "total",
       key: "total",
       align: "center",
@@ -74,11 +80,17 @@ const BestSeller = () => {
 
   return (
     <CustomLayout pageTitle="Best Sellers" menuKey="6">
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        scroll={{ x: "max-content" }}
-      />
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          scroll={{ x: "max-content" }}
+        />
+      )}
     </CustomLayout>
   );
 };

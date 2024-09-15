@@ -1,10 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Select, Pagination, Tag, Space, Typography, Card, Popconfirm } from 'antd';
-import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import axios from 'axios';
-import CustomLayout from '../../Components/Layout/Layout';
-import API_BASE_URL from '../../constants';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  Input,
+  Button,
+  Select,
+  Pagination,
+  Tag,
+  Space,
+  Typography,
+  Card,
+  Popconfirm,
+} from "antd";
+import {
+  SearchOutlined,
+  DeleteOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
+import axios from "axios";
+import CustomLayout from "../../Components/Layout/Layout";
+import API_BASE_URL from "../../constants";
+import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
+import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -13,19 +30,23 @@ const Product = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [category, setCategory] = useState('');
-  const [product, setProduct] = useState('');
-  const [published, setPublished] = useState('');
+  const [category, setCategory] = useState("");
+  const [product, setProduct] = useState("");
+  const [published, setPublished] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+
   const navigate = useNavigate();
+  const retryRequest = useRetryRequest();
 
   const fetchProducts = async (page = 1) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/product/search`, {
-        params: { category, product, published, size: 20, page },
-      });
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/product/search`, {
+          params: { category, product, published, size: 20, page },
+        })
+      );
       setProducts(response.data.products);
       setTotalItems(response.data.totalItems);
       setCurrentPage(response.data.currentPage);
@@ -49,7 +70,7 @@ const Product = () => {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
   };
@@ -66,52 +87,62 @@ const Product = () => {
 
   const columns = [
     {
-      title: 'Image',
-      dataIndex: 'imageUrl',
-      key: 'imageUrl',
-      align: 'center',
+      title: "Image",
+      dataIndex: "imageUrl",
+      key: "imageUrl",
+      align: "center",
       render: (text) => (
         <img
           src={text}
           alt="product"
-          style={{ width: '100%', height: 'auto', maxWidth: 70, maxHeight: 70, objectFit: 'contain' }}
+          style={{
+            width: "100%",
+            height: "auto",
+            maxWidth: 70,
+            maxHeight: 70,
+            objectFit: "contain",
+          }}
         />
       ),
     },
     {
-      title: 'Name',
-      dataIndex: 'Name',
-      key: 'Name',
-      align: 'center',
-      render: (text) => <Text strong>{text}</Text>
+      title: "Name",
+      dataIndex: "Name",
+      key: "Name",
+      align: "center",
+      render: (text) => <Text strong>{text}</Text>,
     },
     {
-      title: 'Price',
-      dataIndex: 'Price',
-      key: 'Price',
-      align: 'center',
+      title: "Price",
+      dataIndex: "Price",
+      key: "Price",
+      align: "center",
       render: (text) => (
-        <Text style={{ fontSize: '14px', color: '#000000', fontWeight: 'bold' }}>
+        <Text
+          style={{ fontSize: "14px", color: "#000000", fontWeight: "bold" }}
+        >
           ${text}
         </Text>
-      )
+      ),
     },
     {
-      title: 'Stock Quantity',
-      dataIndex: 'StockQuantity',
-      key: 'StockQuantity',
-      align: 'center',
+      title: "Stock Quantity",
+      dataIndex: "StockQuantity",
+      key: "StockQuantity",
+      align: "center",
       render: (text) => (
-        <Text style={{ fontSize: '14px', color: '#000000', fontWeight: 'bold' }}>
+        <Text
+          style={{ fontSize: "14px", color: "#000000", fontWeight: "bold" }}
+        >
           {text}
         </Text>
-      )
+      ),
     },
     {
-      title: 'Published',
-      dataIndex: 'Published',
-      key: 'Published',
-      align: 'center',
+      title: "Published",
+      dataIndex: "Published",
+      key: "Published",
+      align: "center",
       render: (text) =>
         text ? (
           <Tag color="green">Published</Tag>
@@ -120,9 +151,9 @@ const Product = () => {
         ),
     },
     {
-      title: 'Actions',
-      key: 'actions',
-      align: 'center',
+      title: "Actions",
+      key: "actions",
+      align: "center",
       render: (text, record) => (
         <Space>
           <Button
@@ -147,13 +178,21 @@ const Product = () => {
           </Popconfirm>
         </Space>
       ),
-    }
+    },
   ];
 
   return (
-    <CustomLayout pageTitle="Products" menuKey={3}>
-      <Card style={{ borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
+    <CustomLayout pageTitle="Products" menuKey="3">
+      <Card
+        style={{ borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+      >
+        <div
+          style={{
+            marginBottom: 24,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
           <Space size="large" wrap>
             <Input
               placeholder="Category"
@@ -180,10 +219,16 @@ const Product = () => {
               <Option value="0">Unpublished</Option>
               <Option value="">All</Option>
             </Select>
-            <Button type="primary" onClick={handleSearch} icon={<SearchOutlined />}>
+            <Button
+              type="primary"
+              onClick={handleSearch}
+              icon={<SearchOutlined />}
+            >
               Search
             </Button>
-            <Button type="primary" onClick={() => navigate('/edit-product')}>Add Product</Button>
+            <Button type="primary" onClick={() => navigate("/edit-product")}>
+              Add Product
+            </Button>
           </Space>
         </div>
         <Table
@@ -195,7 +240,7 @@ const Product = () => {
           scroll={{ x: "max-content" }}
           style={{ marginBottom: 24 }}
         />
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: "flex", justifyContent: "center" }}>
           <Pagination
             current={currentPage}
             total={totalItems}
@@ -207,7 +252,7 @@ const Product = () => {
         </div>
       </Card>
       {error && (
-        <div style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>
+        <div style={{ color: "red", textAlign: "center", marginTop: 16 }}>
           {error.message}
         </div>
       )}

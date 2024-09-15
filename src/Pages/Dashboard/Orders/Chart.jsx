@@ -8,8 +8,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import API_BASE_URL from '../../../constants.js';
+import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
+import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 
 // Define colors for the pie chart
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF6384"];
@@ -22,10 +22,14 @@ const Chart = () => {
     { name: "Year", value: 0 },
   ]);
 
+  const retryRequest = useRetryRequest(); // Use the retry logic hook
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/admin/orderValue`);
+        const response = await retryRequest(() =>
+          axiosInstance.get("/admin/orderValue")
+        );
         const data = response.data.values;
         setOrderTotalData([
           { name: "Today", value: data.today },
@@ -33,14 +37,14 @@ const Chart = () => {
           { name: "Month", value: data.thisMonth },
           { name: "Year", value: data.thisYear },
         ]);
-        console.log(data)
+        console.log(data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [retryRequest]);
 
   return (
     <Card title="Order Total" style={{ height: "100%" }}>
@@ -69,7 +73,14 @@ const Chart = () => {
       </ResponsiveContainer>
       <div style={{ marginTop: "20px", textAlign: "center" }}>
         {orderTotalData.map((entry, index) => (
-          <p key={index} style={{ color: COLORS[index % COLORS.length], fontSize: "16px", margin: "5px 0" }}>
+          <p
+            key={index}
+            style={{
+              color: COLORS[index % COLORS.length],
+              fontSize: "16px",
+              margin: "5px 0",
+            }}
+          >
             {entry.name}: {entry.value}
           </p>
         ))}
