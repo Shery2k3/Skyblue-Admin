@@ -21,6 +21,7 @@ import API_BASE_URL from "../../constants";
 import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
 import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
 import { useNavigate } from "react-router-dom";
+import { useMediaQuery } from 'react-responsive';
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -37,6 +38,8 @@ const Product = () => {
 
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
+
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   const fetchProducts = async (page = 1) => {
     setLoading(true);
@@ -189,7 +192,8 @@ const Product = () => {
           style={{
             marginBottom: 24,
             display: "flex",
-            justifyContent: "center",
+            justifyContent: isSmallScreen ? "center" : "space-between",
+            flexWrap: "wrap",
           }}
         >
           <Space size="large" wrap>
@@ -198,7 +202,7 @@ const Product = () => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               onKeyDown={handleKeyPress}
-              style={{ width: 200 }}
+              style={{ width: isSmallScreen ? "100%" : 200 }}
               prefix={<SearchOutlined />}
             />
             <Input
@@ -206,13 +210,13 @@ const Product = () => {
               value={product}
               onChange={(e) => setProduct(e.target.value)}
               onKeyDown={handleKeyPress}
-              style={{ width: 200 }}
+              style={{ width: isSmallScreen ? "100%" : 200 }}
               prefix={<SearchOutlined />}
             />
             <Select
               value={published}
               onChange={(value) => setPublished(value)}
-              style={{ width: 200 }}
+              style={{ width: isSmallScreen ? "100%" : 200 }}
             >
               <Option value="1">Published</Option>
               <Option value="0">Unpublished</Option>
@@ -222,10 +226,15 @@ const Product = () => {
               type="primary"
               onClick={handleSearch}
               icon={<SearchOutlined />}
+              style={{ width: isSmallScreen ? "100%" : "auto" }}
             >
               Search
             </Button>
-            <Button type="primary" onClick={() => navigate("/edit-product")}>
+            <Button
+              type="primary"
+              onClick={() => navigate("/edit-product")}
+              style={{ width: isSmallScreen ? "100%" : "auto" }}
+            >
               Add Product
             </Button>
           </Space>
@@ -239,7 +248,7 @@ const Product = () => {
           scroll={{ x: "max-content" }}
           style={{ marginBottom: 24 }}
         />
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", paddingBottom: '20px' }}>
           <Pagination
             current={currentPage}
             total={totalItems}
@@ -247,6 +256,8 @@ const Product = () => {
             onChange={handlePageChange}
             showSizeChanger={false}
             showQuickJumper
+            size={isSmallScreen ? 'small' : 'default'}
+            simple={isSmallScreen}
           />
         </div>
       </Card>

@@ -70,6 +70,21 @@ const CategoryPath = styled.div`
   }
 `;
 
+const ResponsiveSpace = styled(Space)`
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
+`;
+
+const ResponsivePagination = styled(Pagination)`
+  @media (max-width: 768px) {
+    .ant-pagination-total-text {
+      display: none;
+    }
+  }
+`;
+
 const Category = () => {
   const [dataSource, setDataSource] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -259,7 +274,7 @@ const Category = () => {
       <div
         style={{ marginBottom: 24, display: "flex", justifyContent: "center" }}
       >
-        <Space size="large" wrap>
+        <ResponsiveSpace size="large" wrap>
           <Input
             placeholder="Search categories"
             value={searchTerm}
@@ -284,7 +299,7 @@ const Category = () => {
           >
             Add Category
           </StyledButton>
-        </Space>
+        </ResponsiveSpace>
       </div>
       <StyledTable
         dataSource={dataSource.slice(
@@ -296,13 +311,13 @@ const Category = () => {
         scroll={{ x: "max-content" }}
       />
       <CenteredFooter>
-        <Pagination
+        <ResponsivePagination
           current={currentPage}
           pageSize={pageSize}
           total={dataSource.length}
           onChange={handlePageChange}
           showQuickJumper
-          showTotal={(total) => `Total categories: ${total}`}
+          showTotal={(total) => `Total: ${total}`}
           showSizeChanger={false}
         />
       </CenteredFooter>

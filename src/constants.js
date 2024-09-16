@@ -1,2 +1,2 @@
-const API_BASE_URL = "https://mjbpxpwf-3000.inc1.devtunnels.ms"
+const API_BASE_URL = "http://localhost:3000"
 export default API_BASE_URL;

@@ -1,6 +1,7 @@
 import CustomLayout from "../../Components/Layout/Layout";
 import { Table, Button, Modal, Checkbox, Select, message, Pagination, Input, Space, Row, Col, Tag } from "antd";
 import { useEffect, useState, useCallback } from "react";
+import { useMediaQuery } from 'react-responsive';
 import API_BASE_URL from '../../constants.js'
 import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
 import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
@@ -34,6 +35,8 @@ const Customer = () => {
   const [searchPhoneNumber, setSearchPhoneNumber] = useState('');
 
   const retryRequest = useRetryRequest();
+
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   const fetchCustomers = useCallback(
     debounce(async (page) => {
@@ -273,7 +276,7 @@ const Customer = () => {
           loading={isFetching}
         />
 
-        <Row justify="center" style={{ marginTop: '20px' }}>
+        <Row justify="center" style={{ marginTop: '20px', paddingBottom: '20px' }}>
           <Col>
             <Pagination
               current={currentPage}
@@ -284,6 +287,8 @@ const Customer = () => {
               showQuickJumper
               showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
               disabled={isFetching || isStartingFetch}
+              size={isSmallScreen ? 'small' : 'default'}
+              simple={isSmallScreen}
             />
           </Col>
         </Row>

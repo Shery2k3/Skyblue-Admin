@@ -20,6 +20,7 @@ import CustomLayout from '../../Components/Layout/Layout';
 import API_BASE_URL from '../../constants';
 import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
 import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
+import { useMediaQuery } from 'react-responsive';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -40,6 +41,8 @@ const EditProduct = () => {
   const [deletingTierPrice, setDeletingTierPrice] = useState(false);
 
   const retryRequest = useRetryRequest();
+
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   useEffect(() => {
     fetchCategories();
@@ -265,6 +268,7 @@ const EditProduct = () => {
     formContainer: {
       maxWidth: '800px',
       margin: '0 auto',
+      padding: isSmallScreen ? '10px' : '20px',
     },
     imageContainer: {
       display: 'flex',
@@ -285,10 +289,13 @@ const EditProduct = () => {
       display: 'flex',
       alignItems: 'center',
       marginBottom: '10px',
+      flexDirection: isSmallScreen ? 'column' : 'row',
     },
     tierPriceItem: {
       flex: 1,
-      marginRight: '10px',
+      marginRight: isSmallScreen ? '0' : '10px',
+      marginBottom: isSmallScreen ? '10px' : '0',
+      width: isSmallScreen ? '100%' : 'auto',
     },
     deleteButton: {
       color: '#ff4d4f',
@@ -350,7 +357,7 @@ const EditProduct = () => {
                 </Select>
               </Form.Item>
 
-              <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+              <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <Form.Item name="Price" label="Price" rules={[{ required: true }]} style={styles.formItem}>
                   <InputNumber min={0} step={0.01} style={{ width: '100%' }} />
                 </Form.Item>
@@ -368,7 +375,7 @@ const EditProduct = () => {
                 </Form.Item>
               </Space>
 
-              <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+              <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <Form.Item name="StockQuantity" label="Stock Quantity" style={styles.formItem}>
                   <InputNumber min={0} style={{ width: '100%' }} />
                 </Form.Item>
@@ -386,7 +393,7 @@ const EditProduct = () => {
                 <Input placeholder="Comma-separated values, e.g. 1, 5, 10" />
               </Form.Item>
 
-              <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+              <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <Form.Item name="Barcode" label="Barcode" style={styles.formItem}>
                   <Input style={{ width: '100%' }} />
                 </Form.Item>
@@ -408,7 +415,7 @@ const EditProduct = () => {
                 <TextArea rows={2} />
               </Form.Item>
 
-              <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+              <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <Form.Item name="Published" valuePropName="checked" label="Published" style={styles.formItem}>
                   <Switch />
                 </Form.Item>
