@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Form,
   Input,
@@ -14,13 +14,14 @@ import {
   Select,
   Upload,
   Popconfirm,
-} from 'antd';
-import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import CustomLayout from '../../Components/Layout/Layout';
-import API_BASE_URL from '../../constants';
+} from "antd";
+import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
+import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
+import CustomLayout from "../../Components/Layout/Layout";
+import API_BASE_URL from "../../constants";
 import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
 import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
-import { useMediaQuery } from 'react-responsive';
+import { useMediaQuery } from "react-responsive";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -33,7 +34,7 @@ const EditProduct = () => {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState("");
   const [newImage, setNewImage] = useState(null);
   const [discounts, setDiscounts] = useState([]);
   const [initialValues, setInitialValues] = useState({});
@@ -43,6 +44,7 @@ const EditProduct = () => {
   const retryRequest = useRetryRequest();
 
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+  const buttonSize = useResponsiveButtonSize();
 
   useEffect(() => {
     fetchCategories();
@@ -60,7 +62,7 @@ const EditProduct = () => {
       );
       setDiscounts(response.data);
     } catch (error) {
-      message.error('Failed to fetch discounts');
+      message.error("Failed to fetch discounts");
     }
   };
 
@@ -72,20 +74,24 @@ const EditProduct = () => {
       const flattenedCategories = flattenCategories(response.data);
       setCategories(flattenedCategories);
     } catch (error) {
-      message.error('Failed to fetch categories');
+      message.error("Failed to fetch categories");
     }
   };
 
-  const flattenCategories = (categories, parentPath = '') => {
+  const flattenCategories = (categories, parentPath = "") => {
     let flatData = [];
-    categories.forEach(category => {
-      const currentPath = parentPath ? `${parentPath} >> ${category.Name}` : category.Name;
+    categories.forEach((category) => {
+      const currentPath = parentPath
+        ? `${parentPath} >> ${category.Name}`
+        : category.Name;
       flatData.push({
         id: category.Id,
         name: currentPath,
       });
       if (category.children && category.children.length > 0) {
-        flatData = flatData.concat(flattenCategories(category.children, currentPath));
+        flatData = flatData.concat(
+          flattenCategories(category.children, currentPath)
+        );
       }
     });
     return flatData;
@@ -98,7 +104,7 @@ const EditProduct = () => {
       );
       setRoles(response.data);
     } catch (error) {
-      message.error('Failed to fetch user roles');
+      message.error("Failed to fetch user roles");
     }
   };
 
@@ -113,8 +119,8 @@ const EditProduct = () => {
       const discountId = product.Discount?.[0]?.Discount_Id;
 
       // Find the discount name from the discounts state
-      const discount = discounts.find(d => d.Id === discountId);
-      const discountName = discount ? discount.Name : '';
+      const discount = discounts.find((d) => d.Id === discountId);
+      const discountName = discount ? discount.Name : "";
 
       const formValues = {
         Name: product.Name,
@@ -150,7 +156,7 @@ const EditProduct = () => {
       form.setFieldsValue(formValues);
       setImageUrl(product.ImageUrl);
     } catch (error) {
-      message.error('Failed to fetch product details');
+      message.error("Failed to fetch product details");
     }
   };
 
@@ -158,7 +164,7 @@ const EditProduct = () => {
     setLoading(true);
     try {
       const updatedFields = {};
-      Object.keys(values).forEach(key => {
+      Object.keys(values).forEach((key) => {
         if (values[key] !== initialValues[key]) {
           updatedFields[key] = values[key];
         }
@@ -168,40 +174,52 @@ const EditProduct = () => {
       for (let i = 1; i <= 5; i++) {
         const roleKey = `Role${i}`;
         const priceKey = `Price${i}`;
-        if (values[roleKey] !== initialValues[roleKey] || values[priceKey] !== initialValues[priceKey] || disabledPrices[i]) {
+        if (
+          values[roleKey] !== initialValues[roleKey] ||
+          values[priceKey] !== initialValues[priceKey] ||
+          disabledPrices[i]
+        ) {
           updatedFields[roleKey] = values[roleKey];
           updatedFields[priceKey] = disabledPrices[i] ? 0 : values[priceKey];
         }
       }
 
       const formData = new FormData();
-      Object.keys(updatedFields).forEach(key => {
+      Object.keys(updatedFields).forEach((key) => {
         formData.append(key, updatedFields[key]);
       });
 
       if (newImage) {
-        formData.append('images', newImage);
+        formData.append("images", newImage);
       }
 
       // Log the form data
       for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
+        console.log(pair[0] + ": " + pair[1]);
       }
 
       if (id) {
-        await axiosInstance.patch(`${API_BASE_URL}/admin/product/${id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        message.success('Product updated successfully');
+        await axiosInstance.patch(
+          `${API_BASE_URL}/admin/product/${id}`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        message.success("Product updated successfully");
       } else {
-        await axiosInstance.post(`${API_BASE_URL}/admin/product/add`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        message.success('Product added successfully');
+        await axiosInstance.post(
+          `${API_BASE_URL}/admin/product/add`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        message.success("Product added successfully");
       }
-      navigate('/products');
+      navigate("/products");
     } catch (error) {
-      message.error('Failed to save product');
+      message.error("Failed to save product");
     } finally {
       setLoading(false);
     }
@@ -220,11 +238,11 @@ const EditProduct = () => {
   };
 
   const handleDisablePrice = (index, checked) => {
-    setDisabledPrices(prev => ({ ...prev, [index]: checked }));
+    setDisabledPrices((prev) => ({ ...prev, [index]: checked }));
     if (checked) {
       form.setFieldsValue({
         [`Price${index}`]: 0,
-        [`Role${index}`]: null
+        [`Role${index}`]: null,
       });
     }
   };
@@ -232,7 +250,7 @@ const EditProduct = () => {
   const handleDeleteTierPrice = async (index) => {
     const roleId = form.getFieldValue(`Role${index}`);
     if (!roleId) {
-      message.error('Please select a role before deleting');
+      message.error("Please select a role before deleting");
       return;
     }
 
@@ -241,10 +259,10 @@ const EditProduct = () => {
       await axiosInstance.delete(`${API_BASE_URL}/admin/product/tier-price`, {
         data: {
           customerRoleId: roleId,
-          productId: id
-        }
+          productId: id,
+        },
       });
-      message.success('Tier price deleted successfully');
+      message.success("Tier price deleted successfully");
 
       // Shift remaining tier prices up
       const newValues = { ...form.getFieldsValue() };
@@ -258,7 +276,7 @@ const EditProduct = () => {
 
       form.setFieldsValue(newValues);
     } catch (error) {
-      message.error('Failed to delete tier price');
+      message.error("Failed to delete tier price");
     } finally {
       setDeletingTierPrice(false);
     }
@@ -266,59 +284,60 @@ const EditProduct = () => {
 
   const styles = {
     formContainer: {
-      maxWidth: '800px',
-      margin: '0 auto',
-      padding: isSmallScreen ? '10px' : '20px',
+      maxWidth: "800px",
+      margin: "0 auto",
+      padding: isSmallScreen ? "10px" : "20px",
     },
     imageContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      marginBottom: '20px',
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      marginBottom: "20px",
     },
     productImage: {
-      width: '200px',
-      height: '200px',
-      objectFit: 'cover',
-      marginBottom: '10px',
+      width: isSmallScreen ? "80%" : "200px",
+      height: "auto",
+      objectFit: "cover",
+      marginBottom: "10px",
     },
     formItem: {
-      marginBottom: '20px',
+      marginBottom: "20px",
     },
     tierPriceContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      marginBottom: '10px',
-      flexDirection: isSmallScreen ? 'column' : 'row',
+      display: "flex",
+      alignItems: "center",
+      marginBottom: "10px",
+      flexDirection: isSmallScreen ? "column" : "row",
     },
     tierPriceItem: {
       flex: 1,
-      marginRight: isSmallScreen ? '0' : '10px',
-      marginBottom: isSmallScreen ? '10px' : '0',
-      width: isSmallScreen ? '100%' : 'auto',
+      marginRight: isSmallScreen ? "0" : "10px",
+      marginBottom: isSmallScreen ? "10px" : "0",
+      width: isSmallScreen ? "100%" : "auto",
     },
     deleteButton: {
-      color: '#ff4d4f',
+      color: "#ff4d4f",
     },
   };
 
   return (
-    <CustomLayout pageTitle={id ? 'Edit Product' : 'Add Product'} menuKey={3}>
-      <Card>
+    <CustomLayout pageTitle={id ? "Edit Product" : "Add Product"} menuKey="3">
+      <Title level={2} style={{ textAlign: "center" }}>
+        {id ? "Edit Product" : "Add Product"}
+      </Title>
+      <Card size="small">
         <div style={styles.formContainer}>
-          <Title level={2} style={{ textAlign: 'center' }}>
-            {id ? 'Edit Product' : 'Add Product'}
-          </Title>
-
           <div style={styles.imageContainer}>
-            {imageUrl && <img src={imageUrl} alt="Product" style={styles.productImage} />}
+            {imageUrl && (
+              <img src={imageUrl} alt="Product" style={styles.productImage} />
+            )}
             <Upload
               beforeUpload={() => false}
               onChange={handleImageChange}
               showUploadList={false}
             >
-              <Button icon={<UploadOutlined />}>
-                {imageUrl ? 'Change Image' : 'Upload Image'}
+              <Button icon={<UploadOutlined />} size={buttonSize}>
+                {imageUrl ? "Change Image" : "Upload Image"}
               </Button>
             </Upload>
           </div>
@@ -336,95 +355,215 @@ const EditProduct = () => {
               StockQuantity: 10000,
             }}
           >
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              <Form.Item name="Name" label="Name" rules={[{ required: true }]} style={styles.formItem}>
+            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+              <Form.Item
+                name="Name"
+                label="Name"
+                rules={[{ required: true }]}
+                style={styles.formItem}
+              >
                 <Input />
               </Form.Item>
 
-              <Form.Item name="ShortDescription" label="Short Description" style={styles.formItem}>
+              <Form.Item
+                name="ShortDescription"
+                label="Short Description"
+                style={styles.formItem}
+              >
                 <Input />
               </Form.Item>
 
-              <Form.Item name="FullDescription" label="Full Description" style={styles.formItem}>
+              <Form.Item
+                name="FullDescription"
+                label="Full Description"
+                style={styles.formItem}
+              >
                 <TextArea rows={4} />
               </Form.Item>
 
-              <Form.Item name="CategoryId" label="Category" initialValue={initialValues.CategoryId} style={styles.formItem}>
-                <Select placeholder={initialValues.CategoryName || "Select a category"}>
-                  {categories.map(category => (
-                    <Option key={category.id} value={category.id}>{category.name}</Option>
+              <Form.Item
+                name="CategoryId"
+                label="Category"
+                initialValue={initialValues.CategoryId}
+                style={styles.formItem}
+              >
+                <Select
+                  placeholder={
+                    initialValues.CategoryName || "Select a category"
+                  }
+                >
+                  {categories.map((category) => (
+                    <Option key={category.id} value={category.id}>
+                      {category.name}
+                    </Option>
                   ))}
                 </Select>
               </Form.Item>
 
-              <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <Form.Item name="Price" label="Price" rules={[{ required: true }]} style={styles.formItem}>
-                  <InputNumber min={0} step={0.01} style={{ width: '100%' }} />
+              <Space
+                style={{
+                  width: "100%",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                }}
+              >
+                <Form.Item
+                  name="Price"
+                  label="Price"
+                  rules={[{ required: true }]}
+                  style={styles.formItem}
+                >
+                  <InputNumber min={0} step={0.01} style={{ width: "100%" }} />
                 </Form.Item>
 
-                <Form.Item name="OldPrice" label="Old Price" style={styles.formItem}>
-                  <InputNumber min={0} step={0.01} style={{ width: '100%' }} />
+                <Form.Item
+                  name="OldPrice"
+                  label="Old Price"
+                  style={styles.formItem}
+                >
+                  <InputNumber min={0} step={0.01} style={{ width: "100%" }} />
                 </Form.Item>
 
-                <Form.Item name="DiscountId" label="Discount" initialValue={initialValues.DiscountId} style={styles.formItem}>
-                  <Select placeholder={initialValues.DiscountName || "Select a discount"} style={{ width: '100%' }}>
-                    {discounts.map(discount => (
-                      <Option key={discount.Id} value={discount.Id}>{discount.Name}</Option>
+                <Form.Item
+                  name="DiscountId"
+                  label="Discount"
+                  initialValue={initialValues.DiscountId}
+                  style={styles.formItem}
+                >
+                  <Select
+                    placeholder={
+                      initialValues.DiscountName || "Select a discount"
+                    }
+                    style={{ width: "100%" }}
+                  >
+                    {discounts.map((discount) => (
+                      <Option key={discount.Id} value={discount.Id}>
+                        {discount.Name}
+                      </Option>
                     ))}
                   </Select>
                 </Form.Item>
               </Space>
 
-              <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <Form.Item name="StockQuantity" label="Stock Quantity" style={styles.formItem}>
-                  <InputNumber min={0} style={{ width: '100%' }} />
+              <Space
+                style={{
+                  width: "100%",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                }}
+              >
+                <Form.Item
+                  name="StockQuantity"
+                  label="Stock Quantity"
+                  style={styles.formItem}
+                >
+                  <InputNumber min={0} style={{ width: "100%" }} />
                 </Form.Item>
 
-                <Form.Item name="OrderMinimumQuantity" label="Minimum Order Quantity" style={styles.formItem}>
-                  <InputNumber min={1} style={{ width: '100%' }} />
+                <Form.Item
+                  name="OrderMinimumQuantity"
+                  label="Minimum Order Quantity"
+                  style={styles.formItem}
+                >
+                  <InputNumber min={1} style={{ width: "100%" }} />
                 </Form.Item>
 
-                <Form.Item name="OrderMaximumQuantity" label="Maximum Order Quantity" style={styles.formItem}>
-                  <InputNumber min={1} style={{ width: '100%' }} />
+                <Form.Item
+                  name="OrderMaximumQuantity"
+                  label="Maximum Order Quantity"
+                  style={styles.formItem}
+                >
+                  <InputNumber min={1} style={{ width: "100%" }} />
                 </Form.Item>
               </Space>
 
-              <Form.Item name="AllowedQuantities" label="Allowed Quantities" style={styles.formItem}>
+              <Form.Item
+                name="AllowedQuantities"
+                label="Allowed Quantities"
+                style={styles.formItem}
+              >
                 <Input placeholder="Comma-separated values, e.g. 1, 5, 10" />
               </Form.Item>
 
-              <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <Form.Item name="Barcode" label="Barcode" style={styles.formItem}>
-                  <Input style={{ width: '100%' }} />
+              <Space
+                style={{
+                  width: "100%",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                }}
+              >
+                <Form.Item
+                  name="Barcode"
+                  label="Barcode"
+                  style={styles.formItem}
+                >
+                  <Input style={{ width: "100%" }} />
                 </Form.Item>
 
-                <Form.Item name="Barcode2" label="Barcode 2" style={styles.formItem}>
-                  <Input style={{ width: '100%' }} />
+                <Form.Item
+                  name="Barcode2"
+                  label="Barcode 2"
+                  style={styles.formItem}
+                >
+                  <Input style={{ width: "100%" }} />
                 </Form.Item>
               </Space>
 
-              <Form.Item name="ItemLocation" label="Item Location" style={styles.formItem}>
+              <Form.Item
+                name="ItemLocation"
+                label="Item Location"
+                style={styles.formItem}
+              >
                 <Input />
               </Form.Item>
 
-              <Form.Item name="BoxQty" label="Box Quantity" style={styles.formItem}>
-                <InputNumber min={0} style={{ width: '100%' }} />
+              <Form.Item
+                name="BoxQty"
+                label="Box Quantity"
+                style={styles.formItem}
+              >
+                <InputNumber min={0} style={{ width: "100%" }} />
               </Form.Item>
 
-              <Form.Item name="AdminComment" label="Admin Comment" style={styles.formItem}>
+              <Form.Item
+                name="AdminComment"
+                label="Admin Comment"
+                style={styles.formItem}
+              >
                 <TextArea rows={2} />
               </Form.Item>
 
-              <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <Form.Item name="Published" valuePropName="checked" label="Published" style={styles.formItem}>
+              <Space
+                style={{
+                  width: "100%",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                }}
+              >
+                <Form.Item
+                  name="Published"
+                  valuePropName="checked"
+                  label="Published"
+                  style={styles.formItem}
+                >
                   <Switch />
                 </Form.Item>
 
-                <Form.Item name="VisibleIndividually" valuePropName="checked" label="Visible Individually" style={styles.formItem}>
+                <Form.Item
+                  name="VisibleIndividually"
+                  valuePropName="checked"
+                  label="Visible Individually"
+                  style={styles.formItem}
+                >
                   <Switch />
                 </Form.Item>
 
-                <Form.Item name="MarkAsNew" valuePropName="checked" label="Mark as New" style={styles.formItem}>
+                <Form.Item
+                  name="MarkAsNew"
+                  valuePropName="checked"
+                  label="Mark as New"
+                  style={styles.formItem}
+                >
                   <Switch />
                 </Form.Item>
               </Space>
@@ -438,11 +577,15 @@ const EditProduct = () => {
                     style={styles.tierPriceItem}
                   >
                     <Select
-                      style={{ width: '100%' }}
-                      onChange={() => form.setFieldsValue({ [`Price${index}`]: null })}
+                      style={{ width: "100%" }}
+                      onChange={() =>
+                        form.setFieldsValue({ [`Price${index}`]: null })
+                      }
                     >
-                      {roles.map(role => (
-                        <Option key={role.Id} value={role.Id}>{role.Name}</Option>
+                      {roles.map((role) => (
+                        <Option key={role.Id} value={role.Id}>
+                          {role.Name}
+                        </Option>
                       ))}
                     </Select>
                   </Form.Item>
@@ -454,7 +597,7 @@ const EditProduct = () => {
                     <InputNumber
                       min={0}
                       step={0.01}
-                      style={{ width: '100%' }}
+                      style={{ width: "100%" }}
                     />
                   </Form.Item>
                   <Popconfirm
@@ -478,9 +621,9 @@ const EditProduct = () => {
                 </div>
               ))}
 
-              <Form.Item style={{ textAlign: 'center' }}>
+              <Form.Item style={{ textAlign: "center" }}>
                 <Button type="primary" htmlType="submit" loading={loading}>
-                  {id ? 'Update Product' : 'Add Product'}
+                  {id ? "Update Product" : "Add Product"}
                 </Button>
               </Form.Item>
             </Space>

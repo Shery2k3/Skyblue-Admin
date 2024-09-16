@@ -1,13 +1,26 @@
 import CustomLayout from "../../Components/Layout/Layout";
-import { Table, Button, Modal, Checkbox, Select, message, Pagination, Input, Space, Row, Col, Tag } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Checkbox,
+  Select,
+  message,
+  Pagination,
+  Input,
+  Space,
+  Row,
+  Col,
+  Tag,
+  Typography
+} from "antd";
 import { useEffect, useState, useCallback } from "react";
-import { useMediaQuery } from 'react-responsive';
-import API_BASE_URL from '../../constants.js'
-import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
-import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
+import { useMediaQuery } from "react-responsive";
+import API_BASE_URL from "../../constants.js";
+import axiosInstance from "../../Api/axiosConfig"; 
+import useRetryRequest from "../../Api/useRetryRequest"; 
 
 const { Option } = Select;
-
 const debounce = (func, delay) => {
   let timeoutId;
   return (...args) => {
@@ -30,12 +43,12 @@ const Customer = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [isStartingFetch, setIsStartingFetch] = useState(false);
-  const [searchFirstName, setSearchFirstName] = useState('');
-  const [searchLastName, setSearchLastName] = useState('');
-  const [searchPhoneNumber, setSearchPhoneNumber] = useState('');
+  const [searchFirstName, setSearchFirstName] = useState("");
+  const [searchLastName, setSearchLastName] = useState("");
+  const [searchPhoneNumber, setSearchPhoneNumber] = useState("");
 
   const retryRequest = useRetryRequest();
-
+  const { Title } = Typography;
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   const fetchCustomers = useCallback(
@@ -45,7 +58,9 @@ const Customer = () => {
       setIsFetching(true);
       try {
         const response = await retryRequest(() =>
-          axiosInstance.get(`${API_BASE_URL}/admin/customer/all?size=${pageSize}&page=${page}`)
+          axiosInstance.get(
+            `${API_BASE_URL}/admin/customer/all?size=${pageSize}&page=${page}`
+          )
         );
         const { data, totalCustomers, totalPages, pageNumber } = response.data;
 
@@ -81,7 +96,7 @@ const Customer = () => {
       try {
         const params = {
           size: pageSize,
-          page: page
+          page: page,
         };
         if (searchFirstName) params.firstName = searchFirstName;
         if (searchLastName) params.lastName = searchLastName;
@@ -123,7 +138,9 @@ const Customer = () => {
 
   const fetchRoles = async () => {
     try {
-      const response = await axiosInstance.get(`${API_BASE_URL}/admin/customer/roles`);
+      const response = await axiosInstance.get(
+        `${API_BASE_URL}/admin/customer/roles`
+      );
       setAvailableRoles(response.data);
     } catch (error) {
       console.error("Error fetching roles:", error);
@@ -133,7 +150,7 @@ const Customer = () => {
   const handleEdit = (customer) => {
     setSelectedCustomer(customer);
     setIsActive(customer.active);
-    setSelectedRoles(customer.roles.map(role => role.name));
+    setSelectedRoles(customer.roles.map((role) => role.name));
     setRemovedRoles([]);
     setIsModalVisible(true);
   };
@@ -145,23 +162,26 @@ const Customer = () => {
     }
     if (selectedRoles.length > 0) {
       payload.roles = availableRoles
-        .filter(role => selectedRoles.includes(role.Name))
-        .map(role => role.Id);
+        .filter((role) => selectedRoles.includes(role.Name))
+        .map((role) => role.Id);
     }
     if (removedRoles.length > 0) {
       payload.removeRoles = availableRoles
-        .filter(role => removedRoles.includes(role.Name))
-        .map(role => role.Id);
+        .filter((role) => removedRoles.includes(role.Name))
+        .map((role) => role.Id);
     }
 
     if (Object.keys(payload).length > 0) {
       try {
-        await axiosInstance.patch(`${API_BASE_URL}/admin/customer/${selectedCustomer.id}`, payload);
-        message.success('Customer updated successfully');
+        await axiosInstance.patch(
+          `${API_BASE_URL}/admin/customer/${selectedCustomer.id}`,
+          payload
+        );
+        message.success("Customer updated successfully");
         fetchCustomers(currentPage);
       } catch (error) {
         console.error("Error updating customer:", error);
-        message.error('Failed to update customer');
+        message.error("Failed to update customer");
       }
     }
 
@@ -169,8 +189,8 @@ const Customer = () => {
   };
 
   const handleRoleChange = (newRoles) => {
-    const added = newRoles.filter(role => !selectedRoles.includes(role));
-    const removed = selectedRoles.filter(role => !newRoles.includes(role));
+    const added = newRoles.filter((role) => !selectedRoles.includes(role));
+    const removed = selectedRoles.filter((role) => !newRoles.includes(role));
 
     setSelectedRoles(newRoles);
     setRemovedRoles([...removedRoles, ...removed]);
@@ -199,41 +219,45 @@ const Customer = () => {
 
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
     },
     {
-      title: 'Company',
-      dataIndex: 'company',
-      key: 'company',
+      title: "Company",
+      dataIndex: "company",
+      key: "company",
     },
     {
-      title: 'Phone',
-      dataIndex: 'phone',
-      key: 'phone',
+      title: "Phone",
+      dataIndex: "phone",
+      key: "phone",
     },
     {
-      title: 'Status',
-      dataIndex: 'active',
-      key: 'active',
+      title: "Status",
+      dataIndex: "active",
+      key: "active",
       render: (active) =>
-        active ? <Tag color='green'>{"ACTIVE"}</Tag> : <Tag color='volcano'>{"INACTIVE"}</Tag> ,
+        active ? (
+          <Tag color="green">{"ACTIVE"}</Tag>
+        ) : (
+          <Tag color="volcano">{"INACTIVE"}</Tag>
+        ),
     },
     {
-      title: 'Roles',
-      dataIndex: 'roles',
-      key: 'roles',
-      render: (roles) => roles.map(role => role.name).join(", "),
+      title: "Roles",
+      dataIndex: "roles",
+      key: "roles",
+      render: (roles) => roles.map((role) => role.name).join(", "),
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: "Action",
+      key: "action",
       render: (_, record) => (
         <Button onClick={() => handleEdit(record)}>Edit</Button>
       ),
@@ -241,11 +265,14 @@ const Customer = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Customer" menuKey="7"> 
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <CustomLayout pageTitle="Customer" menuKey="7">
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Discounts
+      </Title>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <Row justify="center">
           <Col xs={24} sm={20} md={16} lg={12}>
-            <Space.Compact style={{ width: '100%' }}>
+            <Space.Compact style={{ width: "100%" }}>
               <Input
                 placeholder="First Name"
                 value={searchFirstName}
@@ -276,7 +303,10 @@ const Customer = () => {
           loading={isFetching}
         />
 
-        <Row justify="center" style={{ marginTop: '20px', paddingBottom: '20px' }}>
+        <Row
+          justify="center"
+          style={{ marginTop: "20px", paddingBottom: "20px" }}
+        >
           <Col>
             <Pagination
               current={currentPage}
@@ -285,9 +315,11 @@ const Customer = () => {
               onChange={handlePageChange}
               showSizeChanger={false}
               showQuickJumper
-              showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+              showTotal={(total, range) =>
+                `${range[0]}-${range[1]} of ${total} items`
+              }
               disabled={isFetching || isStartingFetch}
-              size={isSmallScreen ? 'small' : 'default'}
+              size={isSmallScreen ? "small" : "default"}
               simple={isSmallScreen}
             />
           </Col>
@@ -300,7 +332,7 @@ const Customer = () => {
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
           <Checkbox
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
@@ -309,19 +341,21 @@ const Customer = () => {
           </Checkbox>
           <Select
             mode="multiple"
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
             placeholder="Select roles"
             value={selectedRoles}
             onChange={handleRoleChange}
           >
-            {availableRoles.map(role => (
-              <Option key={role.Id} value={role.Name}>{role.Name}</Option>
+            {availableRoles.map((role) => (
+              <Option key={role.Id} value={role.Name}>
+                {role.Name}
+              </Option>
             ))}
           </Select>
         </Space>
       </Modal>
     </CustomLayout>
   );
-}
+};
 
 export default Customer;

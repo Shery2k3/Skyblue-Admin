@@ -271,6 +271,9 @@ const Category = () => {
 
   return (
     <CustomLayout pageTitle="Categories" menuKey="2">
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Categories
+      </Title>
       <div
         style={{ marginBottom: 24, display: "flex", justifyContent: "center" }}
       >

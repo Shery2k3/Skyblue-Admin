@@ -16,12 +16,13 @@ import {
   DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
+import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
 import CustomLayout from "../../Components/Layout/Layout";
 import API_BASE_URL from "../../constants";
 import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
 import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
 import { useNavigate } from "react-router-dom";
-import { useMediaQuery } from 'react-responsive';
+import { useMediaQuery } from "react-responsive";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -38,6 +39,7 @@ const Product = () => {
 
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
+  const buttonSize = useResponsiveButtonSize();
 
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
@@ -185,60 +187,77 @@ const Product = () => {
 
   return (
     <CustomLayout pageTitle="Products" menuKey="3">
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Products
+      </Title>
+      <div
+        style={{
+          marginBottom: 24,
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+        }}
+      >
+        <Space
+          size={buttonSize}
+          align="center"
+          style={{ justifyContent: "center" }}
+          wrap
+        >
+          <Input
+            placeholder="Category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            onKeyDown={handleKeyPress}
+            style={{ width: isSmallScreen ? "100%" : 200 }}
+            prefix={<SearchOutlined />}
+          />
+          <Input
+            placeholder="Product"
+            value={product}
+            onChange={(e) => setProduct(e.target.value)}
+            onKeyDown={handleKeyPress}
+            style={{ width: isSmallScreen ? "100%" : 200 }}
+            prefix={<SearchOutlined />}
+          />
+          <Select
+            value={published}
+            onChange={(value) => setPublished(value)}
+            style={{ width: isSmallScreen ? "100%" : 200 }}
+          >
+            <Option value="1">Published</Option>
+            <Option value="0">Unpublished</Option>
+            <Option value="">All</Option>
+          </Select>
+          <Button
+            type="primary"
+            onClick={handleSearch}
+            icon={<SearchOutlined />}
+            style={{ width: isSmallScreen ? "100%" : "auto" }}
+          >
+            Search
+          </Button>
+        </Space>
+      </div>
+      <div
+        style={{
+          textAlign: "right",
+          marginTop: "40px",
+          marginBottom: "20px",
+          float: "center",
+        }}
+      >
+        <Button
+          type="primary"
+          onClick={() => navigate("/edit-product")}
+          size="small"
+        >
+          Add Product
+        </Button>
+      </div>
       <Card
         style={{ borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
       >
-        <div
-          style={{
-            marginBottom: 24,
-            display: "flex",
-            justifyContent: isSmallScreen ? "center" : "space-between",
-            flexWrap: "wrap",
-          }}
-        >
-          <Space size="large" wrap>
-            <Input
-              placeholder="Category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              onKeyDown={handleKeyPress}
-              style={{ width: isSmallScreen ? "100%" : 200 }}
-              prefix={<SearchOutlined />}
-            />
-            <Input
-              placeholder="Product"
-              value={product}
-              onChange={(e) => setProduct(e.target.value)}
-              onKeyDown={handleKeyPress}
-              style={{ width: isSmallScreen ? "100%" : 200 }}
-              prefix={<SearchOutlined />}
-            />
-            <Select
-              value={published}
-              onChange={(value) => setPublished(value)}
-              style={{ width: isSmallScreen ? "100%" : 200 }}
-            >
-              <Option value="1">Published</Option>
-              <Option value="0">Unpublished</Option>
-              <Option value="">All</Option>
-            </Select>
-            <Button
-              type="primary"
-              onClick={handleSearch}
-              icon={<SearchOutlined />}
-              style={{ width: isSmallScreen ? "100%" : "auto" }}
-            >
-              Search
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => navigate("/edit-product")}
-              style={{ width: isSmallScreen ? "100%" : "auto" }}
-            >
-              Add Product
-            </Button>
-          </Space>
-        </div>
         <Table
           columns={columns}
           dataSource={products}
@@ -248,7 +267,13 @@ const Product = () => {
           scroll={{ x: "max-content" }}
           style={{ marginBottom: 24 }}
         />
-        <div style={{ display: "flex", justifyContent: "center", paddingBottom: '20px' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            paddingBottom: "20px",
+          }}
+        >
           <Pagination
             current={currentPage}
             total={totalItems}
@@ -256,7 +281,7 @@ const Product = () => {
             onChange={handlePageChange}
             showSizeChanger={false}
             showQuickJumper
-            size={isSmallScreen ? 'small' : 'default'}
+            size={isSmallScreen ? "small" : "default"}
             simple={isSmallScreen}
           />
         </div>

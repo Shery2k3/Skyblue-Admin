@@ -21,11 +21,11 @@ const siderStyle = {
   bottom: 0,
   scrollbarWidth: "thin",
   scrollbarColor: "unset",
-  zIndex:10,
+  zIndex:11,
 };
 
 const CustomLayout = ({ pageTitle, menuKey, children }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [collapsedWidth, setCollapsedWidth] = useState(80)
   const [isSmallDevice, setSmallDevice] = useState(false)
 
@@ -104,7 +104,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
       <Layout
         style={{
           background: "#F1FBFF",
-          marginInlineStart: collapsed ? collapsedWidth : 200,
+          marginInlineStart: isSmallDevice ? 0 : (collapsed ? collapsedWidth : 200),
           transition: "margin-inline-start 0.2s ease", // Smooth transition
         }}
       >
@@ -112,6 +112,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
           style={{
             background: "#001529",
             position: "fixed",
+
             width: "100%",
             padding: 0,
             zIndex: 10,
@@ -122,6 +123,8 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
             style={{
+              marginInlineStart: isSmallDevice ? (collapsed ? collapsedWidth : 200): 0,
+              transition: "margin-inline-start 0.5s ease", // Smooth transition
               fontSize: "16px",
               width: 64,
               height: 64,
