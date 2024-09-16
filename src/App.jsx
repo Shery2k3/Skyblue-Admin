@@ -22,23 +22,6 @@ import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute';
 import SmallDeviceWarning from './Components/SmallDeviceWarning/SmallDeviceWarning';
 
 function App() {
-  const [isSmallDevice, setIsSmallDevice] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallDevice(window.innerWidth <= 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  if (isSmallDevice) {
-    return <SmallDeviceWarning />;
-  }
-
   return (
     <Router>
       <Routes>

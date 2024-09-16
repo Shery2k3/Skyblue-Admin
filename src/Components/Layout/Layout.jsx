@@ -21,17 +21,21 @@ const siderStyle = {
   bottom: 0,
   scrollbarWidth: "thin",
   scrollbarColor: "unset",
+  zIndex:10,
 };
 
 const CustomLayout = ({ pageTitle, menuKey, children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [collapsedWidth, setCollapsedWidth] = useState(80)
+  const [isSmallDevice, setSmallDevice] = useState(false)
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
+        setSmallDevice(true)
         setCollapsedWidth(0);
       } else {
+        setSmallDevice(false)
         setCollapsedWidth(80);
       }
     };
@@ -101,7 +105,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
         style={{
           background: "#F1FBFF",
           marginInlineStart: collapsed ? collapsedWidth : 200,
-          transition: "margin-inline-start 0.3s ease", // Smooth transition
+          transition: "margin-inline-start 0.2s ease", // Smooth transition
         }}
       >
         <Header
@@ -127,14 +131,14 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
         </Header>
         <Content
           style={{
-            margin: "78px 16px 0px 16px",
+            margin: isSmallDevice? "78px 5px 0px 5px" :"78px 16px 0px 16px",
             overflow: "initial",
           }}
         >
           <div
             style={{
               minHeight: "calc(100vh - 147px)",
-              padding: 24,
+              padding: isSmallDevice? 10: 24,
               background: "#fff",
               borderRadius: borderRadiusLG,
             }}

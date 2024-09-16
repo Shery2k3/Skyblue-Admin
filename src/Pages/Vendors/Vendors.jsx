@@ -1,7 +1,16 @@
 import CustomLayout from "../../Components/Layout/Layout";
-import { Table, Button, Modal, Checkbox, message, Input, Tag } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Checkbox,
+  message,
+  Input,
+  Tag,
+  Typography,
+} from "antd";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
 import API_BASE_URL from "../../constants.js";
 import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
 import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
@@ -16,6 +25,8 @@ const Vendors = () => {
   const [isActive, setIsActive] = useState(false);
 
   const retryRequest = useRetryRequest();
+  const buttonSize = useResponsiveButtonSize();
+  const { Title } = Typography;
 
   useEffect(() => {
     fetchVendors();
@@ -154,8 +165,11 @@ const Vendors = () => {
 
   return (
     <CustomLayout pageTitle="Vendors" menuKey="4">
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Vendors
+      </Title>
       <div style={{ textAlign: "right" }}>
-        <Button type="primary" size="medium" onClick={handleAdd}>
+        <Button type="primary" size={buttonSize} onClick={handleAdd}>
           Add Vendor
         </Button>
       </div>

@@ -1,6 +1,6 @@
 import CustomLayout from "../../Components/Layout/Layout";
 import { useNavigate } from "react-router-dom";
-import { Table, Button, Spin } from "antd";
+import { Table, Button, Spin, Typography } from "antd";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../Api/axiosConfig"; // Import the custom Axios instance
 import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
@@ -9,26 +9,30 @@ const Orders = () => {
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
   const retryRequest = useRetryRequest(); // Use the retry logic hook
+  const { Title } = Typography;
 
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
       try {
         // Use retryRequest to fetch orders with retry logic
-        const response = await retryRequest(() => axiosInstance.get(`/admin/all-orders`));
+        const response = await retryRequest(() =>
+          axiosInstance.get(`/admin/all-orders`)
+        );
         const data = response.data.data.map((order) => ({
           key: order.Id,
           id: order.Id,
           orderNo: order.Id,
           customer: "Arsal",
-          createdOn: new Date(order.CreatedonUtc).toLocaleString('en-US', {
-            month: 'numeric',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
+          createdOn: new Date(order.CreatedonUtc).toLocaleString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
             hour12: true,
           }),
           orderTotal: "$" + order.OrderTotal.toFixed(2),
@@ -85,8 +89,18 @@ const Orders = () => {
 
   return (
     <CustomLayout pageTitle="Orders" menuKey="5">
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Orders
+      </Title>
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "300px",
+          }}
+        >
           <Spin size="large" />
         </div>
       ) : (

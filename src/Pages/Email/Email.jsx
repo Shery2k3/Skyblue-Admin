@@ -1,16 +1,21 @@
 import React, { useState } from "react";
 import CustomLayout from "../../Components/Layout/Layout";
-import { Form, Input, Button, Upload, message } from "antd";
+import { Form, Input, Button, Upload, message, Typography } from "antd";
+import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
 import { UploadOutlined } from "@ant-design/icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import axios from "axios";
+import "./Email.css"
 import API_BASE_URL from "../../constants";
 
 const Email = () => {
   const [form] = Form.useForm();
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { Title } = Typography;
+  const buttonSize = useResponsiveButtonSize();
 
   const handleFormSubmit = (values) => {
     setLoading(true);
@@ -46,7 +51,9 @@ const Email = () => {
 
   return (
     <CustomLayout pageTitle="Email" menuKey="10">
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Emails</h2>
+            <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Email
+      </Title>
       <Form
         form={form}
         onFinish={handleFormSubmit}
@@ -54,11 +61,13 @@ const Email = () => {
         style={{ maxWidth: 800, margin: "0 auto" }}
       >
         <Form.Item
-          label="Name"
+          label="Campaign Name"
           name="name"
-          rules={[{ required: true, message: "Please input your name!" }]}
+          rules={[
+            { required: true, message: "Please input your campaign name!" },
+          ]}
         >
-          <Input placeholder="Enter your name" />
+          <Input placeholder="Campaign Name" />
         </Form.Item>
 
         <Form.Item
@@ -81,22 +90,24 @@ const Email = () => {
             maxCount={1}
             beforeUpload={() => false} // prevent automatic upload
           >
-            <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            <Button icon={<UploadOutlined />} size={buttonSize}>
+              Upload Image
+            </Button>
           </Upload>
         </Form.Item>
 
         <Form.Item label="Body" required>
           <ReactQuill
+            className="custom-quill-editor"
             value={body}
             onChange={handleBodyChange}
-            style={{ minHeight: "200px" }}
             placeholder="Write your email here..."
           />
         </Form.Item>
 
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
-            Save
+            Send
           </Button>
         </Form.Item>
       </Form>

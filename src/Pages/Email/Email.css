@@ -1,31 +1,31 @@
-
 .email-card {
-    padding: 24px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  
-  
-  .custom-btn {
-    margin-right: 10px;
-  }
-  
-  
-  .file-previews {
-    margin-top: 20px;
-  }
-  
-  .file-preview-card {
-    border: 1px solid #f0f0f0;
-    margin-bottom: 10px;
-    padding: 12px;
-    border-radius: 4px;
-  }
-  
-  .preview-image {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-  }
-  
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.custom-btn {
+  margin-right: 10px;
+}
+
+.file-previews {
+  margin-top: 20px;
+}
+
+.file-preview-card {
+  border: 1px solid #f0f0f0;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.preview-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.custom-quill-editor .ql-editor {
+  min-height: 300px !important;
+}

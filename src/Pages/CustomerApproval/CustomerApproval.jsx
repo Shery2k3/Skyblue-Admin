@@ -13,6 +13,7 @@ import {
   Popconfirm,
   Space,
   Carousel,
+  Typography,
 } from "antd";
 import { CheckOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import "./CustomerApproval.css";
@@ -24,6 +25,7 @@ const CustomerApproval = () => {
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
 
   const retryRequest = useRetryRequest();
+  const { Title } = Typography;
 
   useEffect(() => {
     fetchUsers();
@@ -166,7 +168,9 @@ const CustomerApproval = () => {
   return (
     <CustomLayout pageTitle="Customer Requests" menuKey="8">
       <div className="customer-approval-container">
-        <h1>Customer Approval</h1>
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Customer Approval
+      </Title>
         <Table
           dataSource={dataSource}
           columns={columns}

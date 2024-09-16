@@ -1,13 +1,6 @@
 import CustomLayout from "../../Components/Layout/Layout";
-import {
-  Table,
-  Button,
-  Modal,
-  message,
-  Input,
-  InputNumber,
-  Spin
-} from "antd";
+import { Table, Button, Modal, message, Input, InputNumber, Spin, Typography } from "antd";
+import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../Api/axiosConfig"; // Import the custom Axios instance
 import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
@@ -20,13 +13,18 @@ const Discounts = () => {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
+
   const retryRequest = useRetryRequest(); // Use the retry logic hook
+  const { Title } = Typography;
+  const buttonSize = useResponsiveButtonSize();
 
   useEffect(() => {
     const fetchDiscounts = async () => {
       setLoading(true);
       try {
-        const response = await retryRequest(() => axiosInstance.get(`/admin/alldiscounts`));
+        const response = await retryRequest(() =>
+          axiosInstance.get(`/admin/alldiscounts`)
+        );
         const data = response.data.map((discount) => ({
           key: discount.Id,
           id: discount.Id,
@@ -50,14 +48,16 @@ const Discounts = () => {
     if (!name || !amount || amount <= 0) {
       message.error("Please provide valid details");
       return;
-    }    
+    }
 
     try {
       const payload = {
         Name: name,
         DiscountAmount: amount,
       };
-      await retryRequest(() => axiosInstance.post(`/admin/post-discounts`, payload));
+      await retryRequest(() =>
+        axiosInstance.post(`/admin/post-discounts`, payload)
+      );
       message.success("Discount added successfully");
       fetchDiscounts();
       setAddModal(false);
@@ -82,7 +82,9 @@ const Discounts = () => {
 
   const handleDelete = async (discount) => {
     try {
-      await retryRequest(() => axiosInstance.delete(`/admin/delete-discount/${discount.id}`));
+      await retryRequest(() =>
+        axiosInstance.delete(`/admin/delete-discount/${discount.id}`)
+      );
       message.success("Discount deleted successfully");
       fetchDiscounts();
     } catch (error) {
@@ -95,7 +97,7 @@ const Discounts = () => {
     if (!name || !amount || amount <= 0) {
       message.error("Please provide valid details");
       return;
-    }  
+    }
 
     const payload = {};
     if (name !== selectedDiscount.name) {
@@ -105,13 +107,15 @@ const Discounts = () => {
     if (parseFloat(amount) !== parsedAmount) {
       payload.DiscountAmount = amount;
     }
-  
+
     if (Object.keys(payload).length > 0) {
       try {
-        await retryRequest(() => axiosInstance.patch(
-          `/admin/editdiscount/${selectedDiscount.id}`,
-          payload
-        ));
+        await retryRequest(() =>
+          axiosInstance.patch(
+            `/admin/editdiscount/${selectedDiscount.id}`,
+            payload
+          )
+        );
         message.success("Discount updated successfully");
         fetchDiscounts();
       } catch (error) {
@@ -119,7 +123,7 @@ const Discounts = () => {
         message.error("Failed to update discount");
       }
     }
-  
+
     setIsModalVisible(false);
   };
 
@@ -151,7 +155,11 @@ const Discounts = () => {
       align: "center",
       render: (_, record) => (
         <>
-          <Button type="primary" onClick={() => handleEdit(record)} style={{ marginRight: 8 }}>
+          <Button
+            type="primary"
+            onClick={() => handleEdit(record)}
+            style={{ marginRight: 8 }}
+          >
             Edit
           </Button>
           <Button type="primary" onClick={() => handleDelete(record)} danger>
@@ -164,14 +172,24 @@ const Discounts = () => {
 
   return (
     <CustomLayout pageTitle="Discounts" menuKey="9">
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Discounts
+      </Title>
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "300px",
+          }}
+        >
           <Spin size="large" />
         </div>
       ) : (
         <>
           <div style={{ textAlign: "right" }}>
-            <Button type="primary" size="medium" onClick={handleAdd}>
+            <Button type="primary" size={buttonSize} onClick={handleAdd}>
               Add New Discount
             </Button>
           </div>
@@ -208,7 +226,7 @@ const Discounts = () => {
           }
           parser={(value) => value?.replace(/\$\s?|(,*)/g, "")}
           onChange={(value) => setAmount(value)} // Directly use the value
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
         />
       </Modal>
 
@@ -236,7 +254,7 @@ const Discounts = () => {
           }
           parser={(value) => value?.replace(/\$\s?|(,*)/g, "")}
           onChange={(value) => setAmount(value)} // Directly use the value
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
         />
       </Modal>
     </CustomLayout>

@@ -1,9 +1,10 @@
 import CustomLayout from "../../Components/Layout/Layout";
 import { useParams } from "react-router-dom";
-import { Descriptions, Table, Spin } from "antd";
+import { Descriptions, Table, Spin, Typography } from "antd";
 import { useEffect, useState } from "react";
-import axiosInstance from "../../Api/axiosConfig"; // Import the custom Axios instance
-import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
+import axiosInstance from "../../Api/axiosConfig";
+import useRetryRequest from "../../Api/useRetryRequest";
+
 
 const OrdersDetails = () => {
   const { id } = useParams();
@@ -12,14 +13,17 @@ const OrdersDetails = () => {
   const [loading, setLoading] = useState(false);
 
   const retryRequest = useRetryRequest(); // Use the retry logic hook
+  const { Title } = Typography;
 
   useEffect(() => {
     const fetchOrderDetail = async () => {
       setLoading(true);
       try {
         // Use retryRequest to fetch order details with retry logic
-        const response = await retryRequest(() => axiosInstance.get(`/admin/single-order/${id}`));
-        
+        const response = await retryRequest(() =>
+          axiosInstance.get(`/admin/single-order/${id}`)
+        );
+
         const order = response.data.order;
         const products = response.data.order.items;
 
@@ -76,7 +80,9 @@ const OrdersDetails = () => {
     {
       title: "Image",
       dataIndex: "imageUrl",
-      render: (theImageURL) => <img alt="product-img" src={theImageURL} style={{ height: 50 }} />,
+      render: (theImageURL) => (
+        <img alt="product-img" src={theImageURL} style={{ height: 50 }} />
+      ),
       align: "center",
     },
     {
@@ -106,18 +112,23 @@ const OrdersDetails = () => {
 
   return (
     <CustomLayout pageTitle="Order Details" menuKey="5">
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Order Details
+      </Title>
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "300px",
+          }}
+        >
           <Spin size="large" />
         </div>
       ) : (
         <>
-          <Descriptions
-            title="Order Details"
-            layout="vertical"
-            bordered
-            items={items}
-          />
+          <Descriptions layout="vertical" bordered items={items} />
           <br />
           <br />
           <Table
