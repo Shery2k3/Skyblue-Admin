@@ -14,7 +14,7 @@ import BestSellerByQuantity from "./BestSeller/BestSellerByQuantity";
 import Loader from "../../Components/Loader/Loader";
 
 const Dashboard = () => {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
   const [dashboardStats, setDashboardStats] = useState({
     totalCustomers: 0,
     registeredCustomers: 0,
@@ -100,7 +100,7 @@ const Dashboard = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     };
 
@@ -131,14 +131,10 @@ const Dashboard = () => {
           {/* Orders stats */}
           <Row gutter={[16, 16]} style={{ marginTop: "20px" }}>
             <Col xs={24} md={12}>
-              <Card title="Order Statistics" bordered={false}>
-                <OrderCharts charts={orderStats} />
-              </Card>
+              <Chart orderTotalData={orderTotalData} />
             </Col>
             <Col xs={24} md={12}>
-              <Card title="Sales Chart" bordered={false}>
-                <Chart orderTotalData={orderTotalData} />
-              </Card>
+              <NewCustomers data={newCustomers} />
             </Col>
           </Row>
 
@@ -149,19 +145,13 @@ const Dashboard = () => {
             </h2>
 
             <Row gutter={[16, 16]}>
-              {/* Active Customers */}
               <Col xs={24} md={12}>
                 <Card title="Customers Activity" bordered={false}>
-                  <ActiveCustomer customers={activeCustomers} />{" "}
-                  {/* Pass activeCustomers as prop */}
+                  <ActiveCustomer customers={activeCustomers} />
                 </Card>
               </Col>
-
-              {/* New Customers */}
               <Col xs={24} md={12}>
-                <Card title="New Customers" bordered={false}>
-                  <NewCustomers data={newCustomers} />
-                </Card>
+                <OrderCharts charts={orderStats} />
               </Col>
             </Row>
           </div>

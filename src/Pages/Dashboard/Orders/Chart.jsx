@@ -1,60 +1,33 @@
 import { Card } from "antd";
 import {
-  PieChart,
-  Pie,
-  Cell,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useEffect, useState } from "react";
-import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
-import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
-
-// Define colors for the pie chart
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF6384"];
 
 const Chart = ({ orderTotalData }) => {
-
   return (
-    <Card title="Order Total" style={{ height: "100%" }}>
+    <Card title="Orders" style={{ height: "100%" }}>
       <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={orderTotalData}
-            cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={100}
-            fill="#8884d8"
-            paddingAngle={5}
-            dataKey="value"
-          >
-            {orderTotalData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
+        <AreaChart data={orderTotalData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
           <Tooltip />
           <Legend />
-        </PieChart>
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke="#87CEEB"
+            fill="#87CEEB"
+          />
+        </AreaChart>
       </ResponsiveContainer>
-      <div style={{ marginTop: "20px", textAlign: "center" }}>
-        {orderTotalData.map((entry, index) => (
-          <p
-            key={index}
-            style={{
-              color: COLORS[index % COLORS.length],
-              fontSize: "16px",
-              margin: "5px 0",
-            }}
-          >
-            {entry.name}: {entry.value}
-          </p>
-        ))}
-      </div>
     </Card>
   );
 };
