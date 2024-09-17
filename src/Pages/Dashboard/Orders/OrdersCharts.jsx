@@ -1,36 +1,8 @@
 import { Card, Progress, Row, Col, Typography } from "antd";
-import { useEffect, useState } from "react";
-import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
-import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 
 const { Title } = Typography;
 
-const OrderCharts = () => {
-  const [charts, setCharts] = useState({
-    today: 0,
-    week: 0,
-    month: 0,
-    year: 0,
-    allTime: 0,
-  });
-
-  const retryRequest = useRetryRequest(); // Use the retry logic hook
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await retryRequest(() =>
-          axiosInstance.get("/admin/orderStats")
-        );
-        setCharts(response.data.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [retryRequest]);
-
+const OrderCharts = ({ charts }) => {
   // Calculate progress percentages based on "All Time" total
   const progressPercent = (amount) =>
     charts.allTime ? Math.min((amount / charts.allTime) * 100, 100) : 0;

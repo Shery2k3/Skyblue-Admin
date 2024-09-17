@@ -1,39 +1,7 @@
 import { Card, Col, Row, Statistic } from "antd";
-import {
-  UserOutlined,
-  ShoppingCartOutlined,
-  RiseOutlined,
-  TeamOutlined,
-} from "@ant-design/icons";
-import { useEffect, useState } from "react";
-import axiosInstance from "../../Api/axiosConfig";
-import useRetryRequest from "../../Api/useRetryRequest";
+import { UserOutlined, ShoppingCartOutlined, RiseOutlined, TeamOutlined } from "@ant-design/icons";
 
-const DashBoardStats = () => {
-  const [data, setData] = useState({
-    totalCustomers: 0,
-    registeredCustomers: 0,
-    totalOrders: 0,
-    newOrders: 0,
-  });
-
-  const retryRequest = useRetryRequest();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await retryRequest(() =>
-          axiosInstance.get("/admin/stats")
-        );
-        setData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [retryRequest]);
-
+const DashBoardStats = ({ data }) => {
   return (
     <>
       {/* Statistic Boxes */}

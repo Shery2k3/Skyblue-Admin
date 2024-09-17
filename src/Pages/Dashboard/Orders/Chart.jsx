@@ -14,37 +14,7 @@ import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry 
 // Define colors for the pie chart
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF6384"];
 
-const Chart = () => {
-  const [orderTotalData, setOrderTotalData] = useState([
-    { name: "Today", value: 0 },
-    { name: "Week", value: 0 },
-    { name: "Month", value: 0 },
-    { name: "Year", value: 0 },
-  ]);
-
-  const retryRequest = useRetryRequest(); // Use the retry logic hook
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await retryRequest(() =>
-          axiosInstance.get("/admin/orderValue")
-        );
-        const data = response.data.values;
-        setOrderTotalData([
-          { name: "Today", value: data.today },
-          { name: "Week", value: data.thisWeek },
-          { name: "Month", value: data.thisMonth },
-          { name: "Year", value: data.thisYear },
-        ]);
-        console.log(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [retryRequest]);
+const Chart = ({ orderTotalData }) => {
 
   return (
     <Card title="Order Total" style={{ height: "100%" }}>

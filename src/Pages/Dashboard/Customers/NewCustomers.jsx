@@ -10,45 +10,10 @@ import {
   LabelList,
 } from "recharts";
 import { Card, Row, Col, Typography } from "antd";
-import { useEffect, useState } from "react";
-import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
-import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 
 const { Title, Text } = Typography;
 
-const NewCustomers = () => {
-  const [data, setData] = useState([
-    { name: "Today", uv: 0 },
-    { name: "Month", uv: 0 },
-    { name: "3 Months", uv: 0 },
-    { name: "6 months", uv: 0 },
-    { name: "Year", uv: 0 },
-  ]);
-
-  const retryRequest = useRetryRequest(); // Use the retry logic hook
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await retryRequest(() =>
-          axiosInstance.get("/admin/newCustomers")
-        );
-        const apiData = response.data;
-        setData([
-          { name: "Today", uv: apiData.today },
-          { name: "Month", uv: apiData.thisMonth },
-          { name: "3 Months", uv: apiData.lastThreeMonths },
-          { name: "6 months", uv: apiData.lastSixMonths },
-          { name: "Year", uv: apiData.thisYear },
-        ]);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [retryRequest]);
-
+const NewCustomers = ({ data }) => {
   return (
     <Card bordered={false} style={{ marginTop: "20px" }}>
       <Title level={4} style={{ textAlign: "center", marginBottom: "20px" }}>

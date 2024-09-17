@@ -1,35 +1,9 @@
-import { useState, useEffect } from "react";
-import { Table, Button, Pagination, Card, Spin } from "antd";
-import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
-import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
+import { useState } from "react";
+import { Table, Button, Pagination, Card } from "antd";
 
-const BestSellerByAmount = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+const BestSellerByAmount = ({ data }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(5); // Default page size
-
-  const retryRequest = useRetryRequest(); // Use the retry logic hook
-
-  useEffect(() => {
-    const fetchBestSellers = async () => {
-      setLoading(true);
-      try {
-        // Use retryRequest to fetch best sellers data with retry logic
-        const response = await retryRequest(() =>
-          axiosInstance.get("/admin/bestSellerByAmount")
-        );
-        //console.log("response.data", response.data);
-        setData(response.data);
-      } catch (error) {
-        console.error("Error fetching best sellers:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBestSellers();
-  }, [retryRequest]);
+  const [pageSize] = useState(5);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -79,35 +53,23 @@ const BestSellerByAmount = () => {
       title="Best Sellers by Amount"
       style={{ marginBottom: "20px" }}
     >
-      {loading ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "300px",
-          }}
-        >
-          <Spin size="large" />
-        </div>
-      ) : (
-        <>
-          <Table
-            dataSource={displayedData}
-            columns={columns}
-            pagination={false}
-            rowKey={(record) => record.ProductId}
-            scroll={{ x: "max-content" }}
-          />
-          <Pagination
-            style={{ marginTop: "20px", textAlign: "center" }}
-            current={currentPage}
-            pageSize={pageSize}
-            total={data.length}
-            onChange={handlePageChange}
-          />
-        </>
-      )}
+      <Table
+        dataSource={displayedData}
+        columns={columns}
+        pagination={false}
+        rowKey={(record) => record.ProductId}
+        scroll={{ x: "max-content" }}
+      />
+      <Pagination
+        responsive={true}
+        align="center"
+        style={{ marginTop: "20px", textAlign: "center" }}
+        current={currentPage}
+        pageSize={pageSize}
+        total={data.length}
+        onChange={handlePageChange}
+        showSizeChanger={false}
+      />
     </Card>
   );
 };
