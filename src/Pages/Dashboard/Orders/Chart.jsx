@@ -17,13 +17,13 @@ const Chart = ({ orderTotalData }) => {
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={orderTotalData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis dataKey="month" />
           <YAxis />
           <Tooltip />
           <Legend />
           <Area
             type="monotone"
-            dataKey="value"
+            dataKey="orders"
             stroke="#87CEEB"
             fill="#87CEEB"
           />

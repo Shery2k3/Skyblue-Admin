@@ -30,12 +30,7 @@ const Dashboard = () => {
     allTime: 0,
   });
 
-  const [orderTotalData, setOrderTotalData] = useState([
-    { name: "Today", value: 0 },
-    { name: "Week", value: 0 },
-    { name: "Month", value: 0 },
-    { name: "Year", value: 0 },
-  ]);
+  const [monthlyOrder, setMonthlyOrder] = useState([]);
 
   const [newCustomers, setNewCustomers] = useState([
     { name: "Today", uv: 0 },
@@ -57,7 +52,7 @@ const Dashboard = () => {
         const [
           dashboardStatsResponse,
           orderStatsResponse,
-          orderValueResponse,
+          monthlyOrderResponse,
           newCustomersResponse,
           ordersResponse,
           bestSellersResponse,
@@ -65,7 +60,7 @@ const Dashboard = () => {
         ] = await Promise.all([
           retryRequest(() => axiosInstance.get("/admin/stats")),
           retryRequest(() => axiosInstance.get("/admin/orderStats")),
-          retryRequest(() => axiosInstance.get("/admin/orderValue")),
+          retryRequest(() => axiosInstance.get("/admin/monthly-orders")),
           retryRequest(() => axiosInstance.get("/admin/newCustomers")),
           retryRequest(() => axiosInstance.get(`/admin/all-orders?size=20`)),
           retryRequest(() => axiosInstance.get("/admin/bestSellerByQuantity")),
@@ -76,13 +71,14 @@ const Dashboard = () => {
         setDashboardStats(dashboardStatsResponse.data);
         setOrderStats(orderStatsResponse.data.data);
 
-        const orderValueData = orderValueResponse.data.values;
-        setOrderTotalData([
-          { name: "Today", value: orderValueData.today },
-          { name: "Week", value: orderValueData.thisWeek },
-          { name: "Month", value: orderValueData.thisMonth },
-          { name: "Year", value: orderValueData.thisYear },
-        ]);
+        const monthlyOrderData = monthlyOrderResponse.data
+          .map((item) => ({
+            month: item.month, // or however the month is represented in your API response
+            orders: item.orders, // or however the orders count is represented
+          }))
+          .reverse(); // Reverse the array
+
+        setMonthlyOrder(monthlyOrderData);
 
         const newCustomerData = newCustomersResponse.data;
         setNewCustomers([
@@ -148,7 +144,7 @@ const Dashboard = () => {
           {/* Orders stats */}
           <Row gutter={[16, 16]} style={{ marginTop: "20px" }}>
             <Col xs={24} md={12}>
-              <Chart orderTotalData={orderTotalData} />
+              <Chart orderTotalData={monthlyOrder} />
             </Col>
             <Col xs={24} md={12}>
               <NewCustomers data={newCustomers} />
