@@ -11,6 +11,7 @@ import {
 } from "recharts";
 
 const Chart = ({ orderTotalData }) => {
+  console.log(orderTotalData)
   return (
     <Card title="Orders" style={{ height: "100%" }}>
       <ResponsiveContainer width="100%" height={300}>

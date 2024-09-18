@@ -45,7 +45,6 @@ const BestSellerByQuantity = ({ data }) => {
 
   return (
     <Card
-      bordered={false}
       title="Best Sellers by Quantity"
       style={{ marginBottom: "20px" }}
     >

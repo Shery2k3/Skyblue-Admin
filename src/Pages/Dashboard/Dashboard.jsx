@@ -8,7 +8,7 @@ import DashBoardStats from "./DashBoardStats";
 import OrderCharts from "./Orders/OrdersCharts";
 import Chart from "./Orders/Chart";
 import NewCustomers from "./Customers/NewCustomers";
-import ActiveCustomer from "./Customers/ActiveCustomer";
+import LatestOrders from "./Customers/LatestOrders";
 import BestSellerByAmount from "./BestSeller/BestSellerByAmount";
 import BestSellerByQuantity from "./BestSeller/BestSellerByQuantity";
 import Loader from "../../Components/Loader/Loader";
@@ -45,8 +45,8 @@ const Dashboard = () => {
     { name: "Year", uv: 0 },
   ]);
 
+  const [orders, setOrders] = useState([]);
   const [bestSellerByQuantity, setBestSellerByQuantity] = useState([]);
-  const [activeCustomers, setActiveCustomers] = useState([]);
   const [bestSellerByAmount, setBestSellerByAmount] = useState([]);
 
   const retryRequest = useRetryRequest();
@@ -58,16 +58,16 @@ const Dashboard = () => {
           dashboardStatsResponse,
           orderStatsResponse,
           orderValueResponse,
-          activeCustomersResponse,
           newCustomersResponse,
+          ordersResponse,
           bestSellersResponse,
           bestSellersByAmountResponse,
         ] = await Promise.all([
           retryRequest(() => axiosInstance.get("/admin/stats")),
           retryRequest(() => axiosInstance.get("/admin/orderStats")),
           retryRequest(() => axiosInstance.get("/admin/orderValue")),
-          retryRequest(() => axiosInstance.get("/admin/activeCustomers")),
           retryRequest(() => axiosInstance.get("/admin/newCustomers")),
+          retryRequest(() => axiosInstance.get(`/admin/all-orders?size=20`)),
           retryRequest(() => axiosInstance.get("/admin/bestSellerByQuantity")),
           retryRequest(() => axiosInstance.get("/admin/bestSellerByAmount")),
         ]);
@@ -84,8 +84,6 @@ const Dashboard = () => {
           { name: "Year", value: orderValueData.thisYear },
         ]);
 
-        setActiveCustomers(activeCustomersResponse.data);
-
         const newCustomerData = newCustomersResponse.data;
         setNewCustomers([
           { name: "Today", uv: newCustomerData.today },
@@ -94,6 +92,24 @@ const Dashboard = () => {
           { name: "6 months", uv: newCustomerData.lastSixMonths },
           { name: "Year", uv: newCustomerData.thisYear },
         ]);
+
+        const data = ordersResponse.data.data.map((order) => ({
+          key: order.Id,
+          id: order.Id,
+          orderNo: order.Id,
+          customer: order.CustomerEmail,
+          createdOn: new Date(order.CreatedonUtc).toLocaleString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
+            hour12: true,
+          }),
+          orderTotal: "$" + order.OrderTotal.toFixed(2),
+        }));
+        setOrders(data);
 
         setBestSellerByQuantity(bestSellersResponse.data);
         setBestSellerByAmount(bestSellersByAmountResponse.data);
@@ -114,7 +130,7 @@ const Dashboard = () => {
         <Header style={{ background: "#87CEEB", padding: 0 }}>
           <div
             className="logo"
-            style={{ color: "white", fontSize: "20px", marginLeft: "20px" }}
+            style={{ color: "black", fontSize: "20px", marginLeft: "20px" }}
           >
             Welcome Admin
           </div>
@@ -126,6 +142,7 @@ const Dashboard = () => {
           </Breadcrumb>
 
           {/* Dashboard stats */}
+
           <DashBoardStats data={dashboardStats} />
 
           {/* Orders stats */}
@@ -138,38 +155,24 @@ const Dashboard = () => {
             </Col>
           </Row>
 
-          {/* Customer stats */}
-          <div style={{ padding: "5px", marginTop: "20px" }}>
-            <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-              Customer Statistics
-            </h2>
+          <OrderCharts charts={orderStats} />
 
-            <Row gutter={[16, 16]}>
-              <Col xs={24} md={12}>
-                <Card title="Customers Activity" bordered={false}>
-                  <ActiveCustomer customers={activeCustomers} />
-                </Card>
-              </Col>
-              <Col xs={24} md={12}>
-                <OrderCharts charts={orderStats} />
-              </Col>
-            </Row>
-          </div>
+          <Card
+            title="Latest Order"
+            bordered={true}
+            style={{ marginTop: "20px" }}
+          >
+            <LatestOrders orders={orders} />
+          </Card>
 
-          {/* Seller by quantity and amount */}
-          <div style={{ padding: "20px" }}>
-            <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-              Product Statistics
-            </h2>
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12}>
-                <BestSellerByQuantity data={bestSellerByQuantity} />
-              </Col>
-              <Col xs={24} sm={12}>
-                <BestSellerByAmount data={bestSellerByAmount} />
-              </Col>
-            </Row>
-          </div>
+          <Row gutter={[16, 16]} style={{ marginTop: "20px" }}>
+            <Col xs={24} sm={12}>
+              <BestSellerByQuantity data={bestSellerByQuantity} />
+            </Col>
+            <Col xs={24} sm={12}>
+              <BestSellerByAmount data={bestSellerByAmount} />
+            </Col>
+          </Row>
         </Content>
       </CustomLayout>
     </>

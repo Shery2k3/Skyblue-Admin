@@ -19,13 +19,14 @@ const Orders = () => {
       try {
         // Use retryRequest to fetch orders with retry logic
         const response = await retryRequest(() =>
-          axiosInstance.get(`/admin/all-orders`)
+          axiosInstance.get(`/admin/all-orders?size=10000`)
         );
+        console.log(response)
         const data = response.data.data.map((order) => ({
           key: order.Id,
           id: order.Id,
           orderNo: order.Id,
-          customer: "Arsal",
+          customer: order.CustomerEmail,
           createdOn: new Date(order.CreatedonUtc).toLocaleString("en-US", {
             month: "numeric",
             day: "numeric",

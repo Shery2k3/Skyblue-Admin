@@ -267,7 +267,7 @@ const Customer = () => {
   return (
     <CustomLayout pageTitle="Customer" menuKey="7">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
-        Discounts
+        Customers
       </Title>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <Row justify="center">
