@@ -5,6 +5,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import CustomLayout from "../../Components/Layout/Layout";
 import axiosInstance from "../../Api/axiosConfig";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../../constants";
 
 const { Title } = Typography;
 
@@ -30,7 +31,7 @@ const BannerForm = () => {
       }
 
       axiosInstance
-        .post("http://localhost:3000/admin/slider/add", formData)
+        .post(`${API_BASE_URL}/admin/slider/add`, formData)
         .then((response) => {
           message.success("Banner uploaded successfully!");
           form.resetFields();
