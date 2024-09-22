@@ -7,6 +7,7 @@ import axiosInstance from "../../Api/axiosConfig";
 import useRetryRequest from "../../Api/useRetryRequest";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import Invoice from "../../Components/Invoice/Invoice";
+import PackageSlip from "../../Components/Invoice/PackageSlip";
 
 const OrdersDetails = () => {
   const { id } = useParams();
@@ -80,7 +81,10 @@ const OrdersDetails = () => {
           productName: item.product.Name,
           price: `$${item.UnitPriceExclTax.toFixed(2)}`,
           quantity: item.Quantity,
-          total: `$${item.PriceExclTax.toFixed(2)}`
+          total: `$${item.PriceExclTax.toFixed(2)}`,
+          location: item.product.ItemLocation,
+          barcode:
+            (item.product.Barcode || item.product.Barcode2)?.slice(-4) || null,
         }));
 
         const Info = {
@@ -93,16 +97,18 @@ const OrdersDetails = () => {
           customerCountry: order.customerCountry,
           customerEmail: order.customerEmail,
           createdOn: new Date(order.CreatedonUtc).toLocaleString(),
-          subTotal: (order.OrderTotal - order.OrderTax + order.OrderDiscount).toFixed(2),
+          subTotal: (
+            order.OrderTotal -
+            order.OrderTax +
+            order.OrderDiscount
+          ).toFixed(2),
           tax: order.OrderTax.toFixed(2),
           discount: order.OrderDiscount.toFixed(2),
           orderTotal: order.OrderTotal.toFixed(2),
           shippingMethod: order.ShippingMethod,
         };
 
-        const productsInfo = {
-
-        }
+        const productsInfo = {};
 
         serUserInfo(Info);
         setItems(itemsData);
@@ -177,26 +183,62 @@ const OrdersDetails = () => {
             }}
           >
             {items.length > 0 ? (
-              <PDFDownloadLink
-                document={<Invoice userInfo={userInfo} products={dataSource} />}
-                fileName={`order_${id}.pdf`}
-              >
-                {({ loading }) =>
-                  loading ? (
-                    <Button type="primary" disabled>
-                      Preparing PDF...
-                    </Button>
-                  ) : (
-                    <Button type="primary" size="small">
-                      Invoice(PDF)
-                    </Button>
-                  )
-                }
-              </PDFDownloadLink>
+              <>
+                <PDFDownloadLink
+                  document={
+                    <Invoice userInfo={userInfo} products={dataSource} />
+                  }
+                  fileName={`order_${id}_invoice.pdf`}
+                >
+                  {({ loading }) =>
+                    loading ? (
+                      <Button type="primary" disabled>
+                        Preparing PDF...
+                      </Button>
+                    ) : (
+                      <Button type="primary" size="small">
+                        Invoice (PDF)
+                      </Button>
+                    )
+                  }
+                </PDFDownloadLink>
+
+                <PDFDownloadLink
+                  document={
+                    <PackageSlip userInfo={userInfo} products={dataSource} />
+                  }
+                  fileName={`order_${id}_package_slip.pdf`}
+                >
+                  {({ loading }) =>
+                    loading ? (
+                      <Button
+                        type="primary"
+                        disabled
+                        style={{ marginLeft: "10px" }}
+                      >
+                        Preparing PDF...
+                      </Button>
+                    ) : (
+                      <Button
+                        type="primary"
+                        size="small"
+                        style={{ marginLeft: "10px" }}
+                      >
+                        Package Slip (PDF)
+                      </Button>
+                    )
+                  }
+                </PDFDownloadLink>
+              </>
             ) : (
-              <Button type="primary" disabled>
-                No Data for PDF
-              </Button>
+              <>
+                <Button type="primary" disabled>
+                  No Data for PDF
+                </Button>
+                <Button type="primary" disabled style={{ marginLeft: "10px" }}>
+                  No Data for PDF
+                </Button>
+              </>
             )}
           </div>
           <Descriptions layout="vertical" bordered items={items} />

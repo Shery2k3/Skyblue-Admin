@@ -1,5 +1,4 @@
 import './App.css';
-import { useState, useEffect } from 'react';
 import Login from "./Pages/Login/Login";
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Customer from './Pages/Customer/Customer';
@@ -19,7 +18,6 @@ import Product from './Pages/Product/Product';
 import EditProduct from './Pages/Product/EditProduct';
 import Error404 from './Pages/Error404/Error404';
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute';
-import SmallDeviceWarning from './Components/SmallDeviceWarning/SmallDeviceWarning';
 
 function App() {
   return (
@@ -39,13 +37,12 @@ function App() {
         <Route path="/best-seller" element={<ProtectedRoute element={BestSeller} />} />
         <Route path="/customer" element={<ProtectedRoute element={Customer} />} />
         <Route path="/customer-approval" element={<ProtectedRoute element={CustomerApproval} />} />
-        <Route path="/customer-roles" element={<ProtectedRoute element={Dashboard} />} />
         <Route path="/discounts" element={<ProtectedRoute element={Discounts} />} />
         <Route path="/email" element={<ProtectedRoute element={Email} />} />
         <Route path="/notice" element={<ProtectedRoute element={Notification} />} />
         <Route path="/banners" element={<ProtectedRoute element={Banner} />} />
         <Route path="/banners/add-banner" element={<ProtectedRoute element={AddBanner} />} />
-        <Route path="/edit-product/:id?" element={<EditProduct />} />
+        <Route path="/edit-product/:id?" element={<ProtectedRoute element={EditProduct} />} />
                 
         {/* Catch-all for non-existent routes */}
         <Route path="*" element={<Error404 />} />

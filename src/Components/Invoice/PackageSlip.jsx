@@ -20,8 +20,9 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
-    fontSize: 11,
+    fontSize: 10,
     paddingTop: 30,
+    paddingBottom: 30,
     paddingLeft: 60,
     paddingRight: 60,
     lineHeight: 1.5,
@@ -83,12 +84,12 @@ const styles = StyleSheet.create({
     height: 36,
   },
   tableCell_1: {
-    width: "40%",
+    width: "20%",
+    textAlign: "center",
     paddingLeft: 8,
   },
   tableCell_2: {
-    width: "20%",
-    textAlign: "center",
+    width: "40%",
     paddingRight: 8,
   },
   tableCell_3: {
@@ -101,12 +102,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingRight: 8,
   },
+  subTotal: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingTop: 2,
+  },
+
   total: {
     flexDirection: "row",
     justifyContent: "flex-end",
     borderTopWidth: 1,
     borderBottomColor: "#0678BE",
-    paddingTop: 10,
+    paddingTop: 5,
   },
   paymentMethod: {
     marginTop: 20,
@@ -123,75 +130,66 @@ const styles = StyleSheet.create({
   },
 });
 
-const Invoice = ({ products, userInfo }) => {
-
-  console.log(userInfo)
+const PackageSlip = ({ products, userInfo }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.titleContainer}>
           <Image style={styles.logo} src={LogoAccent} />
-          <Text>Order# {userInfo[0].children}</Text>
+          <Text>Order# {userInfo.id}</Text>
         </View>
         <View style={styles.titleContainer}>
-          <Text style={styles.reportTitle}>Invoice</Text>
+          <Text style={styles.reportTitle}>Package Slip</Text>
         </View>
         <View style={styles.invoiceNoAndDate}>
-          <Text>Date: {userInfo[4].children}</Text>
+          <Text>Date: {userInfo.createdOn}</Text>
         </View>
         {/* Address Container for Billed To and From sections */}
         <View style={styles.addressContainer}>
           <View style={styles.billTo}>
             <Text>Billed to:</Text>
-            <Text style={styles.billToAddress}>{"Arsal"}</Text>
-            <Text>{"R1303 BLOCK 15, FB AREA, Karachi"}</Text>
-            <Text>{userInfo[2].children}</Text>
+            <Text style={styles.billToAddress}>
+              Company Name: {userInfo.companyName}
+            </Text>
+            <Text>Name: {userInfo.customerName}</Text>
+            <Text>Phone: {userInfo.customerPhone}</Text>
+            <Text>Address: {userInfo.customerAddress}</Text>
+            <Text>{userInfo.customerCity}</Text>
+            <Text>{userInfo.customerCountry}</Text>
           </View>
           <View style={styles.fromAddress}>
             <Text>From:</Text>
-            <Text>SkyBlue Wholesale</Text>
-            <Text>1300 Kamato Rd #8&9, Mississauga, ON L4W 2N2, Canada</Text>
+            <Text style={styles.billToAddress}>SkyBlue Wholesale</Text>
+            <Text>1300 Kamato Rd #8&9</Text>
+            <Text>Mississauga, ON L4W 2N2</Text>
+            <Text>Canada</Text>
             <Text>sales@skybluewholesale.com</Text>
           </View>
         </View>
+        <View style={styles.paymentMethod}>
+          <Text>Shipping method: {userInfo.shippingMethod}</Text>
+        </View>
         <View style={styles.table}>
           <View style={styles.tableHeader}>
-            <Text style={styles.tableCell_1}>Item</Text>
-            <Text style={styles.tableCell_2}>Quantity</Text>
-            <Text style={styles.tableCell_3}>Aisle</Text>
-            <Text style={styles.tableCell_4}>Price</Text>
+            <Text style={styles.tableCell_1}>Location</Text>
+            <Text style={styles.tableCell_2}>Item</Text>
+            <Text style={styles.tableCell_3}>Qty</Text>
+            <Text style={styles.tableCell_4}>Barcode</Text>
           </View>
           {products.map((product, index) => (
             <View style={styles.tableRow} key={index}>
               <Text style={styles.tableCell_1}>
-                {product.productName || ""}
+                {product.location || ""}
               </Text>
-              <Text style={styles.tableCell_2}>{product.quantity || ""}</Text>
-              <Text style={styles.tableCell_3}>{product.price || ""}</Text>
-              <Text style={styles.tableCell_4}>{product.price || ""}</Text>
+              <Text style={styles.tableCell_2}>{product.productName || ""}</Text>
+              <Text style={styles.tableCell_3}>{product.quantity || ""}</Text>
+              <Text style={styles.tableCell_4}>{product.barcode || ""}</Text>
             </View>
           ))}
-        </View>
-        <View style={styles.total}>
-          <Text style={styles.tableCell_3}>Total</Text>
-          <Text style={styles.tableCell_4}>{userInfo[3].children}</Text>
-        </View>
-        <View style={styles.paymentMethod}>
-          <Text>Shipping method: {"pickup"}</Text>
-        </View>
-        <View style={styles.footer}>
-          <Svg style={styles.svg} viewBox="0 0 900 600">
-            <Path
-              d="M0 467L21.5 472.5C43 478 86 489 128.8 489.3C171.7 489.7 214.3 479.3 257.2 462.5C300 445.7 343 422.3 385.8 406.8C428.7 391.3 471.3 383.7 514.2 388.7C557 393.7 600 411.3 642.8 435.2C685.7 459 728.3 489 771.2 484.2C814 479.3 857 439.7 878.5 419.8L900 400L900 601L878.5 601C857 601 814 601 771.2 601C728.3 601 685.7 601 642.8 601C600 601 557 601 514.2 601C471.3 601 428.7 601 385.8 601C343 601 300 601 257.2 601C214.3 601 171.7 601 128.8 601C86 601 43 601 21.5 601L0 601Z"
-              fill="#0678BE"
-              strokeLinecap="round"
-              strokeLinejoin="miter"
-            />
-          </Svg>
         </View>
       </Page>
     </Document>
   );
 };
 
-export default Invoice;
+export default PackageSlip;

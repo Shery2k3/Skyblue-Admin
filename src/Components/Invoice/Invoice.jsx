@@ -20,7 +20,7 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
-    fontSize: 11,
+    fontSize: 10,
     paddingTop: 30,
     paddingBottom: 30,
     paddingLeft: 60,
@@ -183,14 +183,7 @@ const Invoice = ({ products, userInfo }) => {
               </Text>
               <Text style={styles.tableCell_2}>{product.price || ""}</Text>
               <Text style={styles.tableCell_3}>{product.quantity || ""}</Text>
-              <Text style={styles.tableCell_4}>
-                {product.price && product.quantity
-                  ? `$${(
-                      parseFloat(product.price.replace("$", "")) *
-                      product.quantity
-                    ).toFixed(2)}`
-                  : ""}
-              </Text>
+              <Text style={styles.tableCell_4}>{product.total || ""}</Text>
             </View>
           ))}
         </View>

@@ -1,10 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
 const { Header, Sider, Footer, Content } = Layout;
@@ -21,58 +18,65 @@ const siderStyle = {
   bottom: 0,
   scrollbarWidth: "thin",
   scrollbarColor: "unset",
-  zIndex:11,
+  zIndex: 11,
 };
+
+// Debounce function to reduce frequent state updates
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
 
 const CustomLayout = ({ pageTitle, menuKey, children }) => {
   const [collapsed, setCollapsed] = useState(true);
-  const [collapsedWidth, setCollapsedWidth] = useState(80)
-  const [isSmallDevice, setSmallDevice] = useState(false)
+  const [isSmallDevice, setSmallDevice] = useState(false);
 
+  // Memoize menu items to avoid re-rendering
+  const menuItems = useMemo(() => routeItems, []);
+
+  // Handle screen resizing and set small device state
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setSmallDevice(true)
-        setCollapsedWidth(0);
-      } else {
-        setSmallDevice(false)
-        setCollapsedWidth(80);
-      }
-    };
+    const handleResize = debounce(() => {
+      setSmallDevice(window.innerWidth < 768);
+    }, 200); // Debounce by 200ms
 
-    handleResize();
+    handleResize(); // Initial check
 
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-
+  // Scroll to top and set document title based on the page title
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
     document.title = `SkyBlue | ${pageTitle}`;
-
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 867);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
   }, [pageTitle]);
+
+  // Memoize toggleCollapsed function to avoid unnecessary re-renders
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((prevState) => !prevState);
+  }, []);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const paddingValue = isSmallDevice ? 10 : 24; // Improved readability
+  const marginInlineStart = isSmallDevice ? 0 : (collapsed ? 80 : 200); // Dynamic margin for responsiveness
 
   return (
     <Layout hasSider>
       <Sider
         trigger={null}
         collapsible
-        collapsedWidth={collapsedWidth}
+        collapsedWidth={isSmallDevice ? 0 : 80}
         collapsed={collapsed}
         style={siderStyle}
       >
@@ -98,13 +102,13 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
           theme="dark"
           mode="inline"
           defaultSelectedKeys={menuKey}
-          items={routeItems}
+          items={menuItems}
         />
       </Sider>
       <Layout
         style={{
           background: "#F1FBFF",
-          marginInlineStart: isSmallDevice ? 0 : (collapsed ? collapsedWidth : 200),
+          marginInlineStart: marginInlineStart,
           transition: "margin-inline-start 0.2s ease", // Smooth transition
         }}
       >
@@ -112,7 +116,6 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
           style={{
             background: "#001529",
             position: "fixed",
-
             width: "100%",
             padding: 0,
             zIndex: 10,
@@ -121,9 +124,11 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={toggleCollapsed}
             style={{
-              marginInlineStart: isSmallDevice ? (collapsed ? collapsedWidth : 200): 0,
+              marginInlineStart: isSmallDevice
+                ? (collapsed ? 0 : 200)
+                : 0,
               transition: "margin-inline-start 0.5s ease", // Smooth transition
               fontSize: "16px",
               width: 64,
@@ -134,14 +139,14 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
         </Header>
         <Content
           style={{
-            margin: isSmallDevice? "78px 5px 0px 5px" :"78px 16px 0px 16px",
+            margin: isSmallDevice ? "78px 5px 0px 5px" : "78px 16px 0px 16px",
             overflow: "initial",
           }}
         >
           <div
             style={{
               minHeight: "calc(100vh - 147px)",
-              padding: isSmallDevice? 10: 24,
+              padding: paddingValue,
               background: "#fff",
               borderRadius: borderRadiusLG,
             }}
@@ -161,4 +166,5 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
     </Layout>
   );
 };
+
 export default CustomLayout;
