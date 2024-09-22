@@ -93,7 +93,7 @@ const OrdersDetails = () => {
           customerName: order.customerFirstName + " " + order.customerLastName,
           customerPhone: order.customerPhone,
           customerAddress: order.customerAddress,
-          customerCity: order.customerCity,
+          customerCity: order.customerCity + ", " + order.customerState + ", " + order.customerZip,
           customerCountry: order.customerCountry,
           customerEmail: order.customerEmail,
           createdOn: new Date(order.CreatedonUtc).toLocaleString(),
