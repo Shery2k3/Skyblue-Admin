@@ -310,7 +310,13 @@ const Product = () => {
         <img
           src={selectedImage}
           alt="Preview"
-          style={{ width: "100%", height: "auto" }}
+          style={{
+            width: "100%",
+            height: "auto",
+            maxWidth: "500px", // Set a maximum width
+            maxHeight: "500px", // Set a maximum height
+            objectFit: "contain", // Ensure the image maintains its aspect ratio
+          }}
         />
       </Modal>
     </CustomLayout>
