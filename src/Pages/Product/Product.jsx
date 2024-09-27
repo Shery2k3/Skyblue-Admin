@@ -10,6 +10,7 @@ import {
   Typography,
   Card,
   Popconfirm,
+  Modal,
 } from "antd";
 import {
   SearchOutlined,
@@ -36,6 +37,8 @@ const Product = () => {
   const [published, setPublished] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState("");
 
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
@@ -89,6 +92,11 @@ const Product = () => {
     }
   };
 
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setIsModalVisible(true);
+  };
+
   const columns = [
     {
       title: "Image",
@@ -105,7 +113,9 @@ const Product = () => {
             maxWidth: 70,
             maxHeight: 70,
             objectFit: "contain",
+            cursor: "pointer",
           }}
+          onClick={() => handleImageClick(text)}
         />
       ),
     },
@@ -291,6 +301,18 @@ const Product = () => {
           {error.message}
         </div>
       )}
+      <Modal
+        open={isModalVisible}
+        footer={null}
+        onCancel={() => setIsModalVisible(false)}
+        centered
+      >
+        <img
+          src={selectedImage}
+          alt="Preview"
+          style={{ width: "100%", height: "auto" }}
+        />
+      </Modal>
     </CustomLayout>
   );
 };
