@@ -16,6 +16,7 @@ import {
   SearchOutlined,
   DeleteOutlined,
   EditOutlined,
+  ZoomInOutlined,
 } from "@ant-design/icons";
 import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
 import CustomLayout from "../../Components/Layout/Layout";
@@ -39,6 +40,7 @@ const Product = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
+  const [hoveredImage, setHoveredImage] = useState(null); // New state for hovered image
 
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
@@ -104,19 +106,44 @@ const Product = () => {
       key: "imageUrl",
       align: "center",
       render: (text) => (
-        <img
-          src={text}
-          alt="product"
+        <div
           style={{
-            width: "100%",
-            height: "auto",
-            maxWidth: 70,
-            maxHeight: 70,
-            objectFit: "contain",
+            position: "relative",
+            display: "inline-block",
             cursor: "pointer",
+            width: "100%",
+            height: "100%",
           }}
+          onMouseEnter={() => setHoveredImage(text)}
+          onMouseLeave={() => setHoveredImage(null)}
           onClick={() => handleImageClick(text)}
-        />
+        >
+          <img
+            src={text}
+            alt="product"
+            style={{
+              width: "100%",
+              height: "auto",
+              maxWidth: 70,
+              maxHeight: 70,
+              objectFit: "contain",
+              filter: hoveredImage === text ? "grayscale(100%)" : "none",
+              transition: "filter 0.1s ease-in-out", // Add a quick transition
+            }}
+          />
+          {hoveredImage === text && (
+            <ZoomInOutlined
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                fontSize: "24px",
+                color: "rgba(0, 0, 0, 0.5)",
+              }}
+            />
+          )}
+        </div>
       ),
     },
     {
