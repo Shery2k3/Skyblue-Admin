@@ -18,11 +18,11 @@ import {
   EditOutlined,
   ZoomInOutlined,
 } from "@ant-design/icons";
-import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
-import CustomLayout from "../../Components/Layout/Layout";
-import API_BASE_URL from "../../constants";
-import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
-import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
+import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
+import CustomLayout from "../../../Components/Layout/Layout";
+import API_BASE_URL from "../../../constants";
+import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
+import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 

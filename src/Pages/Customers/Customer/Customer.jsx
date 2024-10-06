@@ -1,4 +1,4 @@
-import CustomLayout from "../../Components/Layout/Layout";
+import CustomLayout from "../../../Components/Layout/Layout.jsx";
 import {
   Table,
   Button,
@@ -16,9 +16,9 @@ import {
 } from "antd";
 import { useEffect, useState, useCallback } from "react";
 import { useMediaQuery } from "react-responsive";
-import API_BASE_URL from "../../constants.js";
-import axiosInstance from "../../Api/axiosConfig"; 
-import useRetryRequest from "../../Api/useRetryRequest"; 
+import API_BASE_URL from "../../../constants.js";
+import axiosInstance from "../../../Api/axiosConfig.js"; 
+import useRetryRequest from "../../../Api/useRetryRequest.js"; 
 
 const { Option } = Select;
 const debounce = (func, delay) => {
@@ -265,7 +265,7 @@ const Customer = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Customer" menuKey="7">
+    <CustomLayout pageTitle="Customer" menuKey="10">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Customers
       </Title>

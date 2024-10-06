@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table, Button, Spin, Typography, Skeleton } from 'antd';
-import CustomLayout from '../../Components/Layout/Layout';
-import axiosInstance from '../../Api/axiosConfig';
-import useRetryRequest from '../../Api/useRetryRequest';
+import CustomLayout from '../../../Components/Layout/Layout';
+import axiosInstance from '../../../Api/axiosConfig';
+import useRetryRequest from '../../../Api/useRetryRequest';
 
 const { Title } = Typography;
 
@@ -106,7 +106,7 @@ const BestSeller = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Best Sellers" menuKey="6">
+    <CustomLayout pageTitle="Best Sellers" menuKey="9">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Best Sellers
       </Title>

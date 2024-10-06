@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import CustomLayout from "../../Components/Layout/Layout";
+import CustomLayout from "../../../Components/Layout/Layout";
 import { Form, Input, Button, Upload, message, Typography } from "antd";
-import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
+import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { UploadOutlined } from "@ant-design/icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import axios from "axios";
 import "./Email.css"
-import API_BASE_URL from "../../constants";
+import API_BASE_URL from "../../../constants";
 
 const Email = () => {
   const [form] = Form.useForm();
@@ -50,7 +50,7 @@ const Email = () => {
   };
 
   return (
-    <CustomLayout pageTitle="Email" menuKey="10">
+    <CustomLayout pageTitle="Email" menuKey="15">
             <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Email
       </Title>

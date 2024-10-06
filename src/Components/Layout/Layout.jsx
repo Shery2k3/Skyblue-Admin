@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from "@ant-design/icons";
+import { AuthContext } from "../../Context/AuthContext/AuthContext";
+import { Navigate, useNavigate } from "react-router-dom";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
+import { useContext } from "react";
 const { Header, Sider, Footer, Content } = Layout;
 import logo from "/logo.png";
 
@@ -32,6 +32,15 @@ function debounce(func, wait) {
 }
 
 const CustomLayout = ({ pageTitle, menuKey, children }) => {
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    toggleNav();
+    navigate("/login");
+  };
+
   const [collapsed, setCollapsed] = useState(true);
   const [isSmallDevice, setSmallDevice] = useState(false);
 
@@ -41,7 +50,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
   // Handle screen resizing and set small device state
   useEffect(() => {
     const handleResize = debounce(() => {
-      setSmallDevice(window.innerWidth < 768);
+      setSmallDevice(window.innerWidth < 1024);
     }, 200); // Debounce by 200ms
 
     handleResize(); // Initial check
@@ -69,15 +78,21 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
   } = theme.useToken();
 
   const paddingValue = isSmallDevice ? 10 : 24; // Improved readability
-  const marginInlineStart = isSmallDevice ? 0 : (collapsed ? 80 : 200); // Dynamic margin for responsiveness
+  const marginInlineStart = isSmallDevice ? 0 : collapsed ? 80 : 250; // Dynamic margin for responsiveness
 
   return (
-    <Layout hasSider>
+    <Layout
+      style={{
+        background: "#001529",
+      }}
+      hasSider
+    >
       <Sider
         trigger={null}
         collapsible
         collapsedWidth={isSmallDevice ? 0 : 80}
         collapsed={collapsed}
+        width={250}
         style={siderStyle}
       >
         <div
@@ -116,9 +131,18 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
           style={{
             background: "#001529",
             position: "fixed",
-            width: "100%",
-            padding: 0,
+            right: "0",
+            width: isSmallDevice
+              ? "100%"
+              : collapsed
+              ? "calc(100% - 80px)"
+              : "calc(100% - 250px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 10px 0 0",
             zIndex: 10,
+            transition: "width 0.2s ease",
           }}
         >
           <Button
@@ -126,9 +150,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={toggleCollapsed}
             style={{
-              marginInlineStart: isSmallDevice
-                ? (collapsed ? 0 : 200)
-                : 0,
+              marginInlineStart: isSmallDevice ? (collapsed ? 0 : 250) : 0,
               transition: "margin-inline-start 0.5s ease", // Smooth transition
               fontSize: "16px",
               width: 64,
@@ -136,6 +158,11 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
               color: "#fff",
             }}
           />
+          {!(isSmallDevice && !collapsed) && (
+            <Button type="primary" size="small" danger onClick={handleLogout}>
+              Logout
+            </Button>
+          )}
         </Header>
         <Content
           style={{

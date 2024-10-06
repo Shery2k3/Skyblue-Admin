@@ -1,9 +1,9 @@
-import CustomLayout from "../../Components/Layout/Layout";
+import CustomLayout from "../../../Components/Layout/Layout";
 import { Table, Button, Modal, message, Input, InputNumber, Spin, Typography } from "antd";
-import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
+import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { useEffect, useState } from "react";
-import axiosInstance from "../../Api/axiosConfig"; // Import the custom Axios instance
-import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
+import axiosInstance from "../../../Api/axiosConfig"; // Import the custom Axios instance
+import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 
 const Discounts = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -171,7 +171,7 @@ const Discounts = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Discounts" menuKey="9">
+    <CustomLayout pageTitle="Discounts" menuKey="14">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Discounts
       </Title>

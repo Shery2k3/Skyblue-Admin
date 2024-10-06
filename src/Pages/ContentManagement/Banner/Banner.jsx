@@ -1,9 +1,9 @@
 import React from "react";
 import { Button, Typography } from "antd";
-import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
+import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { useNavigate } from "react-router-dom";
-import BannerTable from "../../Components/FormBanner/BannerTable";
-import CustomLayout from "../../Components/Layout/Layout";
+import BannerTable from "../../../Components/FormBanner/BannerTable";
+import CustomLayout from "../../../Components/Layout/Layout";
 
 const Banner = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const Banner = () => {
   };
 
   return (
-    <CustomLayout pageTitle="Banner" menuKey="12">
+    <CustomLayout pageTitle="Banner" menuKey="19">
       <div>
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Banners

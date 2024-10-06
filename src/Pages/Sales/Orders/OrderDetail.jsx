@@ -1,13 +1,13 @@
-import CustomLayout from "../../Components/Layout/Layout";
+import CustomLayout from "../../../Components/Layout/Layout";
 import { useParams } from "react-router-dom";
 import { Button } from "antd";
 import { Descriptions, Table, Spin, Typography } from "antd";
 import { useEffect, useState } from "react";
-import axiosInstance from "../../Api/axiosConfig";
-import useRetryRequest from "../../Api/useRetryRequest";
+import axiosInstance from "../../../Api/axiosConfig";
+import useRetryRequest from "../../../Api/useRetryRequest";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import Invoice from "../../Components/Invoice/Invoice";
-import PackageSlip from "../../Components/Invoice/PackageSlip";
+import Invoice from "../../../Components/Invoice/Invoice";
+import PackageSlip from "../../../Components/Invoice/PackageSlip";
 
 const OrdersDetails = () => {
   const { id } = useParams();
@@ -158,7 +158,7 @@ const OrdersDetails = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Order Details" menuKey="5">
+    <CustomLayout pageTitle="Order Details" menuKey="7">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Order Details
       </Title>

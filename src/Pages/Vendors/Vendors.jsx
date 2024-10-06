@@ -164,7 +164,7 @@ const Vendors = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Vendors" menuKey="4">
+    <CustomLayout pageTitle="Vendors" menuKey="6">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Vendors
       </Title>

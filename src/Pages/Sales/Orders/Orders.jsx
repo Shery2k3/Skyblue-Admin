@@ -1,9 +1,9 @@
-import CustomLayout from "../../Components/Layout/Layout";
+import CustomLayout from "../../../Components/Layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Spin, Typography } from "antd";
 import { useEffect, useState } from "react";
-import axiosInstance from "../../Api/axiosConfig"; // Import the custom Axios instance
-import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
+import axiosInstance from "../../../Api/axiosConfig"; // Import the custom Axios instance
+import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 
 const Orders = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -89,7 +89,7 @@ const Orders = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Orders" menuKey="5">
+    <CustomLayout pageTitle="Orders" menuKey="7">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Orders
       </Title>

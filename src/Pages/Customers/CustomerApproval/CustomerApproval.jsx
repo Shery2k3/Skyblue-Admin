@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import CustomLayout from "../../Components/Layout/Layout";
+import CustomLayout from "../../../Components/Layout/Layout";
 import axios from "axios";
-import API_BASE_URL from "../../constants";
-import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
-import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hook
+import API_BASE_URL from "../../../constants";
+import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
+import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 import {
   Table,
   Image,
@@ -166,7 +166,7 @@ const CustomerApproval = () => {
   ];
 
   return (
-    <CustomLayout pageTitle="Customer Requests" menuKey="8">
+    <CustomLayout pageTitle="Customer Requests" menuKey="13">
       <div className="customer-approval-container">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Customer Approval

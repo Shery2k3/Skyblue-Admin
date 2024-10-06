@@ -1,11 +1,11 @@
 import React from "react";
 import { Form, Upload, Button, message, Typography, Input } from "antd";
-import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
+import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { UploadOutlined } from "@ant-design/icons";
-import CustomLayout from "../../Components/Layout/Layout";
-import axiosInstance from "../../Api/axiosConfig";
+import CustomLayout from "../../../Components/Layout/Layout";
+import axiosInstance from "../../../Api/axiosConfig";
 import { useNavigate } from "react-router-dom";
-import API_BASE_URL from "../../constants";
+import API_BASE_URL from "../../../constants";
 
 const { Title } = Typography;
 
