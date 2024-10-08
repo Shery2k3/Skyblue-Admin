@@ -8,6 +8,7 @@ import Product from './Pages/Catalog/Product/Product';
 import EditProduct from './Pages/Catalog/Product/EditProduct';
 import Inventory from './Pages/Catalog/Inventory/Inventory';
 import Manufacturers from './Pages/Catalog/Manufacturers/Manufacturers';
+import ManufacturerDetail from './Pages/Catalog/Manufacturers/ManufacturerDetail';
 import Vendors from './Pages/Vendors/Vendors';
 import Orders from './Pages/Sales/Orders/Orders';
 import OrdersDetails from './Pages/Sales/Orders/OrderDetail';
@@ -44,6 +45,7 @@ function App() {
         <Route path="/edit-product/:id?" element={<ProtectedRoute element={EditProduct} />} />
         <Route path="/inventory" element={<ProtectedRoute element={Inventory} />} />
         <Route path="/manufacturers" element={<ProtectedRoute element={Manufacturers} />} />
+        <Route path="/manufacturer/products/:id?" element={<ProtectedRoute element={ManufacturerDetail} />} />
 
         {/* Vendors */}
         <Route path="/vendors" element={<ProtectedRoute element={Vendors} />} />
