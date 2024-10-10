@@ -141,7 +141,7 @@ const EditProduct = () => {
       const discountName = discount ? discount.Name : "";
 
       // Find the manufacturer name
-      const manufacturer = manufacturers.find(m => m.Id === product.ManufacturerId);
+      const manufacturer = manufacturers.find(m => m.Id === product.Manufacturer?.Id);
       const manufacturerName = manufacturer ? manufacturer.Name : "";
 
       const formValues = {
@@ -166,7 +166,7 @@ const EditProduct = () => {
         BoxQty: product.BoxQty,
         DiscountId: discountId,
         DiscountName: discountName,
-        ManufacturerId: product.ManufacturerId || null,
+        ManufacturerId: product.Manufacturer?.Id || null,
         ManufacturerName: manufacturerName
       };
 
@@ -189,7 +189,7 @@ const EditProduct = () => {
     try {
       const updatedFields = {};
       Object.keys(values).forEach((key) => {
-        if (values[key] !== initialValues[key]) {
+        if (key === 'ManufacturerId' || values[key] !== initialValues[key]) {
           updatedFields[key] = values[key];
         }
       });
@@ -430,33 +430,31 @@ const EditProduct = () => {
                 label="Manufacturer"
                 style={styles.formItem}
               >
-                <Space>
-                  <Select
-                    placeholder={initialValues.ManufacturerName || "Select a manufacturer"}
-                    allowClear
-                    onChange={(value) => {
-                      if (id && value === undefined) {
-                        form.setFieldsValue({ ManufacturerId: 0 });
-                      }
-                    }}
-                    style={{ width: '200px' }}
-                  >
-                    {manufacturers.map((manufacturer) => (
-                      <Option key={manufacturer.Id} value={manufacturer.Id}>
-                        {manufacturer.Name}
-                      </Option>
-                    ))}
-                  </Select>
-                  {id && (
-                    <Button
-                      onClick={() => {
-                        form.setFieldsValue({ ManufacturerId: 0 });
-                      }}
-                    >
-                      Clear Manufacturer
-                    </Button>
-                  )}
-                </Space>
+                <Select
+                  placeholder={initialValues.ManufacturerName || "Select a manufacturer"}
+                  allowClear
+                  onChange={(value) => {
+                    // When clearing the manufacturer, this will be triggered with value as undefined
+                    if (value === undefined) {
+                      form.setFieldsValue({ ManufacturerId: 0 });
+                    }
+                  }}
+                  style={{
+                    width: '200px',
+                    borderColor: form.getFieldValue('ManufacturerId') === 0 ? '#ff4d4f' : undefined,
+                  }}
+                >
+                  {manufacturers.map((manufacturer) => (
+                    <Option key={manufacturer.Id} value={manufacturer.Id}>
+                      {manufacturer.Name}
+                    </Option>
+                  ))}
+                </Select>
+                {form.getFieldValue('ManufacturerId') === 0 && (
+                  <Typography.Text type="danger" style={{ marginLeft: '8px' }}>
+                    Manufacturer will be removed on update
+                  </Typography.Text>
+                )}
               </Form.Item>
 
               <Space
