@@ -434,8 +434,7 @@ const EditProduct = () => {
                   placeholder={initialValues.ManufacturerName || "Select a manufacturer"}
                   allowClear
                   onChange={(value) => {
-                    // When clearing the manufacturer, this will be triggered with value as undefined
-                    if (value === undefined) {
+                    if (value === 0) {
                       form.setFieldsValue({ ManufacturerId: 0 });
                     }
                   }}
@@ -444,6 +443,9 @@ const EditProduct = () => {
                     borderColor: form.getFieldValue('ManufacturerId') === 0 ? '#ff4d4f' : undefined,
                   }}
                 >
+                  <Option key={0} value={0} style={{ color: 'red' }}>
+                    Clear Manufacturer
+                  </Option>
                   {manufacturers.map((manufacturer) => (
                     <Option key={manufacturer.Id} value={manufacturer.Id}>
                       {manufacturer.Name}
