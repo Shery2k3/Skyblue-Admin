@@ -37,6 +37,7 @@ const EditProduct = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [newImage, setNewImage] = useState(null);
   const [discounts, setDiscounts] = useState([]);
+  const [manufacturers, setManufacturers] = useState([]);
   const [initialValues, setInitialValues] = useState({});
   const [disabledPrices, setDisabledPrices] = useState({});
   const [deletingTierPrice, setDeletingTierPrice] = useState(false);
@@ -47,12 +48,18 @@ const EditProduct = () => {
   const buttonSize = useResponsiveButtonSize();
 
   useEffect(() => {
-    fetchCategories();
-    fetchRoles();
-    fetchDiscounts();
-    if (id) {
-      fetchProductDetails();
-    }
+    const fetchData = async () => {
+      await Promise.all([
+        fetchCategories(),
+        fetchRoles(),
+        fetchDiscounts(),
+        fetchManufacturers(),
+      ]);
+      if (id) {
+        fetchProductDetails();
+      }
+    };
+    fetchData();
   }, [id]);
 
   const fetchDiscounts = async () => {
@@ -63,6 +70,17 @@ const EditProduct = () => {
       setDiscounts(response.data);
     } catch (error) {
       message.error("Failed to fetch discounts");
+    }
+  };
+
+  const fetchManufacturers = async () => {
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`)
+      );
+      setManufacturers(response.data);
+    } catch (error) {
+      message.error("Failed to fetch manufacturers");
     }
   };
 
@@ -122,6 +140,10 @@ const EditProduct = () => {
       const discount = discounts.find((d) => d.Id === discountId);
       const discountName = discount ? discount.Name : "";
 
+      // Find the manufacturer name
+      const manufacturer = manufacturers.find(m => m.Id === product.ManufacturerId);
+      const manufacturerName = manufacturer ? manufacturer.Name : "";
+
       const formValues = {
         Name: product.Name,
         Price: product.Price,
@@ -144,6 +166,8 @@ const EditProduct = () => {
         BoxQty: product.BoxQty,
         DiscountId: discountId,
         DiscountName: discountName,
+        ManufacturerId: product.ManufacturerId || null,
+        ManufacturerName: manufacturerName
       };
 
       // Set tier prices
@@ -199,6 +223,7 @@ const EditProduct = () => {
       }
 
       if (id) {
+        console.log(formData)
         await axiosInstance.patch(
           `${API_BASE_URL}/admin/product/${id}`,
           formData,
@@ -400,6 +425,40 @@ const EditProduct = () => {
                 </Select>
               </Form.Item>
 
+              <Form.Item
+                name="ManufacturerId"
+                label="Manufacturer"
+                style={styles.formItem}
+              >
+                <Space>
+                  <Select
+                    placeholder={initialValues.ManufacturerName || "Select a manufacturer"}
+                    allowClear
+                    onChange={(value) => {
+                      if (id && value === undefined) {
+                        form.setFieldsValue({ ManufacturerId: 0 });
+                      }
+                    }}
+                    style={{ width: '200px' }}
+                  >
+                    {manufacturers.map((manufacturer) => (
+                      <Option key={manufacturer.Id} value={manufacturer.Id}>
+                        {manufacturer.Name}
+                      </Option>
+                    ))}
+                  </Select>
+                  {id && (
+                    <Button
+                      onClick={() => {
+                        form.setFieldsValue({ ManufacturerId: 0 });
+                      }}
+                    >
+                      Clear Manufacturer
+                    </Button>
+                  )}
+                </Space>
+              </Form.Item>
+
               <Space
                 style={{
                   width: "100%",
@@ -499,7 +558,7 @@ const EditProduct = () => {
                 >
                   <Input style={{ width: "100%" }} />
                 </Form.Item>
-                
+
                 <Form.Item
                   name="Barcode2"
                   label="Box Barcode"
