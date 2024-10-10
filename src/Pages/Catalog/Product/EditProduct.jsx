@@ -499,10 +499,10 @@ const EditProduct = () => {
                 >
                   <Input style={{ width: "100%" }} />
                 </Form.Item>
-
+                
                 <Form.Item
                   name="Barcode2"
-                  label="Barcode 2"
+                  label="Box Barcode"
                   style={styles.formItem}
                 >
                   <Input style={{ width: "100%" }} />
