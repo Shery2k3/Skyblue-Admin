@@ -189,7 +189,7 @@ const EditProduct = () => {
     try {
       const updatedFields = {};
       Object.keys(values).forEach((key) => {
-        if (key === 'ManufacturerId' || values[key] !== initialValues[key]) {
+        if (key === 'ManufacturerId' && values['ManufacturerId'] !== null || values[key] !== initialValues[key]) {
           updatedFields[key] = values[key];
         }
       });
@@ -432,7 +432,6 @@ const EditProduct = () => {
               >
                 <Select
                   placeholder={initialValues.ManufacturerName || "Select a manufacturer"}
-                  allowClear
                   onChange={(value) => {
                     if (value === 0) {
                       form.setFieldsValue({ ManufacturerId: 0 });
