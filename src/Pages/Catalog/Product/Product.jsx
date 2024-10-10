@@ -17,6 +17,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   ZoomInOutlined,
+  CloseCircleOutlined
 } from "@ant-design/icons";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import CustomLayout from "../../../Components/Layout/Layout";
@@ -35,6 +36,8 @@ const Product = () => {
   const [error, setError] = useState(null);
   const [category, setCategory] = useState("");
   const [product, setProduct] = useState("");
+  const [manufacturers, setManufacturers] = useState([]);
+  const [selectedManufacturer, setSelectedManufacturer] = useState();
   const [published, setPublished] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,10 +54,20 @@ const Product = () => {
   const fetchProducts = async (page = 1) => {
     setLoading(true);
     try {
+      const params = {
+        category,
+        product,
+        published,
+        size: 20,
+        page,
+      };
+
+      if (selectedManufacturer) {
+        params.manufacturer = selectedManufacturer;
+      }
+
       const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/product/search`, {
-          params: { category, product, published, size: 20, page },
-        })
+        axiosInstance.get(`${API_BASE_URL}/admin/product/search`, { params })
       );
       setProducts(response.data.products);
       setTotalItems(response.data.totalItems);
@@ -69,6 +82,22 @@ const Product = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    const fetchManufacturers = async () => {
+      try {
+        const response = await retryRequest(() =>
+          axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`)
+        );
+        setManufacturers(response.data);
+      } catch (error) {
+        console.error('Error fetching manufacturers:', error);
+      }
+    };
+
+    fetchManufacturers();
+  }, []);
+
 
   const handleSearch = () => {
     fetchProducts(1);
@@ -97,6 +126,10 @@ const Product = () => {
   const handleImageClick = (imageUrl) => {
     setSelectedImage(imageUrl);
     setIsModalVisible(true);
+  };
+
+  const handleManufacturerChange = (event) => {
+    setSelectedManufacturer(event.target.value);
   };
 
   const columns = [
@@ -167,9 +200,35 @@ const Product = () => {
       ),
     },
     {
-      title: "Stock Quantity",
-      dataIndex: "StockQuantity",
-      key: "StockQuantity",
+      title: "SKU",
+      dataIndex: "SKU",
+      key: "SKU",
+      align: "center",
+      render: (text) => (
+        <Text
+          style={{ fontSize: "14px", color: "#000000", fontWeight: "bold" }}
+        >
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: "Barcode",
+      dataIndex: "Barcode",
+      key: "Barcode",
+      align: "center",
+      render: (text) => (
+        <Text
+          style={{ fontSize: "14px", color: "#000000", fontWeight: "bold" }}
+        >
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: "Box Barcode",
+      dataIndex: "BoxBarcode",
+      key: "BoxBarcode",
       align: "center",
       render: (text) => (
         <Text
@@ -257,6 +316,27 @@ const Product = () => {
             style={{ width: isSmallScreen ? "100%" : 200 }}
             prefix={<SearchOutlined />}
           />
+          <Select
+            placeholder={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <SearchOutlined style={{ color: 'black' }} />
+                <p style={{ margin: 0, paddingLeft: '5px' }}>Manufacturer</p>
+              </div>
+            }
+            value={selectedManufacturer}
+            onChange={(value) => setSelectedManufacturer(value)}
+            style={{ width: 200 }}
+          >
+            <Select.Option value={null}>
+              <span style={{ color: 'red' }}>Remove Manufacturer</span>
+            </Select.Option>
+            {manufacturers.map((manufacturer) => (
+              <Select.Option key={manufacturer.Id} value={manufacturer.Id}>
+                {manufacturer.Name}
+              </Select.Option>
+            ))}
+          </Select>
+
           <Select
             value={published}
             onChange={(value) => setPublished(value)}
