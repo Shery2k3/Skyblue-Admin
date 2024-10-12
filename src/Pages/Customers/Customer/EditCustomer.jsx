@@ -17,6 +17,7 @@ const EditCustomer = () => {
 
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
+    const [email, setEmail] = useState('');
 
     useEffect(() => {
         fetchCustomerDetails();
@@ -30,7 +31,25 @@ const EditCustomer = () => {
                     `${API_BASE_URL}/admin/customer-details/${id}`
                 )
             );
-            form.setFieldsValue(response.data);
+            const customerData = response.data[0]; // Assuming the API returns an array with one object
+            form.setFieldsValue({
+                FirstName: customerData.FirstName,
+                LastName: customerData.LastName,
+                Company: customerData.Company,
+                Address1: customerData.Address1,
+                Address2: customerData.Address2,
+                ZipPostalCode: customerData.ZipPostalCode,
+                City: customerData.City,
+                CountryId: customerData.CountryId,
+                StateProvinceId: customerData.StateProvinceId,
+                PhoneNumber: customerData.PhoneNumber,
+                Active: customerData.Active
+            });
+            if (customerData.CountryId) {
+                fetchStates(customerData.CountryId);
+            }
+
+            setEmail(`${customerData.Email[0]}`)
         } catch (error) {
             console.error("Error fetching customer details:", error);
             message.error("Failed to fetch customer details");
@@ -61,9 +80,16 @@ const EditCustomer = () => {
 
     const onFinish = async (values) => {
         try {
-            await axiosInstance.patch(`${API_BASE_URL}/admin/customer-details/${id}`, values);
+            const updatedFields = Object.entries(values).reduce((acc, [key, value]) => {
+                if (value !== undefined) {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
+
+            await axiosInstance.patch(`${API_BASE_URL}/admin/customer-details/${id}`, updatedFields);
             message.success("Customer updated successfully");
-            navigate('/customers');
+            navigate('/customer');
         } catch (error) {
             console.error("Error updating customer:", error);
             message.error("Failed to update customer");
@@ -73,7 +99,7 @@ const EditCustomer = () => {
     return (
         <CustomLayout pageTitle="Edit Customer" menuKey="12">
             <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
-                Edit Customer
+                Edit Customer: {email}
             </Title>
             <Form
                 form={form}
@@ -81,42 +107,42 @@ const EditCustomer = () => {
                 onFinish={onFinish}
                 style={{ maxWidth: 600, margin: '0 auto' }}
             >
-                <Form.Item name="FirstName" label="First Name" rules={[{ required: true }]}>
+                <Form.Item name="FirstName" label="First Name">
                     <Input />
                 </Form.Item>
-                <Form.Item name="LastName" label="Last Name" rules={[{ required: true }]}>
+                <Form.Item name="LastName" label="Last Name">
                     <Input />
                 </Form.Item>
                 <Form.Item name="Company" label="Company">
                     <Input />
                 </Form.Item>
-                <Form.Item name="Address1" label="Address 1" rules={[{ required: true }]}>
+                <Form.Item name="Address1" label="Address 1">
                     <Input />
                 </Form.Item>
                 <Form.Item name="Address2" label="Address 2">
                     <Input />
                 </Form.Item>
-                <Form.Item name="ZipPostalCode" label="Zip/Postal Code" rules={[{ required: true }]}>
+                <Form.Item name="ZipPostalCode" label="Zip/Postal Code">
                     <Input />
                 </Form.Item>
-                <Form.Item name="City" label="City" rules={[{ required: true }]}>
+                <Form.Item name="City" label="City">
                     <Input />
                 </Form.Item>
-                <Form.Item name="CountryId" label="Country" rules={[{ required: true }]}>
+                <Form.Item name="CountryId" label="Country">
                     <Select onChange={(value) => fetchStates(value)}>
                         {countries.map(country => (
                             <Option key={country.Id} value={country.Id}>{country.Name}</Option>
                         ))}
                     </Select>
                 </Form.Item>
-                <Form.Item name="StateProvinceId" label="State/Province" rules={[{ required: true }]}>
+                <Form.Item name="StateProvinceId" label="State/Province">
                     <Select>
                         {states.map(state => (
                             <Option key={state.Id} value={state.Id}>{state.Name}</Option>
                         ))}
                     </Select>
                 </Form.Item>
-                <Form.Item name="PhoneNumber" label="Phone Number" rules={[{ required: true }]}>
+                <Form.Item name="PhoneNumber" label="Phone Number">
                     <Input />
                 </Form.Item>
                 <Form.Item name="Active" valuePropName="checked">
