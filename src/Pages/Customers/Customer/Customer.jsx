@@ -15,10 +15,11 @@ import {
   Typography
 } from "antd";
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom"
 import { useMediaQuery } from "react-responsive";
 import API_BASE_URL from "../../../constants.js";
-import axiosInstance from "../../../Api/axiosConfig.js"; 
-import useRetryRequest from "../../../Api/useRetryRequest.js"; 
+import axiosInstance from "../../../Api/axiosConfig.js";
+import useRetryRequest from "../../../Api/useRetryRequest.js";
 
 const { Option } = Select;
 const debounce = (func, delay) => {
@@ -28,6 +29,7 @@ const debounce = (func, delay) => {
     timeoutId = setTimeout(() => func(...args), delay);
   };
 };
+
 
 const Customer = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -46,11 +48,13 @@ const Customer = () => {
   const [searchFirstName, setSearchFirstName] = useState("");
   const [searchLastName, setSearchLastName] = useState("");
   const [searchPhoneNumber, setSearchPhoneNumber] = useState("");
-
+  
   const retryRequest = useRetryRequest();
+  const navigate = useNavigate();
+  
   const { Title } = Typography;
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
-
+  
   const fetchCustomers = useCallback(
     debounce(async (page) => {
       if (isFetching) return;
@@ -152,11 +156,12 @@ const Customer = () => {
   };
 
   const handleEdit = (customer) => {
-    setSelectedCustomer(customer);
-    setIsActive(customer.active);
-    setSelectedRoles(customer.roles.map((role) => role.name));
-    setRemovedRoles([]);
-    setIsModalVisible(true);
+    // setSelectedCustomer(customer);
+    // setIsActive(customer.active);
+    // setSelectedRoles(customer.roles.map((role) => role.name));
+    // setRemovedRoles([]);
+    // setIsModalVisible(true);
+    navigate(`/edit-customer/${customer.id}`);
   };
 
   const handleOk = async () => {
