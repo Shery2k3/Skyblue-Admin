@@ -71,8 +71,10 @@ const Customer = () => {
           email: customer.email,
           company: customer.company,
           phone: customer.phone,
+          zip: customer.zip,
           active: customer.active,
           roles: customer.roles,
+          createdOnUTC: customer.createdOnUTC
         }));
 
         setDataSource(formattedData);
@@ -114,8 +116,10 @@ const Customer = () => {
           email: customer.email,
           company: customer.company,
           phone: customer.phone,
+          zip: customer.zip,
           active: customer.active,
           roles: customer.roles,
+          createdOnUTC: customer.createdOnUTC
         }));
 
         setDataSource(formattedData);
@@ -239,6 +243,11 @@ const Customer = () => {
       key: "phone",
     },
     {
+      title: "Zip Code",
+      dataIndex: "zip",
+      key: "zip",
+    },
+    {
       title: "Status",
       dataIndex: "active",
       key: "active",
@@ -254,6 +263,11 @@ const Customer = () => {
       dataIndex: "roles",
       key: "roles",
       render: (roles) => roles.map((role) => role.name).join(", "),
+    },
+    {
+      title: "Created On",
+      dataIndex: "createdOnUTC",
+      key: "createdOnUTC",
     },
     {
       title: "Action",

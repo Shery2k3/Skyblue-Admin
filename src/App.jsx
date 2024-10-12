@@ -15,6 +15,7 @@ import OrdersDetails from './Pages/Sales/Orders/OrderDetail';
 import CurrentCarts from './Pages/Sales/CurrentCarts/CurrentCarts';
 import BestSeller from './Pages/Sales/BestSeller/BestSeller';
 import Customer from './Pages/Customers/Customer/Customer';
+import EditCustomer from './Pages/Customers/Customer/EditCustomer';
 import CustomerApproval from './Pages/Customers/CustomerApproval/CustomerApproval';
 import CustomerReport from './Pages/Customers/CustomerReport/CustomerReport';
 import CustomerRoles from './Pages/Customers/CustomerRoles/CustomerRoles';
@@ -34,7 +35,7 @@ function App() {
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
-        
+
         {/* Protected Routes */}
         <Route path="/" element={<ProtectedRoute element={Dashboard} />} />
         <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
@@ -58,6 +59,7 @@ function App() {
 
         {/* Customers */}
         <Route path="/customer" element={<ProtectedRoute element={Customer} />} />
+        <Route path='/edit-customer/:id?' element={<ProtectedRoute element={EditCustomer} />} />
         <Route path="/customer-approval" element={<ProtectedRoute element={CustomerApproval} />} />
         <Route path="/customer-report" element={<ProtectedRoute element={CustomerReport} />} />
         <Route path="/customer-roles" element={<ProtectedRoute element={CustomerRoles} />} />
@@ -72,7 +74,7 @@ function App() {
         <Route path="/notice" element={<ProtectedRoute element={Notification} />} />
         <Route path="/banners" element={<ProtectedRoute element={Banner} />} />
         <Route path="/banners/add-banner" element={<ProtectedRoute element={AddBanner} />} />
-         
+
         {/* Catch-all for non-existent routes */}
         <Route path="*" element={<Error404 />} />
       </Routes>
