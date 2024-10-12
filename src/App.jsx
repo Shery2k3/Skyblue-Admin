@@ -13,6 +13,7 @@ import Vendors from './Pages/Vendors/Vendors';
 import Orders from './Pages/Sales/Orders/Orders';
 import OrdersDetails from './Pages/Sales/Orders/OrderDetail';
 import CurrentCarts from './Pages/Sales/CurrentCarts/CurrentCarts';
+import CurrentCartDetails from './Pages/Sales/CurrentCarts/CurrentCartDetails';
 import BestSeller from './Pages/Sales/BestSeller/BestSeller';
 import Customer from './Pages/Customers/Customer/Customer';
 import CustomerApproval from './Pages/Customers/CustomerApproval/CustomerApproval';
@@ -54,6 +55,7 @@ function App() {
         <Route path="/orders" element={<ProtectedRoute element={Orders} />} />
         <Route path="/orders/:id" element={<ProtectedRoute element={OrdersDetails} />} />
         <Route path="/current-carts" element={<ProtectedRoute element={CurrentCarts} />} />
+        <Route path="/current-carts/:id?" element={<ProtectedRoute element={CurrentCartDetails} />} />
         <Route path="/best-seller" element={<ProtectedRoute element={BestSeller} />} />
 
         {/* Customers */}
