@@ -15,10 +15,11 @@ import {
   Typography
 } from "antd";
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom"
 import { useMediaQuery } from "react-responsive";
 import API_BASE_URL from "../../../constants.js";
-import axiosInstance from "../../../Api/axiosConfig.js"; 
-import useRetryRequest from "../../../Api/useRetryRequest.js"; 
+import axiosInstance from "../../../Api/axiosConfig.js";
+import useRetryRequest from "../../../Api/useRetryRequest.js";
 
 const { Option } = Select;
 const debounce = (func, delay) => {
@@ -28,6 +29,7 @@ const debounce = (func, delay) => {
     timeoutId = setTimeout(() => func(...args), delay);
   };
 };
+
 
 const Customer = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -46,11 +48,13 @@ const Customer = () => {
   const [searchFirstName, setSearchFirstName] = useState("");
   const [searchLastName, setSearchLastName] = useState("");
   const [searchPhoneNumber, setSearchPhoneNumber] = useState("");
-
+  
   const retryRequest = useRetryRequest();
+  const navigate = useNavigate();
+  
   const { Title } = Typography;
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
-
+  
   const fetchCustomers = useCallback(
     debounce(async (page) => {
       if (isFetching) return;
@@ -71,8 +75,10 @@ const Customer = () => {
           email: customer.email,
           company: customer.company,
           phone: customer.phone,
+          zip: customer.zip,
           active: customer.active,
           roles: customer.roles,
+          createdOnUTC: customer.createdOnUTC
         }));
 
         setDataSource(formattedData);
@@ -114,8 +120,10 @@ const Customer = () => {
           email: customer.email,
           company: customer.company,
           phone: customer.phone,
+          zip: customer.zip,
           active: customer.active,
           roles: customer.roles,
+          createdOnUTC: customer.createdOnUTC
         }));
 
         setDataSource(formattedData);
@@ -148,11 +156,12 @@ const Customer = () => {
   };
 
   const handleEdit = (customer) => {
-    setSelectedCustomer(customer);
-    setIsActive(customer.active);
-    setSelectedRoles(customer.roles.map((role) => role.name));
-    setRemovedRoles([]);
-    setIsModalVisible(true);
+    // setSelectedCustomer(customer);
+    // setIsActive(customer.active);
+    // setSelectedRoles(customer.roles.map((role) => role.name));
+    // setRemovedRoles([]);
+    // setIsModalVisible(true);
+    navigate(`/edit-customer/${customer.id}`);
   };
 
   const handleOk = async () => {
@@ -239,6 +248,11 @@ const Customer = () => {
       key: "phone",
     },
     {
+      title: "Zip Code",
+      dataIndex: "zip",
+      key: "zip",
+    },
+    {
       title: "Status",
       dataIndex: "active",
       key: "active",
@@ -254,6 +268,11 @@ const Customer = () => {
       dataIndex: "roles",
       key: "roles",
       render: (roles) => roles.map((role) => role.name).join(", "),
+    },
+    {
+      title: "Created On",
+      dataIndex: "createdOnUTC",
+      key: "createdOnUTC",
     },
     {
       title: "Action",
