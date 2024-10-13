@@ -18,10 +18,14 @@ const EditCustomer = () => {
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
     const [email, setEmail] = useState('');
+    const [roles, setRoles] = useState([]);
+    const [allRoles, setAllRoles] = useState([]);
+    const [removedRoles, setRemovedRoles] = useState([]);
 
     useEffect(() => {
         fetchCustomerDetails();
         fetchCountries();
+        fetchRoles();
     }, [id]);
 
     const fetchCustomerDetails = async () => {
@@ -31,8 +35,12 @@ const EditCustomer = () => {
                     `${API_BASE_URL}/admin/customer-details/${id}`
                 )
             );
-            const customerData = response.data[0]; // Assuming the API returns an array with one object
+            const customerData = response.data;
+            setEmail(customerData.Email);
+            setRoles(customerData.Roles.map(role => role.Id));
             form.setFieldsValue({
+                email: customerData.Email,
+                roles: customerData.Roles.map(role => role.Id),
                 FirstName: customerData.FirstName,
                 LastName: customerData.LastName,
                 Company: customerData.Company,
@@ -48,11 +56,8 @@ const EditCustomer = () => {
             if (customerData.CountryId) {
                 fetchStates(customerData.CountryId);
             }
-
-            setEmail(`${customerData.Email[0]}`)
         } catch (error) {
-            console.error("Error fetching customer details:", error);
-            message.error("Failed to fetch customer details");
+            message.error('Failed to fetch customer details');
         }
     };
 
@@ -78,21 +83,36 @@ const EditCustomer = () => {
         }
     };
 
-    const onFinish = async (values) => {
+    const fetchRoles = async () => {
         try {
-            const updatedFields = Object.entries(values).reduce((acc, [key, value]) => {
-                if (value !== undefined) {
-                    acc[key] = value;
-                }
-                return acc;
-            }, {});
-
-            await axiosInstance.patch(`${API_BASE_URL}/admin/customer-details/${id}`, updatedFields);
-            message.success("Customer updated successfully");
-            navigate('/customer');
+            const response = await retryRequest(() =>
+                axiosInstance.get(`${API_BASE_URL}/admin/roles`)
+            );
+            setAllRoles(response.data);
         } catch (error) {
-            console.error("Error updating customer:", error);
-            message.error("Failed to update customer");
+            message.error('Failed to fetch roles');
+        }
+    };
+
+    const handleRoleChange = (selectedRoles) => {
+        const removed = roles.filter(role => !selectedRoles.includes(role));
+        setRemovedRoles([...removedRoles, ...removed]);
+        setRoles(selectedRoles);
+    };
+
+    const handleSubmit = async (values) => {
+        try {
+            await retryRequest(() =>
+                axiosInstance.patch(`${API_BASE_URL}/admin/customer-details/${id}`, {
+                    ...values,
+                    roles,
+                    removeRoles: removedRoles
+                })
+            );
+            message.success('Customer updated successfully');
+            navigate(`/edit-customer/${id}`);
+        } catch (error) {
+            message.error('Failed to update customer');
         }
     };
 
@@ -104,9 +124,26 @@ const EditCustomer = () => {
             <Form
                 form={form}
                 layout="vertical"
-                onFinish={onFinish}
+                onFinish={handleSubmit}
                 style={{ maxWidth: 600, margin: '0 auto' }}
             >
+                <Form.Item name="email" label="Email">
+                    <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+                </Form.Item>
+                <Form.Item name="roles" label="Roles">
+                    <Select
+                        mode="multiple"
+                        placeholder="Select roles"
+                        value={roles}
+                        onChange={handleRoleChange}
+                    >
+                        {allRoles.map(role => (
+                            <Option key={role.Id} value={role.Id}>
+                                {role.Name}
+                            </Option>
+                        ))}
+                    </Select>
+                </Form.Item>
                 <Form.Item name="FirstName" label="First Name">
                     <Input />
                 </Form.Item>
