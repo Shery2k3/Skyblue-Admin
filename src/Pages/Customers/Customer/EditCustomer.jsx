@@ -117,7 +117,7 @@ const EditCustomer = () => {
     };
 
     return (
-        <CustomLayout pageTitle="Edit Customer" menuKey="12">
+        <CustomLayout pageTitle="Edit Customer" menuKey="10">
             <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
                 Edit Customer: {email}
             </Title>

@@ -48,3 +48,7 @@ a {
 .small-device-warning {
   display: none;
 }
+
+.ant-descriptions-item-label {
+  width: 160px !important;
+}

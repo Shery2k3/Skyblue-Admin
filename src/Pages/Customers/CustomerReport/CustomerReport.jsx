@@ -79,7 +79,7 @@ const CustomerReport = () => {
   };
 
   const handleView = (customer) => {
-    navigate(`/customer/edit/${customer.key}`);
+    navigate(`/edit-customer/${customer.key}`);
   };
 
   const handleStartDateChange = (date) => {

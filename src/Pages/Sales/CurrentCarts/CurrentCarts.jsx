@@ -60,7 +60,7 @@ const CurrentCarts = () => {
   };
 
   const handleEmailClick = (customer) => {
-    navigate(`/customer/edit/${customer.key}`);
+    navigate(`/edit-customer/${customer.key}`);
   };
 
   const columns = [

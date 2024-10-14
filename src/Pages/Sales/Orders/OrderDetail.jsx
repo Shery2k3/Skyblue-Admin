@@ -12,6 +12,9 @@ import PackageSlip from "../../../Components/Invoice/PackageSlip";
 const OrdersDetails = () => {
   const { id } = useParams();
   const [items, setItems] = useState([]);
+  const [orderDetail, setOrderDetail] = useState([])
+  const [userDetail, setUserDetail] = useState([])
+  const [priceDetail, setPriceDetail] = useState([])
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(false);
   const [userInfo, serUserInfo] = useState({});
@@ -32,46 +35,118 @@ const OrdersDetails = () => {
         const order = response.data.order;
         const products = response.data.order.items;
 
-        const itemsData = [
+        const orderData = [
           {
             key: "1",
             label: "Order #",
             children: order.Id,
+            span: 3,
           },
           {
             key: "2",
             label: "Order GUID",
             children: order.OrderGuid,
+            span: 3,
           },
           {
             key: "3",
+            label: "Shipping Method",
+            children: order.ShippingMethod,
+            span: 3,
+          },
+        ]
+
+        const userData = [
+          {
+            key: "1",
             label: "Full Name",
             children: order.customerFirstName + " " + order.customerLastName,
+            span: 3,
+
+          },
+          {
+            key: "2",
+            label: "Email",
+            children: order.customerEmail,
+            span: 3,
+          },
+          {
+            key: "3",
+            label: "Phone",
+            children: order.customerPhone,
+            span: 3,
           },
           {
             key: "4",
             label: "Company",
             children: order.customerCompany,
+            span: 3,
           },
           {
             key: "5",
-            label: "Email",
-            children: order.customerEmail,
+            label: "Address",
+            children: order.customerAddress,
+            span: 3,
           },
           {
             key: "6",
-            label: "Phone",
-            children: order.customerPhone,
+            label: "City",
+            children: order.customerCity,
+            span: 3,
           },
           {
             key: "7",
-            label: "Order Total",
-            children: "$" + order.OrderTotal.toFixed(2),
+            label: "State / Province",
+            children: order.customerState,
+            span: 3,
           },
           {
             key: "8",
+            label: "Zip / postal code",
+            children: order.customerZip,
+            span: 3,
+          },
+          {
+            key: "9",
+            label: "Country",
+            children: order.customerCountry,
+            span: 3,
+          },
+        ]
+
+        const priceData = [
+          {
+            key: "1",
+            label: "Order Subtotal",
+            children: "$" + (order.OrderTotal + order.OrderDiscount - order.OrderTax).toFixed(2) + " excl tax",
+            span: 3,
+          },
+          {
+            key: "2",
+            label: "Order Tax",
+            children: "$" + order.OrderTax.toFixed(2),
+            span: 3,
+          },
+          {
+            key: "2",
+            label: "Order Discount",
+            children: "-$" + order.OrderDiscount.toFixed(2),
+            span: 3,
+          },
+          {
+            key: "4",
+            label: "Order Total",
+            children: "$" + order.OrderTotal.toFixed(2),
+            span: 3,
+          },
+        ]
+
+        const itemsData = [
+          {
+            key: "1",
             label: "Order Time",
             children: new Date(order.CreatedonUtc).toLocaleString(),
+            span: 3,
           },
         ];
 
@@ -109,6 +184,10 @@ const OrdersDetails = () => {
         };
 
         const productsInfo = {};
+
+        setUserDetail(userData)
+        setOrderDetail(orderData)
+        setPriceDetail(priceData)
 
         serUserInfo(Info);
         setItems(itemsData);
@@ -241,7 +320,10 @@ const OrdersDetails = () => {
               </>
             )}
           </div>
-          <Descriptions layout="vertical" bordered items={items} />
+          <Descriptions layout="horizontal" size='small' bordered items={orderDetail} style={{ marginBottom: "10px" }}/>
+          <Descriptions layout="horizontal" size='small' bordered items={userDetail} style={{ marginBottom: "10px" }}/>
+          <Descriptions layout="horizontal" size='small' bordered items={priceDetail} style={{ marginBottom: "10px" }}/>
+          <Descriptions layout="horizontal" size='small' bordered items={items} />
           <br />
           <br />
           <Table
