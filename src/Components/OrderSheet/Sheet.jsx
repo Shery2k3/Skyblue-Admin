@@ -36,26 +36,24 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingLeft: 20,
     paddingRight: 20,
-    backgroundColor: "#E3F2FD", // Light blue background for the title section
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   inputField: {
     marginTop: 10,
   },
   categoryTitle: {
     fontFamily: "Helvetica-Bold",
-    fontSize: 12,
-    marginTop: 10,
+    fontSize: 10,
+    fontWeight: 600,
+    marginTop: 3,
     marginBottom: 5,
     backgroundColor: "#E3F2FD",
     textAlign: "center",
-    padding: 5,
+    paddingTop: 4,
+    paddingBottom: 2,
     borderRadius: 5,
-  },
-  table: {
-    marginTop: 5,
-    marginBottom: 10,
+    break: 'avoid'
   },
   tableRow: {
     flexDirection: "row",
@@ -64,36 +62,33 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   checkbox: {
-    width: 15,
-    height: 15,
+    width: 25,
+    height: 20,
+    marginLeft: 5,
     borderWidth: 1,
     borderColor: "lightgray",
     borderRadius: 2,
     marginRight: 5,
   },
   productName: {
+    fontSize: 7.5,
     flex: 1,
   },
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    
   },
   gridItem: {
-    width: "48%",
+    width: "25%",
     flexDirection: "row",
     alignItems: "center",
+    break: 'avoid',
     marginBottom: 5,
-  },
-  footer: {
-    marginTop: 20,
-    fontSize: 8,
-    textAlign: "center",
-    color: "gray",
   },
 });
 
-const Sheet = ({ products }) => {
+const Sheet = ({ products, showPrice }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -122,22 +117,21 @@ const Sheet = ({ products }) => {
         </View>
 
         {products.map((category) => (
-          <View key={category.category} style={styles.table}>
-            <Text style={styles.categoryTitle}>{category.category}</Text>
+          <View key={category.category}>
+            <Text style={styles.categoryTitle} wrap={false}>{category.category}</Text>
             <View style={styles.gridContainer}>
               {category.data.map((item) => (
-                <View key={item.Id} style={styles.gridItem}>
+                <View key={item.Id} style={styles.gridItem} wrap={false}>
+                  <Text style={styles.productName}>
+                    {item.Name}
+                    {showPrice && ` ($${item.Price})`}
+                  </Text>
                   <View style={styles.checkbox} />
-                  <Text style={styles.productName}>{item.Name}</Text>
                 </View>
               ))}
             </View>
           </View>
         ))}
-
-        <Text style={styles.footer}>
-          Thank you for your business!
-        </Text>
       </Page>
     </Document>
   );

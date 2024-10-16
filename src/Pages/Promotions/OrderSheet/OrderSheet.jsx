@@ -5,8 +5,9 @@ import useRetryRequest from "../../../Api/useRetryRequest";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { useMediaQuery } from "react-responsive";
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import { pdf } from "@react-pdf/renderer";
 import Sheet from "../../../Components/OrderSheet/Sheet";
-import { Button, Select, message, Typography } from "antd";
+import { Button, Select, Checkbox, message, Typography } from "antd";
 import { CaretRightOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 
@@ -31,7 +32,9 @@ const OrderSheet = () => {
   const [Roles, setRoles] = useState([]);
   const [tierRole, setTierRole] = useState();
   const [categoryId, setCategoryId] = useState(1);
+  const [showPrice, setShowPrice] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const retryRequest = useRetryRequest();
   const buttonSize = useResponsiveButtonSize();
@@ -46,14 +49,14 @@ const OrderSheet = () => {
       );
       return response.data;
     };
-  
+
     const fetchCategories = async () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`/admin/category/all`)
       );
       return flattenCategories(response.data);
     };
-  
+
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -65,15 +68,14 @@ const OrderSheet = () => {
         setCategories(categoriesData);
       } catch (error) {
         message.error("Failed to fetch data");
-        console.error("Failed to fetch data", error)
+        console.error("Failed to fetch data", error);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [retryRequest]);
-  
 
   useEffect(() => {
     console.log(categoryId);
@@ -84,7 +86,7 @@ const OrderSheet = () => {
     try {
       const response = await retryRequest(() =>
         axiosInstance.get(`/admin/ordersheet`, {
-          params: { categoryId , tierRole },
+          params: { categoryId, tierRole },
         })
       );
 
@@ -148,6 +150,24 @@ const OrderSheet = () => {
     );
   };
 
+  const handleDownloadPDF = async () => {
+    setPdfLoading(true);
+    try {
+      const blob = await pdf(<Sheet products={dataSource} showPrice={showPrice} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "order_sheet.pdf";
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      message.error("Failed to generate PDF");
+      console.error("PDF generation error:", error);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   return (
     <CustomLayout pageTitle="Order Sheet" menuKey="17">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
@@ -159,10 +179,11 @@ const OrderSheet = () => {
         style={{ width: "100%", marginBottom: 10 }}
         placeholder="Select Category"
       >
-        <Option value={1}>All Categories</Option>
         {categories.map((category) => (
           <>
-            <Option key={category.id} value={category.id}>{renderCategoryPath(category)}</Option>
+            <Option key={category.id} value={category.id}>
+              {renderCategoryPath(category)}
+            </Option>
           </>
         ))}
       </Select>
@@ -179,22 +200,24 @@ const OrderSheet = () => {
         ))}
       </Select>
 
-      <PDFDownloadLink
-        document={<Sheet products={dataSource} />}
-        fileName={`order_sheet.pdf`}
+      <Checkbox
+        checked={showPrice}
+        onChange={(e) => setShowPrice(e.target.checked)}
+        style={{ marginBottom: 20 }}
       >
-        {({ loading }) =>
-          loading ? (
-            <Button type="primary" disabled>
-              Preparing PDF...
-            </Button>
-          ) : (
-            <Button type="primary" size="small">
-              Export to PDF
-            </Button>
-          )
-        }
-      </PDFDownloadLink>
+        Show Price
+      </Checkbox>
+
+      <br />
+
+      <Button
+        type="primary"
+        size="large"
+        onClick={handleDownloadPDF}
+        disabled={pdfLoading}
+      >
+        {pdfLoading ? "Preparing PDF..." : "Export to PDF"}
+      </Button>
     </CustomLayout>
   );
 };
