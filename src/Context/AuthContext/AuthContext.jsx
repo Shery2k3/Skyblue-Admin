@@ -1,4 +1,3 @@
-// AuthContext.js
 import React, { createContext, useState, useEffect } from "react";
 import axiosInstance, { setupInterceptors } from "../../Api/axiosConfig";
 
@@ -12,17 +11,17 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", jwtToken);
     }
     setToken(jwtToken);
-    setupInterceptors(jwtToken);
+    setupInterceptors(jwtToken); // Set up the interceptor when token is provided
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
-    setupInterceptors(null); 
+    setupInterceptors(null); // Remove Authorization header by sending `null`
   };
 
   useEffect(() => {
-    setupInterceptors(token);
+    setupInterceptors(token); // Apply the token interceptor on initial load
   }, [token]);
 
   return (
