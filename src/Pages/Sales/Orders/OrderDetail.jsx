@@ -20,12 +20,14 @@ const OrdersDetails = () => {
   const [loading, setLoading] = useState(false);
   const [userInfo, serUserInfo] = useState({});
   const [isEditing, setIsEditing] = useState(false);
+  const [isProductEditing, setIsProductEditing] = useState(false);
   const [editableFields, setEditableFields] = useState({
     orderSubtotal: '',
     orderTax: '',
     orderDiscount: '',
     orderTotal: ''
   });
+  const [editableProducts, setEditableProducts] = useState([]);
 
   const retryRequest = useRetryRequest(); // Use the retry logic hook
   const { Title } = Typography;
@@ -170,9 +172,9 @@ const OrdersDetails = () => {
           key: item.OrderItemGuid,
           imageUrl: item.product.imageUrl,
           productName: item.product.Name,
-          price: `$${item.UnitPriceExclTax.toFixed(2)}`,
+          price: item.UnitPriceExclTax.toFixed(2),
           quantity: item.Quantity,
-          total: `$${item.PriceExclTax.toFixed(2)}`,
+          total: item.PriceExclTax.toFixed(2),
           location: item.product.ItemLocation,
           barcode:
             (item.product.Barcode || item.product.Barcode2)?.slice(-4) || null,
@@ -213,6 +215,7 @@ const OrdersDetails = () => {
         serUserInfo(Info);
         setItems(itemsData);
         setDataSource(productData);
+        setEditableProducts(productData);
       } catch (error) {
         console.error("Error fetching Order data:", error);
       } finally {
@@ -227,12 +230,26 @@ const OrdersDetails = () => {
     setIsEditing(!isEditing);
   };
 
+  const toggleProductEdit = () => {
+    setIsProductEditing(!isProductEditing);
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditableFields({
       ...editableFields,
       [name]: value
     });
+  };
+
+  const handleProductInputChange = (key, field, value) => {
+    const updatedProducts = editableProducts.map(product => {
+      if (product.key === key) {
+        return { ...product, [field]: value };
+      }
+      return product;
+    });
+    setEditableProducts(updatedProducts);
   };
 
   const saveChanges = async () => {
@@ -253,12 +270,34 @@ const OrdersDetails = () => {
     }
   };
 
+  const saveProductChanges = async () => {
+    try {
+      await axiosInstance.patch(`/admin/orders/${id}/products`, editableProducts);
+      console.log("Updated Products:", editableProducts);
+    } catch (error) {
+      console.error("Error updating Product data:", error);
+    } finally {
+      toggleProductEdit();
+    }
+  };
+
   const renderEditableField = (field, value) => {
     return isEditing ? (
       <Input
         name={field}
         value={editableFields[field]}
         onChange={handleInputChange}
+      />
+    ) : (
+      value
+    );
+  };
+
+  const renderEditableProductField = (key, field, value) => {
+    return isProductEditing ? (
+      <Input
+        value={value}
+        onChange={(e) => handleProductInputChange(key, field, e.target.value)}
       />
     ) : (
       value
@@ -284,18 +323,21 @@ const OrdersDetails = () => {
       dataIndex: "price",
       key: "price",
       align: "center",
+      render: (text, record) => renderEditableProductField(record.key, 'price', text)
     },
     {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
       align: "center",
+      render: (text, record) => renderEditableProductField(record.key, 'quantity', text)
     },
     {
       title: "Total",
       dataIndex: "total",
       key: "total",
       align: "center",
+      render: (text, record) => renderEditableProductField(record.key, 'total', text)
     },
   ];
 
@@ -338,7 +380,11 @@ const OrdersDetails = () => {
                         Preparing PDF...
                       </Button>
                     ) : (
-                      <Button type="primary" size="small">
+                      <Button
+                        type="primary"
+                        size="small"
+                        style={{ marginLeft: "10px" }}
+                      >
                         Invoice (PDF)
                       </Button>
                     )
@@ -422,6 +468,24 @@ const OrdersDetails = () => {
               </Descriptions.Item>
             ))}
           </Descriptions>
+          <Button
+            type="primary"
+            icon={isProductEditing ? <SaveOutlined /> : <EditOutlined />}
+            onClick={isProductEditing ? saveProductChanges : toggleProductEdit}
+            style={{ marginBottom: "20px" }}
+          >
+            {isProductEditing ? "Save Products" : "Edit Products"}
+          </Button>
+          {isProductEditing && (
+            <Button
+              type="default"
+              icon={<CloseOutlined />}
+              onClick={toggleProductEdit}
+              style={{ marginLeft: "10px", marginBottom: "20px" }}
+            >
+              Cancel
+            </Button>
+          )}
           <Descriptions layout="horizontal" size='small' bordered>
             {items.map(item => (
               <Descriptions.Item key={item.key} label={item.label} span={item.span}>
@@ -432,9 +496,16 @@ const OrdersDetails = () => {
           <br />
           <br />
           <Table
-            dataSource={dataSource}
+            dataSource={editableProducts}
             columns={columns}
             scroll={{ x: "max-content" }}
+            pagination={{
+              onChange: () => {
+                if (isProductEditing) {
+                  toggleProductEdit();
+                }
+              }
+            }}
           />
         </>
       )}
