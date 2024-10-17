@@ -429,28 +429,17 @@ const OrdersDetails = () => {
               </>
             )}
           </div>
-          <Button
-            type="primary"
-            icon={isEditing ? <SaveOutlined /> : <EditOutlined />}
-            onClick={isEditing ? saveChanges : toggleEdit}
-            style={{ marginBottom: "20px" }}
-          >
-            {isEditing ? "Save" : "Edit"}
-          </Button>
-          {isEditing && (
-            <Button
-              type="default"
-              icon={<CloseOutlined />}
-              onClick={toggleEdit}
-              style={{ marginLeft: "10px", marginBottom: "20px" }}
-            >
-              Cancel
-            </Button>
-          )}
           <Descriptions layout="horizontal" size='small' bordered>
             {orderDetail.map(item => (
               <Descriptions.Item key={item.key} label={item.label} span={item.span}>
                 {item.editable ? renderEditableField(item.field, item.children) : item.children}
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+          <Descriptions layout="horizontal" size='small' bordered>
+            {items.map(item => (
+              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
+                {item.children}
               </Descriptions.Item>
             ))}
           </Descriptions>
@@ -468,33 +457,44 @@ const OrdersDetails = () => {
               </Descriptions.Item>
             ))}
           </Descriptions>
-          <Button
-            type="primary"
-            icon={isProductEditing ? <SaveOutlined /> : <EditOutlined />}
-            onClick={isProductEditing ? saveProductChanges : toggleProductEdit}
-            style={{ marginBottom: "20px" }}
-          >
-            {isProductEditing ? "Save Products" : "Edit Products"}
-          </Button>
-          {isProductEditing && (
+          <div style={{ textAlign: "right", marginBottom: "20px" }}>
             <Button
-              type="default"
-              icon={<CloseOutlined />}
-              onClick={toggleProductEdit}
-              style={{ marginLeft: "10px", marginBottom: "20px" }}
+              type="primary"
+              icon={isEditing ? <SaveOutlined /> : <EditOutlined />}
+              onClick={isEditing ? saveChanges : toggleEdit}
+              style={{ marginRight: "10px" }}
             >
-              Cancel
+              {isEditing ? "Save" : "Edit Totals"}
             </Button>
-          )}
-          <Descriptions layout="horizontal" size='small' bordered>
-            {items.map(item => (
-              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
-                {item.children}
-              </Descriptions.Item>
-            ))}
-          </Descriptions>
-          <br />
-          <br />
+            {isEditing && (
+              <Button
+                type="default"
+                icon={<CloseOutlined />}
+                onClick={toggleEdit}
+              >
+                Cancel
+              </Button>
+            )}
+          </div>
+          <div style={{ textAlign: "right", marginBottom: "20px" }}>
+            <Button
+              type="primary"
+              icon={isProductEditing ? <SaveOutlined /> : <EditOutlined />}
+              onClick={isProductEditing ? saveProductChanges : toggleProductEdit}
+              style={{ marginRight: "10px" }}
+            >
+              {isProductEditing ? "Save Products" : "Edit Products"}
+            </Button>
+            {isProductEditing && (
+              <Button
+                type="default"
+                icon={<CloseOutlined />}
+                onClick={toggleProductEdit}
+              >
+                Cancel
+              </Button>
+            )}
+          </div>
           <Table
             dataSource={editableProducts}
             columns={columns}
