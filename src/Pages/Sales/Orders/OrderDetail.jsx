@@ -1,6 +1,6 @@
 import CustomLayout from "../../../Components/Layout/Layout";
 import { useParams } from "react-router-dom";
-import { Button } from "antd";
+import { Button, Input } from "antd";
 import { Descriptions, Table, Spin, Typography } from "antd";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../Api/axiosConfig";
@@ -8,16 +8,24 @@ import useRetryRequest from "../../../Api/useRetryRequest";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import Invoice from "../../../Components/Invoice/Invoice";
 import PackageSlip from "../../../Components/Invoice/PackageSlip";
+import { EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
 
 const OrdersDetails = () => {
   const { id } = useParams();
   const [items, setItems] = useState([]);
-  const [orderDetail, setOrderDetail] = useState([])
-  const [userDetail, setUserDetail] = useState([])
-  const [priceDetail, setPriceDetail] = useState([])
+  const [orderDetail, setOrderDetail] = useState([]);
+  const [userDetail, setUserDetail] = useState([]);
+  const [priceDetail, setPriceDetail] = useState([]);
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(false);
   const [userInfo, serUserInfo] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+  const [editableFields, setEditableFields] = useState({
+    orderSubtotal: '',
+    orderTax: '',
+    orderDiscount: '',
+    orderTotal: ''
+  });
 
   const retryRequest = useRetryRequest(); // Use the retry logic hook
   const { Title } = Typography;
@@ -120,24 +128,32 @@ const OrdersDetails = () => {
             label: "Order Subtotal",
             children: "$" + (order.OrderTotal + order.OrderDiscount - order.OrderTax).toFixed(2) + " excl tax",
             span: 3,
+            editable: true,
+            field: 'orderSubtotal'
           },
           {
             key: "2",
             label: "Order Tax",
             children: "$" + order.OrderTax.toFixed(2),
             span: 3,
+            editable: true,
+            field: 'orderTax'
           },
           {
-            key: "2",
+            key: "3",
             label: "Order Discount",
             children: "-$" + order.OrderDiscount.toFixed(2),
             span: 3,
+            editable: true,
+            field: 'orderDiscount'
           },
           {
             key: "4",
             label: "Order Total",
             children: "$" + order.OrderTotal.toFixed(2),
             span: 3,
+            editable: true,
+            field: 'orderTotal'
           },
         ]
 
@@ -183,7 +199,12 @@ const OrdersDetails = () => {
           shippingMethod: order.ShippingMethod,
         };
 
-        const productsInfo = {};
+        setEditableFields({
+          orderSubtotal: (order.OrderTotal + order.OrderDiscount - order.OrderTax).toFixed(2),
+          orderTax: order.OrderTax.toFixed(2),
+          orderDiscount: order.OrderDiscount.toFixed(2),
+          orderTotal: order.OrderTotal.toFixed(2)
+        });
 
         setUserDetail(userData)
         setOrderDetail(orderData)
@@ -201,6 +222,48 @@ const OrdersDetails = () => {
 
     fetchOrderDetail();
   }, [id, retryRequest]);
+
+  const toggleEdit = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditableFields({
+      ...editableFields,
+      [name]: value
+    });
+  };
+
+  const saveChanges = async () => {
+    const updatedData = {
+      orderSubtotal: editableFields.orderSubtotal,
+      orderTax: editableFields.orderTax,
+      orderDiscount: editableFields.orderDiscount,
+      orderTotal: editableFields.orderTotal
+    };
+
+    try {
+      await axiosInstance.patch(`/admin/orders/${id}`, updatedData);
+      console.log("Updated Data:", updatedData);
+    } catch (error) {
+      console.error("Error updating Order data:", error);
+    } finally {
+      toggleEdit();
+    }
+  };
+
+  const renderEditableField = (field, value) => {
+    return isEditing ? (
+      <Input
+        name={field}
+        value={editableFields[field]}
+        onChange={handleInputChange}
+      />
+    ) : (
+      value
+    );
+  };
 
   const columns = [
     {
@@ -320,10 +383,52 @@ const OrdersDetails = () => {
               </>
             )}
           </div>
-          <Descriptions layout="horizontal" size='small' bordered items={orderDetail} style={{ marginBottom: "10px" }}/>
-          <Descriptions layout="horizontal" size='small' bordered items={userDetail} style={{ marginBottom: "10px" }}/>
-          <Descriptions layout="horizontal" size='small' bordered items={priceDetail} style={{ marginBottom: "10px" }}/>
-          <Descriptions layout="horizontal" size='small' bordered items={items} />
+          <Button
+            type="primary"
+            icon={isEditing ? <SaveOutlined /> : <EditOutlined />}
+            onClick={isEditing ? saveChanges : toggleEdit}
+            style={{ marginBottom: "20px" }}
+          >
+            {isEditing ? "Save" : "Edit"}
+          </Button>
+          {isEditing && (
+            <Button
+              type="default"
+              icon={<CloseOutlined />}
+              onClick={toggleEdit}
+              style={{ marginLeft: "10px", marginBottom: "20px" }}
+            >
+              Cancel
+            </Button>
+          )}
+          <Descriptions layout="horizontal" size='small' bordered>
+            {orderDetail.map(item => (
+              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
+                {item.editable ? renderEditableField(item.field, item.children) : item.children}
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+          <Descriptions layout="horizontal" size='small' bordered>
+            {userDetail.map(item => (
+              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
+                {item.children}
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+          <Descriptions layout="horizontal" size='small' bordered>
+            {priceDetail.map(item => (
+              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
+                {item.editable ? renderEditableField(item.field, item.children) : item.children}
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+          <Descriptions layout="horizontal" size='small' bordered>
+            {items.map(item => (
+              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
+                {item.children}
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
           <br />
           <br />
           <Table
