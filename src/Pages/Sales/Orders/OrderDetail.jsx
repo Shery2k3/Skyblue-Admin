@@ -113,10 +113,11 @@ const OrdersDetails = () => {
               {/* I START WORKING FROM HERE */}
 
               {/* {console.log("orderDetail", orderDetail)} */}
-              <Order orderDetail={orderDetail} />
+              <Order orderDetail={orderDetail} items={items}/>
 
               <Divider orientation="left">Items</Divider>
               <Descriptions layout="horizontal" size="small" bordered>
+              {console.log(items)}
                 {items.map((item) => (
                   <Descriptions.Item
                     key={item.key}
@@ -129,7 +130,7 @@ const OrdersDetails = () => {
               </Descriptions>
 
               <User userDetail={userDetail} />
-              <Price priceDetail={priceDetail} orderId={id}/>
+              <Price priceDetail={priceDetail} />
 
               <Item dataSource={dataSource} />
             </>
