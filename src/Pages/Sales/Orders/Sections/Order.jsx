@@ -2,7 +2,8 @@ import { Button, Descriptions, Divider, Input, Space, message, Spin, Select } fr
 import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../../../Api/axiosConfig"; // Adjust the import as necessary
+import { useParams } from 'react-router-dom';
 
 const { Option } = Select;
 
@@ -10,6 +11,7 @@ const Order = ({ orderDetail }) => {
   const [isEditing, setIsEditing] = useState(false); // Toggle edit mode
   const [editedOrder, setEditedOrder] = useState(orderDetail); // Local state for edits
   const [loading, setLoading] = useState(false); // For showing spinner during save
+  const { id } = useParams(); 
 
   // Status Mapping for `orderStatusId`
   const statusMapping = {
@@ -33,23 +35,39 @@ const Order = ({ orderDetail }) => {
     );
   };
 
+// Save changes
+const handleSave = async () => {
+  setLoading(true); // Start spinner
+  try {
+    console.log("id",id);
+    // Directly use the orderId from useParams
+    const status = editedOrder.find(item => item.label === "Order Status")?.children; // Get updated status
 
-  {/*INTEGRATE THE API HERE LATER */}
+    console.log("Order ID", id, "Status", status);
 
-
-  // Save changes
-  const handleSave = async () => {
-    setLoading(true); // Start spinner
-    try {
-      const response = await axios.post("/edit/order", { orderDetail: editedOrder });
-      message.success("Order updated successfully");
-      setIsEditing(false); // Exit edit mode after successful save
-    } catch (error) {
-      message.error("Failed to update order");
-    } finally {
-      setLoading(false); // Stop spinner
+    // Update the order status
+    if (status) {
+      console.log("status", status);
+      await axiosInstance.patch(`/admin/editOrder/${id}`, { status });
+      message.success("Order status updated successfully");
     }
-  };
+
+    // Update shipping method if necessary
+    const shippingMethod = editedOrder.find(item => item.label === "Shipping Method")?.children; // Adjust based on your data structure
+    if (shippingMethod) {
+      await axiosInstance.patch(`/admin/orders/${id}/shipping-info`, { shippingMethod });
+      message.success("Shipping method updated successfully");
+    }
+
+    setIsEditing(false); // Exit edit mode after successful save
+  } catch (error) {
+    message.error("Failed to update order");
+    console.log("Something went wrong", error);
+  } finally {
+    setLoading(false); // Stop spinner
+  }
+};
+
 
   return (
     <>

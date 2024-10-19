@@ -1,13 +1,17 @@
-import { Table, Input, Button, Space, Image, message, Spin, Divider } from "antd";
+import { Table, Input, Button, Space, Image, message, Spin, Divider, Alert } from "antd";
 import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import PropTypes from "prop-types";
+import { useParams } from "react-router-dom";
+import axiosInstance from '../../../../Api/axiosConfig';
 
 const ItemTable = ({ dataSource }) => {
+  const { id } = useParams(); // Destructure to get orderId from the route
   const [editingKey, setEditingKey] = useState(null);
   const [editedData, setEditedData] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  //console.log("orderId",id);
 
   useEffect(() => {
     setEditedData(dataSource);
@@ -26,20 +30,51 @@ const ItemTable = ({ dataSource }) => {
   };
 
   const handleSave = async (key) => {
-    const productToSave = editedData.find((item) => item.key === key);
+    const productToSave = editedData.find((item) => item.key === key); // Find the product by the key
+    if (!productToSave) {
+      message.error("Product not found");
+      return;
+    }
+  
+    const {
+      productid, // Destructure productid from productToSave
+      quantity,
+      unitpriceincltax: unitPriceInclTax,
+      unitpriceexcltax: unitPriceExclTax,
+      priceincltax: priceInclTax,
+      priceexcltax: priceExclTax,
+      discountamountincltax: discountAmountInclTax,
+      discountamountexcltax: discountAmountExclTax,
+      originalproductcost: originalProductCost,
+    } = productToSave;
+  
+    console.log("productToSave", productToSave);
+  
     setLoading(true);
-
+  
     try {
-      await axios.post("/price/order/update", { productData: productToSave });
+      await axiosInstance.patch(
+        `/admin/orders/${id}/order-items/${productToSave.productid}`, // Use the correct productid here
+        {
+          quantity,
+          unitPriceInclTax,
+          unitPriceExclTax,
+          priceInclTax,
+          priceExclTax,
+          discountAmountInclTax,
+          discountAmountExclTax,
+          originalProductCost,
+        }
+      );
       message.success("Product details updated successfully");
       setEditingKey(null);
     } catch (error) {
+      console.error("Failed to update product details", error);
       message.error("Failed to update product details");
     } finally {
       setLoading(false);
     }
   };
-
   const handleCancel = () => {
     setEditingKey(null);
   };
@@ -149,7 +184,7 @@ const ItemTable = ({ dataSource }) => {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
-      render: (text, record) => (
+      render: (text, record) =>
         editingKey === record.key ? (
           <Input
             value={record.quantity}
@@ -161,8 +196,7 @@ const ItemTable = ({ dataSource }) => {
           />
         ) : (
           text
-        )
-      ),
+        ),
     },
     {
       title: "Location",
@@ -215,6 +249,16 @@ const ItemTable = ({ dataSource }) => {
   return (
     <>
       <Divider orientation="left">Product Details</Divider>
+
+      {editingKey && (
+        <Alert
+          message="Please be sure to update the PriceDetail Tab as well to avoid conflicts"
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
       <Table
         dataSource={editedData}
         columns={columns}

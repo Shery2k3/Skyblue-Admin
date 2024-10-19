@@ -1,7 +1,7 @@
 // hooks/useOrderDetails.js
-import { useState, useEffect } from 'react';
-import axiosInstance from '../../../../Api/axiosConfig';
-import useRetryRequest from '../../../../Api/useRetryRequest';
+import { useState, useEffect } from "react";
+import axiosInstance from "../../../../Api/axiosConfig";
+import useRetryRequest from "../../../../Api/useRetryRequest";
 
 export const useOrderDetails = (orderId) => {
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ export const useOrderDetails = (orderId) => {
 
         const order = response.data.order;
         const products = response.data.order.items;
-        console.log("order",order)
+        console.log("order", order);
 
         const orderData = [
           {
@@ -47,7 +47,7 @@ export const useOrderDetails = (orderId) => {
             span: 3,
           },
           {
-            key:"4",
+            key: "4",
             label: "Order Status",
             children: order.OrderStatusId,
             span: 3,
@@ -122,10 +122,15 @@ export const useOrderDetails = (orderId) => {
           {
             key: "1",
             label: "Order Subtotal",
-            children: "$" + (order.OrderTotal + order.OrderDiscount - order.OrderTax).toFixed(2) + " excl tax",
+            children:
+              "$" +
+              (order.OrderTotal + order.OrderDiscount - order.OrderTax).toFixed(
+                2
+              ) +
+              " excl tax",
             span: 3,
             editable: true,
-            field: 'orderSubtotal'
+            field: "orderSubtotal",
           },
           {
             key: "2",
@@ -133,7 +138,7 @@ export const useOrderDetails = (orderId) => {
             children: "$" + order.OrderTax.toFixed(2),
             span: 3,
             editable: true,
-            field: 'orderTax'
+            field: "orderTax",
           },
           {
             key: "3",
@@ -141,7 +146,7 @@ export const useOrderDetails = (orderId) => {
             children: "$" + order.OrderDiscount.toFixed(2),
             span: 3,
             editable: true,
-            field: 'orderDiscount'
+            field: "orderDiscount",
           },
           {
             key: "4",
@@ -149,7 +154,7 @@ export const useOrderDetails = (orderId) => {
             children: "$" + order.OrderTotal.toFixed(2),
             span: 3,
             editable: true,
-            field: 'orderTotal'
+            field: "orderTotal",
           },
         ];
 
@@ -167,6 +172,7 @@ export const useOrderDetails = (orderId) => {
           key: item.OrderItemGuid,
           imageUrl: item.product.imageUrl,
           productName: item.product.Name,
+          productid: item.product.Id,
           unitpriceexcltax: item.UnitPriceExclTax.toFixed(2),
           unitpriceincltax: item.UnitPriceInclTax.toFixed(2),
           quantity: item.Quantity,
@@ -175,9 +181,10 @@ export const useOrderDetails = (orderId) => {
           totalexcltax: item.PriceExclTax.toFixed(2),
           location: item.product.ItemLocation,
           vendor: item.product.vendorName,
-          barcode: (item.product.Barcode || item.product.Barcode2)?.slice(-4) || null,
+          barcode:
+            (item.product.Barcode || item.product.Barcode2)?.slice(-4) || null,
         }));
-
+        console.log("productData", productData);
 
         const Info = {
           id: order.Id,
@@ -185,11 +192,20 @@ export const useOrderDetails = (orderId) => {
           customerName: order.customerFirstName + " " + order.customerLastName,
           customerPhone: order.customerPhone,
           customerAddress: order.customerAddress,
-          customerCity: order.customerCity + ", " + order.customerState + ", " + order.customerZip,
+          customerCity:
+            order.customerCity +
+            ", " +
+            order.customerState +
+            ", " +
+            order.customerZip,
           customerCountry: order.customerCountry,
           customerEmail: order.customerEmail,
           createdOn: new Date(order.CreatedonUtc).toLocaleString(),
-          subTotal: (order.OrderTotal - order.OrderTax + order.OrderDiscount).toFixed(2),
+          subTotal: (
+            order.OrderTotal -
+            order.OrderTax +
+            order.OrderDiscount
+          ).toFixed(2),
           tax: order.OrderTax.toFixed(2),
           discount: order.OrderDiscount.toFixed(2),
           orderTotal: order.OrderTotal.toFixed(2),
@@ -202,7 +218,6 @@ export const useOrderDetails = (orderId) => {
         setUserInfo(Info);
         setItems(itemsData);
         setDataSource(productData);
-
       } catch (error) {
         setError(error);
         console.error("Error fetching Order data:", error);
@@ -222,6 +237,6 @@ export const useOrderDetails = (orderId) => {
     priceDetail,
     dataSource,
     items,
-    userInfo
+    userInfo,
   };
 };
