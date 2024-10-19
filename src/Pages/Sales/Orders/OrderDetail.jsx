@@ -1,351 +1,38 @@
 import CustomLayout from "../../../Components/Layout/Layout";
 import { useParams } from "react-router-dom";
-import { Button, Input } from "antd";
-import { Descriptions, Table, Spin, Typography } from "antd";
-import { useEffect, useState } from "react";
-import axiosInstance from "../../../Api/axiosConfig";
-import useRetryRequest from "../../../Api/useRetryRequest";
+import { Button, Divider } from "antd";
+import { Descriptions, Spin } from "antd";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import Invoice from "../../../Components/Invoice/Invoice";
 import PackageSlip from "../../../Components/Invoice/PackageSlip";
-import { EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
+import { useOrderDetails } from "./Hooks/useOrderDetails";
+import Title from "antd/es/skeleton/Title";
+import Order from "./Sections/Order";
+import User from "./Sections/User";
+import Price from "./Sections/Price";
+import Item from "./Sections/Item";
 
 const OrdersDetails = () => {
   const { id } = useParams();
-  const [items, setItems] = useState([]);
-  const [orderDetail, setOrderDetail] = useState([]);
-  const [userDetail, setUserDetail] = useState([]);
-  const [priceDetail, setPriceDetail] = useState([]);
-  const [dataSource, setDataSource] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [userInfo, serUserInfo] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
-  const [isProductEditing, setIsProductEditing] = useState(false);
-  const [editableFields, setEditableFields] = useState({
-    orderSubtotal: '',
-    orderTax: '',
-    orderDiscount: '',
-    orderTotal: ''
-  });
-  const [editableProducts, setEditableProducts] = useState([]);
+  const {
+    loading,
+    error,
+    orderDetail,
+    userDetail,
+    priceDetail,
+    dataSource,
+    items,
+    userInfo,
+  } = useOrderDetails(id);
 
-  const retryRequest = useRetryRequest(); // Use the retry logic hook
-  const { Title } = Typography;
-
-  useEffect(() => {
-    const fetchOrderDetail = async () => {
-      setLoading(true);
-      try {
-        // Use retryRequest to fetch order details with retry logic
-        const response = await retryRequest(() =>
-          axiosInstance.get(`/admin/single-order/${id}`)
-        );
-
-        console.log(response.data);
-        const order = response.data.order;
-        const products = response.data.order.items;
-
-        const orderData = [
-          {
-            key: "1",
-            label: "Order #",
-            children: order.Id,
-            span: 3,
-          },
-          {
-            key: "2",
-            label: "Order GUID",
-            children: order.OrderGuid,
-            span: 3,
-          },
-          {
-            key: "3",
-            label: "Shipping Method",
-            children: order.ShippingMethod,
-            span: 3,
-          },
-        ]
-
-        const userData = [
-          {
-            key: "1",
-            label: "Full Name",
-            children: order.customerFirstName + " " + order.customerLastName,
-            span: 3,
-
-          },
-          {
-            key: "2",
-            label: "Email",
-            children: order.customerEmail,
-            span: 3,
-          },
-          {
-            key: "3",
-            label: "Phone",
-            children: order.customerPhone,
-            span: 3,
-          },
-          {
-            key: "4",
-            label: "Company",
-            children: order.customerCompany,
-            span: 3,
-          },
-          {
-            key: "5",
-            label: "Address",
-            children: order.customerAddress,
-            span: 3,
-          },
-          {
-            key: "6",
-            label: "City",
-            children: order.customerCity,
-            span: 3,
-          },
-          {
-            key: "7",
-            label: "State / Province",
-            children: order.customerState,
-            span: 3,
-          },
-          {
-            key: "8",
-            label: "Zip / postal code",
-            children: order.customerZip,
-            span: 3,
-          },
-          {
-            key: "9",
-            label: "Country",
-            children: order.customerCountry,
-            span: 3,
-          },
-        ]
-
-        const priceData = [
-          {
-            key: "1",
-            label: "Order Subtotal",
-            children: "$" + (order.OrderTotal + order.OrderDiscount - order.OrderTax).toFixed(2) + " excl tax",
-            span: 3,
-            editable: true,
-            field: 'orderSubtotal'
-          },
-          {
-            key: "2",
-            label: "Order Tax",
-            children: "$" + order.OrderTax.toFixed(2),
-            span: 3,
-            editable: true,
-            field: 'orderTax'
-          },
-          {
-            key: "3",
-            label: "Order Discount",
-            children: "-$" + order.OrderDiscount.toFixed(2),
-            span: 3,
-            editable: true,
-            field: 'orderDiscount'
-          },
-          {
-            key: "4",
-            label: "Order Total",
-            children: "$" + order.OrderTotal.toFixed(2),
-            span: 3,
-            editable: true,
-            field: 'orderTotal'
-          },
-        ]
-
-        const itemsData = [
-          {
-            key: "1",
-            label: "Order Time",
-            children: new Date(order.CreatedonUtc).toLocaleString(),
-            span: 3,
-          },
-        ];
-
-        const productData = products.map((item) => ({
-          key: item.OrderItemGuid,
-          imageUrl: item.product.imageUrl,
-          productName: item.product.Name,
-          price: item.UnitPriceExclTax.toFixed(2),
-          quantity: item.Quantity,
-          total: item.PriceExclTax.toFixed(2),
-          location: item.product.ItemLocation,
-          barcode:
-            (item.product.Barcode || item.product.Barcode2)?.slice(-4) || null,
-        }));
-
-        const Info = {
-          id: order.Id,
-          companyName: order.customerCompany,
-          customerName: order.customerFirstName + " " + order.customerLastName,
-          customerPhone: order.customerPhone,
-          customerAddress: order.customerAddress,
-          customerCity: order.customerCity + ", " + order.customerState + ", " + order.customerZip,
-          customerCountry: order.customerCountry,
-          customerEmail: order.customerEmail,
-          createdOn: new Date(order.CreatedonUtc).toLocaleString(),
-          subTotal: (
-            order.OrderTotal -
-            order.OrderTax +
-            order.OrderDiscount
-          ).toFixed(2),
-          tax: order.OrderTax.toFixed(2),
-          discount: order.OrderDiscount.toFixed(2),
-          orderTotal: order.OrderTotal.toFixed(2),
-          shippingMethod: order.ShippingMethod,
-        };
-
-        setEditableFields({
-          orderSubtotal: (order.OrderTotal + order.OrderDiscount - order.OrderTax).toFixed(2),
-          orderTax: order.OrderTax.toFixed(2),
-          orderDiscount: order.OrderDiscount.toFixed(2),
-          orderTotal: order.OrderTotal.toFixed(2)
-        });
-
-        setUserDetail(userData)
-        setOrderDetail(orderData)
-        setPriceDetail(priceData)
-
-        serUserInfo(Info);
-        setItems(itemsData);
-        setDataSource(productData);
-        setEditableProducts(productData);
-      } catch (error) {
-        console.error("Error fetching Order data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrderDetail();
-  }, [id, retryRequest]);
-
-  const toggleEdit = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const toggleProductEdit = () => {
-    setIsProductEditing(!isProductEditing);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditableFields({
-      ...editableFields,
-      [name]: value
-    });
-  };
-
-  const handleProductInputChange = (key, field, value) => {
-    const updatedProducts = editableProducts.map(product => {
-      if (product.key === key) {
-        return { ...product, [field]: value };
-      }
-      return product;
-    });
-    setEditableProducts(updatedProducts);
-  };
-
-  const saveChanges = async () => {
-    const updatedData = {
-      orderSubtotal: editableFields.orderSubtotal,
-      orderTax: editableFields.orderTax,
-      orderDiscount: editableFields.orderDiscount,
-      orderTotal: editableFields.orderTotal
-    };
-
-    try {
-      await axiosInstance.patch(`/admin/orders/${id}`, updatedData);
-      console.log("Updated Data:", updatedData);
-    } catch (error) {
-      console.error("Error updating Order data:", error);
-    } finally {
-      toggleEdit();
-    }
-  };
-
-  const saveProductChanges = async () => {
-    try {
-      await axiosInstance.patch(`/admin/orders/${id}/products`, editableProducts);
-      console.log("Updated Products:", editableProducts);
-    } catch (error) {
-      console.error("Error updating Product data:", error);
-    } finally {
-      toggleProductEdit();
-    }
-  };
-
-  const renderEditableField = (field, value) => {
-    return isEditing ? (
-      <Input
-        name={field}
-        value={editableFields[field]}
-        onChange={handleInputChange}
-      />
-    ) : (
-      value
-    );
-  };
-
-  const renderEditableProductField = (key, field, value) => {
-    return isProductEditing ? (
-      <Input
-        value={value}
-        onChange={(e) => handleProductInputChange(key, field, e.target.value)}
-      />
-    ) : (
-      value
-    );
-  };
-
-  const columns = [
-    {
-      title: "Image",
-      dataIndex: "imageUrl",
-      render: (theImageURL) => (
-        <img alt="product-img" src={theImageURL} style={{ height: 50 }} />
-      ),
-      align: "center",
-    },
-    {
-      title: "Product Name",
-      dataIndex: "productName",
-      key: "productName",
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      align: "center",
-      render: (text, record) => renderEditableProductField(record.key, 'price', text)
-    },
-    {
-      title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
-      align: "center",
-      render: (text, record) => renderEditableProductField(record.key, 'quantity', text)
-    },
-    {
-      title: "Total",
-      dataIndex: "total",
-      key: "total",
-      align: "center",
-      render: (text, record) => renderEditableProductField(record.key, 'total', text)
-    },
-  ];
+  // console.log("orderDetail", orderDetail, "userDetail", userDetail, "priceDetail", priceDetail, "dataSource", dataSource, "items", items, "userInfo", userInfo);
 
   return (
     <CustomLayout pageTitle="Order Details" menuKey="7">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Order Details
       </Title>
+
       {loading ? (
         <div
           style={{
@@ -359,13 +46,7 @@ const OrdersDetails = () => {
         </div>
       ) : (
         <>
-          <div
-            style={{
-              textAlign: "right",
-              marginBottom: "20px",
-              float: "center",
-            }}
-          >
+          <div style={{ textAlign: "right", marginBottom: "20px" }}>
             {items.length > 0 ? (
               <>
                 <PDFDownloadLink
@@ -419,94 +100,34 @@ const OrdersDetails = () => {
                 </PDFDownloadLink>
               </>
             ) : (
-              <>
-                <Button type="primary" disabled>
-                  No Data for PDF
-                </Button>
-                <Button type="primary" disabled style={{ marginLeft: "10px" }}>
-                  No Data for PDF
-                </Button>
-              </>
+              <Button type="primary" disabled>
+                No Data for PDF
+              </Button>
             )}
           </div>
-          <Descriptions layout="horizontal" size='small' bordered>
-            {orderDetail.map(item => (
-              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
-                {item.editable ? renderEditableField(item.field, item.children) : item.children}
-              </Descriptions.Item>
-            ))}
-          </Descriptions>
-          <Descriptions layout="horizontal" size='small' bordered>
-            {items.map(item => (
-              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
+
+          {/* I START WORKING FROM HERE */}
+
+          {/* {console.log("orderDetail", orderDetail)} */}
+          <Order orderDetail={orderDetail} />
+
+          <Divider orientation="left">Items</Divider>
+          <Descriptions layout="horizontal" size="small" bordered>
+            {items.map((item) => (
+              <Descriptions.Item
+                key={item.key}
+                label={item.label}
+                span={item.span}
+              >
                 {item.children}
               </Descriptions.Item>
             ))}
           </Descriptions>
-          <Descriptions layout="horizontal" size='small' bordered>
-            {userDetail.map(item => (
-              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
-                {item.children}
-              </Descriptions.Item>
-            ))}
-          </Descriptions>
-          <Descriptions layout="horizontal" size='small' bordered>
-            {priceDetail.map(item => (
-              <Descriptions.Item key={item.key} label={item.label} span={item.span}>
-                {item.editable ? renderEditableField(item.field, item.children) : item.children}
-              </Descriptions.Item>
-            ))}
-          </Descriptions>
-          <div style={{ textAlign: "right", marginBottom: "20px" }}>
-            <Button
-              type="primary"
-              icon={isEditing ? <SaveOutlined /> : <EditOutlined />}
-              onClick={isEditing ? saveChanges : toggleEdit}
-              style={{ marginRight: "10px" }}
-            >
-              {isEditing ? "Save" : "Edit Totals"}
-            </Button>
-            {isEditing && (
-              <Button
-                type="default"
-                icon={<CloseOutlined />}
-                onClick={toggleEdit}
-              >
-                Cancel
-              </Button>
-            )}
-          </div>
-          <div style={{ textAlign: "right", marginBottom: "20px" }}>
-            <Button
-              type="primary"
-              icon={isProductEditing ? <SaveOutlined /> : <EditOutlined />}
-              onClick={isProductEditing ? saveProductChanges : toggleProductEdit}
-              style={{ marginRight: "10px" }}
-            >
-              {isProductEditing ? "Save Products" : "Edit Products"}
-            </Button>
-            {isProductEditing && (
-              <Button
-                type="default"
-                icon={<CloseOutlined />}
-                onClick={toggleProductEdit}
-              >
-                Cancel
-              </Button>
-            )}
-          </div>
-          <Table
-            dataSource={editableProducts}
-            columns={columns}
-            scroll={{ x: "max-content" }}
-            pagination={{
-              onChange: () => {
-                if (isProductEditing) {
-                  toggleProductEdit();
-                }
-              }
-            }}
-          />
+
+          <User userDetail={userDetail} />
+          <Price priceDetail={priceDetail} />
+
+          <Item dataSource={dataSource} />
         </>
       )}
     </CustomLayout>
