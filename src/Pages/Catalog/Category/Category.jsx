@@ -13,12 +13,14 @@ import {
   Tag,
   Typography,
   Pagination,
+  Upload,
 } from "antd";
 import {
   EditOutlined,
   PlusOutlined,
   SearchOutlined,
   CaretRightOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import API_BASE_URL from "../../../constants";
 import axiosInstance from "../../../Api/axiosConfig";
@@ -92,6 +94,7 @@ const Category = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [form] = Form.useForm();
   const [currentPage, setCurrentPage] = useState(1);
+  const [imageFile, setImageFile] = useState(null);
   const pageSize = 15;
 
   const retryRequest = useRetryRequest();
@@ -140,14 +143,25 @@ const Category = () => {
     return flatData;
   };
 
-  const showModal = (category = null) => {
+  const showModal = async (category = null) => {
     setEditingCategory(category);
+    setImageFile(null);
     if (category) {
-      form.setFieldsValue({
-        name: category.name,
-        parentId: category.parentId,
-        published: category.published,
-      });
+      try {
+        const response = await retryRequest(() =>
+          axiosInstance.get(`${API_BASE_URL}/admin/category/single/${category.id}`)
+        );
+        const categoryData = response.data;
+        form.setFieldsValue({
+          name: categoryData.Name,
+          parentId: categoryData.ParentId,
+          published: categoryData.Published,
+          image: categoryData.Image || "",
+        });
+      } catch (error) {
+        console.error("Error fetching category details:", error);
+        message.error("Failed to fetch category details");
+      }
     } else {
       form.resetFields();
     }
@@ -157,30 +171,25 @@ const Category = () => {
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+      const formData = new FormData();
+      formData.append("Name", values.name);
+      formData.append("ParentCategoryId", values.parentId);
+      formData.append("Published", values.published);
+
+      if (imageFile) {
+        formData.append("Image", imageFile);
+      }
+
       if (editingCategory) {
         // Edit existing category
-        const updatedFields = {};
-        if (values.name !== editingCategory.name)
-          updatedFields.Name = values.name;
-        if (values.parentId !== editingCategory.parentId)
-          updatedFields.ParentCategoryId = values.parentId;
-        if (values.published !== editingCategory.published)
-          updatedFields.Published = values.published;
-
-        if (Object.keys(updatedFields).length > 0) {
-          await axiosInstance.patch(
-            `${API_BASE_URL}/admin/category/edit/${editingCategory.id}`,
-            updatedFields
-          );
-          message.success("Category updated successfully");
-        }
+        await axiosInstance.patch(
+          `${API_BASE_URL}/admin/category/edit/${editingCategory.id}`,
+          formData
+        );
+        message.success("Category updated successfully");
       } else {
         // Add new category
-        await axiosInstance.post(`${API_BASE_URL}/admin/category/add`, {
-          Name: values.name,
-          ParentCategoryId: values.parentId,
-          Published: values.published,
-        });
+        await axiosInstance.post(`${API_BASE_URL}/admin/category/add`, formData);
         message.success("Category added successfully");
       }
       setIsModalVisible(false);
@@ -269,6 +278,15 @@ const Category = () => {
     );
   };
 
+  const handleImageRemove = () => {
+    form.setFieldsValue({ image: "" });
+    setImageFile(null);
+  };
+
+  const handleImageUpload = ({ file }) => {
+    setImageFile(file);
+  };
+
   return (
     <CustomLayout pageTitle="Categories" menuKey="2">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
@@ -335,9 +353,7 @@ const Category = () => {
           <Form.Item
             name="name"
             label="Name"
-            rules={[
-              { required: true, message: "Please input the category name!" },
-            ]}
+            rules={[{ required: true, message: "Please input the category name!" }]}
           >
             <Input />
           </Form.Item>
@@ -358,6 +374,25 @@ const Category = () => {
           </Form.Item>
           <Form.Item name="published" label="Published" valuePropName="checked">
             <Switch />
+          </Form.Item>
+          <Form.Item name="image" label="Image">
+            {form.getFieldValue("image") && (
+              <div style={{ marginBottom: 16 }}>
+                <img
+                  src={form.getFieldValue("image")}
+                  alt="Category"
+                  style={{ maxWidth: "100%", marginBottom: 8 }}
+                />
+                <Button onClick={handleImageRemove}>Remove Image</Button>
+              </div>
+            )}
+            <Upload
+              beforeUpload={() => false}
+              onChange={handleImageUpload}
+              showUploadList={false}
+            >
+              <Button icon={<UploadOutlined />}>Upload Image</Button>
+            </Upload>
           </Form.Item>
         </Form>
       </Modal>
