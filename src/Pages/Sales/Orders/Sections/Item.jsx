@@ -2,7 +2,7 @@ import { Table, Input, Button, Space, Image, message, Spin, Divider, Alert } fro
 import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from '../../../../Api/axiosConfig';
 
 const ItemTable = ({ dataSource }) => {
@@ -11,7 +11,8 @@ const ItemTable = ({ dataSource }) => {
   const [editedData, setEditedData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  //console.log("orderId",id);
+  // Extract customerId from dataSource if available
+  const customerId = dataSource.length > 0 ? dataSource[0].customerId : null;
 
   useEffect(() => {
     setEditedData(dataSource);
@@ -48,8 +49,6 @@ const ItemTable = ({ dataSource }) => {
       originalproductcost: originalProductCost,
     } = productToSave;
   
-    console.log("productToSave", productToSave);
-  
     setLoading(true);
   
     try {
@@ -75,6 +74,7 @@ const ItemTable = ({ dataSource }) => {
       setLoading(false);
     }
   };
+  
   const handleCancel = () => {
     setEditingKey(null);
   };
@@ -246,9 +246,29 @@ const ItemTable = ({ dataSource }) => {
     },
   ];
 
+  const navigate = useNavigate();
+
+  // Adding new product
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+    if (customerId) {
+      navigate(`/orders/${id}/addproduct/${customerId}`);
+    } else {
+      message.error("Customer ID is not available");
+    }
+  };
+
   return (
     <>
       <Divider orientation="left">Product Details</Divider>
+
+      <Button 
+        type="primary" 
+        onClick={handleAddProduct}
+        style={{ marginBottom: 16 }}
+      >
+        Add New Product
+      </Button>
 
       {editingKey && (
         <Alert
@@ -294,6 +314,7 @@ ItemTable.propTypes = {
       quantity: PropTypes.number.isRequired,
       vendor: PropTypes.string.isRequired,
       location: PropTypes.string.isRequired,
+      customerId: PropTypes.string, // Optional if customerId can be missing
     })
   ).isRequired,
 };

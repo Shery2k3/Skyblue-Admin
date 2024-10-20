@@ -13,6 +13,14 @@ const Orders = () => {
   const retryRequest = useRetryRequest(); // Use the retry logic hook
   const { Title } = Typography;
 
+  // Status mapping
+  const statusMapping = {
+    10: { label: "Pending", color: "#FFA500" }, // Orange
+    20: { label: "Processing", color: "#007BFF" }, // Blue
+    30: { label: "Completed", color: "#28A745" }, // Green
+    40: { label: "Canceled", color: "#DC3545" }, // Red
+  };
+
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
@@ -21,7 +29,7 @@ const Orders = () => {
         const response = await retryRequest(() =>
           axiosInstance.get(`/admin/all-orders?size=10000`)
         );
-        console.log(response)
+        console.log(response);
         const data = response.data.data.map((order) => ({
           key: order.Id,
           id: order.Id,
@@ -37,6 +45,7 @@ const Orders = () => {
             hour12: true,
           }),
           orderTotal: "$" + order.OrderTotal.toFixed(2),
+          status: statusMapping[order.OrderStatusId] || { label: "Unknown", color: "#6c757d" }, // Default to gray
         }));
         setDataSource(data);
       } catch (error) {
@@ -77,6 +86,15 @@ const Orders = () => {
       dataIndex: "orderTotal",
       key: "orderTotal",
       align: "center",
+    },
+    {
+      title: "Status", // New Status Column
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      render: (status) => (
+        <span style={{ color: status.color }}>{status.label}</span>
+      ),
     },
     {
       title: "Action",

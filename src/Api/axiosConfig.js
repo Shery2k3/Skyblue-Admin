@@ -7,6 +7,7 @@ const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
 });
 
+
 // A function to clear all interceptors
 const clearInterceptors = () => {
   axiosInstance.interceptors.request.handlers = [];

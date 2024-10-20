@@ -28,6 +28,8 @@ import Notification from './Pages/ContentManagement/Notification/NotificationFor
 import Banner from './Pages/ContentManagement/Banner/Banner';
 import AddBanner from './Pages/ContentManagement/Banner/AddBanner';
 import Error404 from './Pages/Error404/Error404';
+import AddProduct from './Pages/Sales/Orders/Sections/AddProduct';
+import OrderNotes from './Pages/Sales/Orders/Sections/Ordernotes';
 
 
 function App() {
@@ -55,6 +57,9 @@ function App() {
         {/* Sales */}
         <Route path="/orders" element={<ProtectedRoute element={Orders} />} />
         <Route path="/orders/:id" element={<ProtectedRoute element={OrdersDetails} />} />
+        <Route path="/order-notes/:id" element={<ProtectedRoute element={OrderNotes} />} />
+
+        <Route path="/orders/:orderId/addproduct/:customerId" element={<ProtectedRoute element={AddProduct} />} />
         <Route path="/current-carts" element={<ProtectedRoute element={CurrentCarts} />} />
         <Route path="/current-carts/:id?" element={<ProtectedRoute element={CurrentCartDetails} />} />
         <Route path="/best-seller" element={<ProtectedRoute element={BestSeller} />} />
