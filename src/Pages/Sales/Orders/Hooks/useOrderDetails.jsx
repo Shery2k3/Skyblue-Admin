@@ -25,7 +25,7 @@ export const useOrderDetails = (orderId) => {
 
         const order = response.data.order;
         const products = response.data.order.items;
-        console.log("order", order);
+        console.log("order", order.CustomerId);
 
 
 
@@ -183,6 +183,7 @@ export const useOrderDetails = (orderId) => {
         //console.log("products", products);
         const productData = products.map((item) => ({
           key: item.OrderItemGuid,
+          customerId : order.CustomerId,
           imageUrl: item.product.imageUrl,
           productName: item.product.Name,
           productid: item.product.Id,
@@ -197,7 +198,6 @@ export const useOrderDetails = (orderId) => {
           barcode:
             (item.product.Barcode || item.product.Barcode2)?.slice(-4) || null,
         }));
-        console.log("productData", productData);
 
         const Info = {
           id: order.Id,

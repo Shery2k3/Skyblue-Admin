@@ -3,7 +3,7 @@ import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import axiosInstance from "../../../../Api/axiosConfig"; // Adjust the import as necessary
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 
@@ -12,8 +12,9 @@ const Order = ({ orderDetail }) => {
   const [editedOrder, setEditedOrder] = useState(orderDetail); // Local state for edits
   const [loading, setLoading] = useState(false); // For showing spinner during save
   const { id } = useParams(); 
+  const navigate = useNavigate(); // Initialize useNavigate
 
-console.log("orderDetail", orderDetail);
+
 
   // Status Mapping for `orderStatusId`
   const statusMapping = {
@@ -67,6 +68,11 @@ console.log("orderDetail", orderDetail);
     }
   };
 
+  // Navigate to Order Notes
+  const handleViewOrderNotes = () => {
+    navigate(`/order-notes/${id}`); // Adjust the URL as needed
+  };
+
   return (
     <>
       <Divider orientation="left">Order Details</Divider>
@@ -93,13 +99,11 @@ console.log("orderDetail", orderDetail);
             ) : item.label === "Order Status" ? (
               statusMapping[item.children] || "Unknown Status"
             ) : isEditing && item.label !== "Order #" && item.label !== "Order GUID" ? (
-              // Conditionally render Input only if the label is not "Order ID" or "Order GUID"
               <Input
                 value={item.children}
                 onChange={(e) => handleInputChange(e.target.value, item.key)}
               />
             ) : (
-              // Render static text for "Order ID" and "Order GUID"
               item.children
             )}
           </Descriptions.Item>
@@ -137,6 +141,16 @@ console.log("orderDetail", orderDetail);
             Edit Order
           </Button>
         )}
+
+        {/* Button to view order notes */}
+        <Button
+          type="default"
+          size="small"
+          onClick={handleViewOrderNotes}
+          disabled={isEditing} // Disable button when editing
+        >
+          View Order Notes
+        </Button>
       </Space>
     </>
   );
