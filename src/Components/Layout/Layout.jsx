@@ -41,7 +41,9 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
     navigate("/login");
   };
 
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(
+    window.innerWidth < 1024 ? true : false
+  );
   const [isSmallDevice, setSmallDevice] = useState(false);
 
   // Memoize menu items to avoid re-rendering
@@ -80,6 +82,34 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
   const paddingValue = isSmallDevice ? 10 : 24; // Improved readability
   const marginInlineStart = isSmallDevice ? 0 : collapsed ? 80 : 250; // Dynamic margin for responsiveness
 
+  // Determine which submenu should be open based on active menuKey
+  const getDefaultOpenKeys = (key) => {
+    const submenuKeys = {
+      sub1: ["2", "3", "4", "5"],
+      sub2: ["7", "8", "9"],
+      sub3: ["10", "11", "12", "13"],
+      sub4: ["14", "15", "16", "17"],
+      sub5: ["18", "19"],
+    };
+    for (const submenu in submenuKeys) {
+      if (submenuKeys[submenu].includes(key)) {
+        return [submenu]; // Open this submenu
+      }
+    }
+    return [];
+  };
+
+  const handleOpenChange = (keys) => {
+    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+    if (routeItems.some((item) => item.key === latestOpenKey)) {
+      setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+    } else {
+      setOpenKeys(keys);
+    }
+  };
+
+  const [openKeys, setOpenKeys] = useState(isSmallDevice ? [] : getDefaultOpenKeys(menuKey));
+
   return (
     <Layout
       style={{
@@ -117,6 +147,8 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
           theme="dark"
           mode="inline"
           defaultSelectedKeys={menuKey}
+          openKeys={openKeys} // Control open keys
+          onOpenChange={handleOpenChange} // Handle menu open changes
           items={menuItems}
         />
       </Sider>

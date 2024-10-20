@@ -56,7 +56,7 @@ const LatestOrders = ({ orders }) => {
   ];
 
   return (
-    <Card>
+    <>
       {!orders.length ? (
         <Spin tip="Loading customers..." size="large" />
       ) : (
@@ -81,7 +81,7 @@ const LatestOrders = ({ orders }) => {
           />
         </>
       )}
-    </Card>
+    </>
   );
 };
 

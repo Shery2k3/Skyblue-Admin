@@ -6,7 +6,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import axios from "axios";
-import "./Email.css"
+import "./Email.css";
 import API_BASE_URL from "../../../constants";
 
 const Email = () => {
@@ -51,10 +51,10 @@ const Email = () => {
 
   return (
     <CustomLayout pageTitle="Email" menuKey="15">
-            <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
-        Email
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Campaign
       </Title>
-      <Form
+      {/*<Form
         form={form}
         onFinish={handleFormSubmit}
         layout="vertical"
@@ -110,7 +110,7 @@ const Email = () => {
             Send
           </Button>
         </Form.Item>
-      </Form>
+      </Form>*/}
     </CustomLayout>
   );
 };
