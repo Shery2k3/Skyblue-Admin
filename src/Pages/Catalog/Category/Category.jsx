@@ -14,6 +14,7 @@ import {
   Typography,
   Pagination,
   Upload,
+  Image,
 } from "antd";
 import {
   EditOutlined,
@@ -21,6 +22,7 @@ import {
   SearchOutlined,
   CaretRightOutlined,
   UploadOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import API_BASE_URL from "../../../constants";
 import axiosInstance from "../../../Api/axiosConfig";
@@ -87,6 +89,18 @@ const ResponsivePagination = styled(Pagination)`
   }
 `;
 
+const ImagePreviewBox = styled.div`
+  width: 200px;
+  height: 200px;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  margin-bottom: 16px;
+`;
+
 const Category = () => {
   const [dataSource, setDataSource] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -95,6 +109,8 @@ const Category = () => {
   const [form] = Form.useForm();
   const [currentPage, setCurrentPage] = useState(1);
   const [imageFile, setImageFile] = useState(null);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
   const pageSize = 15;
 
   const retryRequest = useRetryRequest();
@@ -158,12 +174,14 @@ const Category = () => {
           published: categoryData.Published,
           image: categoryData.Image || "",
         });
+        setPreviewImage(categoryData.Image || "");
       } catch (error) {
         console.error("Error fetching category details:", error);
         message.error("Failed to fetch category details");
       }
     } else {
       form.resetFields();
+      setPreviewImage("");
     }
     setIsModalVisible(true);
   };
@@ -181,14 +199,12 @@ const Category = () => {
       }
 
       if (editingCategory) {
-        // Edit existing category
         await axiosInstance.patch(
           `${API_BASE_URL}/admin/category/edit/${editingCategory.id}`,
           formData
         );
         message.success("Category updated successfully");
       } else {
-        // Add new category
         await axiosInstance.post(`${API_BASE_URL}/admin/category/add`, formData);
         message.success("Category added successfully");
       }
@@ -281,10 +297,16 @@ const Category = () => {
   const handleImageRemove = () => {
     form.setFieldsValue({ image: "" });
     setImageFile(null);
+    setPreviewImage("");
   };
 
   const handleImageUpload = ({ file }) => {
     setImageFile(file);
+    setPreviewImage(URL.createObjectURL(file));
+  };
+
+  const handlePreview = () => {
+    setPreviewVisible(true);
   };
 
   return (
@@ -351,6 +373,43 @@ const Category = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item
+            name="image"
+            label="Image"
+            style={{ marginBottom: 24 }}
+          >
+            <ImagePreviewBox>
+              {previewImage ? (
+                <Image
+                  src={previewImage}
+                  alt="Category"
+                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+                  preview={{
+                    visible: previewVisible,
+                    onVisibleChange: (visible) => setPreviewVisible(visible),
+                  }}
+                />
+              ) : (
+                <p>No image</p>
+              )}
+            </ImagePreviewBox>
+            <Space>
+              <Upload
+                beforeUpload={() => false}
+                onChange={handleImageUpload}
+                showUploadList={false}
+              >
+                <Button icon={<UploadOutlined />}>Upload Image</Button>
+              </Upload>
+              {previewImage && (
+                <>
+                  <Button onClick={handleImageRemove} icon={<DeleteOutlined />} type="danger">
+                    Remove
+                  </Button>
+                </>
+              )}
+            </Space>
+          </Form.Item>
+          <Form.Item
             name="name"
             label="Name"
             rules={[{ required: true, message: "Please input the category name!" }]}
@@ -374,25 +433,6 @@ const Category = () => {
           </Form.Item>
           <Form.Item name="published" label="Published" valuePropName="checked">
             <Switch />
-          </Form.Item>
-          <Form.Item name="image" label="Image">
-            {form.getFieldValue("image") && (
-              <div style={{ marginBottom: 16 }}>
-                <img
-                  src={form.getFieldValue("image")}
-                  alt="Category"
-                  style={{ maxWidth: "100%", marginBottom: 8 }}
-                />
-                <Button onClick={handleImageRemove}>Remove Image</Button>
-              </div>
-            )}
-            <Upload
-              beforeUpload={() => false}
-              onChange={handleImageUpload}
-              showUploadList={false}
-            >
-              <Button icon={<UploadOutlined />}>Upload Image</Button>
-            </Upload>
           </Form.Item>
         </Form>
       </Modal>
