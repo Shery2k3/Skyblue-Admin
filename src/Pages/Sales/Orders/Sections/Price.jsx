@@ -1,4 +1,12 @@
-import { Button, Descriptions, Divider, Input, Space, message, Spin } from "antd";
+import {
+  Button,
+  Descriptions,
+  Divider,
+  Input,
+  Space,
+  message,
+  Spin,
+} from "antd";
 import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import { useState } from "react";
@@ -6,12 +14,10 @@ import { useParams } from "react-router-dom";
 import axiosInstance from "../../../../Api/axiosConfig";
 
 const Price = ({ priceDetail }) => {
-  const [isEditing, setIsEditing] = useState(false); // Toggle edit mode
-  const [editedPrice, setEditedPrice] = useState(priceDetail); // Local state for edits
-  const [loading, setLoading] = useState(false); // For showing spinner during save
-
-  console.log("priceDetail", priceDetail);
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedPrice, setEditedPrice] = useState(priceDetail);
+  const [loading, setLoading] = useState(false);
+  
   const { id } = useParams();
 
   // Toggle edit mode
@@ -19,50 +25,71 @@ const Price = ({ priceDetail }) => {
     setIsEditing(!isEditing);
   };
 
-  // Extract numeric part from price, keeping symbols
   const extractNumeric = (value) => {
-    const match = value.match(/([\D]*)(\d+\.?\d*)([\D]*)/); // Match numbers surrounded by non-digit characters
-    return match ? { prefix: match[1], number: match[2], suffix: match[3] } : { prefix: '', number: value, suffix: '' };
+    const match = value.match(/([\D]*)(\d+\.?\d*)([\D]*)/);
+    return match
+      ? {
+          prefix: match[1] || "",
+          number: match[2] || "",
+          suffix: match[3] || "",
+        }
+      : { prefix: "", number: value, suffix: "" };
   };
 
-  // Handle input changes - only allow editing the numeric portion
+  // Update the local state for the edited price
   const handleInputChange = (value, key) => {
-    setEditedPrice((prevPrice) =>
-      prevPrice.map((item) => {
-        if (item.key === key) {
-          const { prefix, suffix } = extractNumeric(item.children);
-          return { ...item, children: `${prefix}${value}${suffix}` }; // Update only numeric part
-        }
-        return item;
-      })
+    // Update the editedPrice state with the new numeric value
+    setEditedPrice((prev) =>
+      prev.map((item) => 
+        item.key === key ? { ...item, children: `$${value}` } : item // Add dollar sign
+      )
     );
   };
 
-  // Save changes
   const handleSave = async () => {
-    setLoading(true); // Start spinner
-
-    // Extract the fields to update dynamically using 'field' property
+    setLoading(true);
     const dataToUpdate = {};
-    editedPrice.forEach((item) => {
-      if (item.editable && item.field) {
-        const { number } = extractNumeric(item.children); // Save only the numeric portion to the database
-        dataToUpdate[item.field] = number;
+
+    // Populate dataToUpdate based on editedPrice
+    editedPrice.forEach(item => {
+      if (item.children) {
+        const numericValue = extractNumeric(item.children).number; // Extract numeric part
+        switch(item.label) {
+          case 'Order Subtotal(Excl Tax)':
+            dataToUpdate.orderSubtotalExclTax = parseFloat(numericValue);
+            break;
+          case 'Order Subtotal (Incl Tax)':
+            dataToUpdate.orderSubtotalInclTax = parseFloat(numericValue);
+            break;
+          case 'Order Tax':
+            dataToUpdate.orderTax = parseFloat(numericValue);
+            break;
+          case 'Order Discount':
+            dataToUpdate.orderDiscount = parseFloat(numericValue);
+            break;
+          case 'Order Total':
+            dataToUpdate.orderTotal = parseFloat(numericValue);
+            break;
+          default:
+            break;
+        }
       }
     });
 
+    if (Object.keys(dataToUpdate).length === 0) {
+      message.error("No changes detected to save.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      console.log("dataToUpdate", dataToUpdate); // Debugging output
-
-      // Send a PATCH request to update the order details
-      const response = await axiosInstance.patch(`/admin/editprice/${id}`, dataToUpdate);
-
+      await axiosInstance.patch(`/admin/editprice/${id}`, dataToUpdate);
       message.success("Price details updated successfully");
-      setIsEditing(false); // Exit edit mode after successful save
+      setIsEditing(false);
     } catch (error) {
       message.error("Failed to update price details");
     } finally {
-      setLoading(false); // Stop spinner
+      setLoading(false);
     }
   };
 
@@ -78,7 +105,7 @@ const Price = ({ priceDetail }) => {
                 onChange={(e) => handleInputChange(e.target.value, item.key)}
               />
             ) : (
-              item.children
+              item.children // Display with dollar sign when not editing
             )}
           </Descriptions.Item>
         ))}
@@ -92,16 +119,26 @@ const Price = ({ priceDetail }) => {
               icon={<SaveOutlined />}
               size="small"
               onClick={handleSave}
-              disabled={loading} // Disable button when loading
+              disabled={loading}
             >
               {loading ? <Spin size="small" /> : "Save"}
             </Button>
-            <Button type="default" icon={<CloseOutlined />} size="small" onClick={onEditClick}>
+            <Button
+              type="default"
+              icon={<CloseOutlined />}
+              size="small"
+              onClick={onEditClick}
+            >
               Cancel
             </Button>
           </>
         ) : (
-          <Button type="primary" icon={<EditOutlined />} size="small" onClick={onEditClick}>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            size="small"
+            onClick={onEditClick}
+          >
             Edit Price
           </Button>
         )}

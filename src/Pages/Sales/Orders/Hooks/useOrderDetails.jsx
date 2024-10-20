@@ -27,6 +27,8 @@ export const useOrderDetails = (orderId) => {
         const products = response.data.order.items;
         console.log("order", order);
 
+
+
         const orderData = [
           {
             key: "1",
@@ -121,19 +123,30 @@ export const useOrderDetails = (orderId) => {
         const priceData = [
           {
             key: "1",
-            label: "Order Subtotal",
+            label: "Order Subtotal(Excl Tax)",
             children:
               "$" +
-              (order.OrderTotal + order.OrderDiscount - order.OrderTax).toFixed(
+              order.OrderSubtotalExclTax.toFixed(
                 2
-              ) +
-              " excl tax",
+              ),
             span: 3,
             editable: true,
             field: "orderSubtotal",
           },
           {
             key: "2",
+            label: "Order Subtotal (Incl Tax)",
+            children:
+              "$" +
+              order.OrderSubtotalInclTax.toFixed(
+                2
+              ),
+            span: 3,
+            editable: true,
+            field: "orderSubtotal",
+          },
+          {
+            key: "3",
             label: "Order Tax",
             children: "$" + order.OrderTax.toFixed(2),
             span: 3,
@@ -141,7 +154,7 @@ export const useOrderDetails = (orderId) => {
             field: "orderTax",
           },
           {
-            key: "3",
+            key: "4",
             label: "Order Discount",
             children: "$" + order.OrderDiscount.toFixed(2),
             span: 3,
@@ -149,7 +162,7 @@ export const useOrderDetails = (orderId) => {
             field: "orderDiscount",
           },
           {
-            key: "4",
+            key: "5",
             label: "Order Total",
             children: "$" + order.OrderTotal.toFixed(2),
             span: 3,
