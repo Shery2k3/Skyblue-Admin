@@ -111,12 +111,14 @@ const Category = () => {
   const [imageFile, setImageFile] = useState(null);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [discounts, setDiscounts] = useState([]);
   const pageSize = 15;
 
   const retryRequest = useRetryRequest();
 
   useEffect(() => {
     fetchCategories();
+    fetchDiscounts();
   }, []);
 
   const fetchCategories = async (search = "") => {
@@ -135,6 +137,18 @@ const Category = () => {
     }
   };
 
+  const fetchDiscounts = async () => {
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/discount/category`)
+      );
+      setDiscounts(response.data);
+    } catch (error) {
+      console.error("Error fetching discounts:", error);
+      message.error("Failed to fetch discounts");
+    }
+  };
+
   const flattenCategories = (categories, parentPath = "", level = 0) => {
     let flatData = [];
     categories.forEach((category) => {
@@ -149,6 +163,8 @@ const Category = () => {
         parentId: category.ParentId,
         published: category.Published,
         level,
+        discountName: category.DiscountName,
+        discountId: category.DiscountId,
       });
       if (category.children && category.children.length > 0) {
         flatData = flatData.concat(
@@ -173,6 +189,7 @@ const Category = () => {
           parentId: categoryData.ParentId,
           published: categoryData.Published,
           image: categoryData.Image || "",
+          discountId: categoryData.DiscountId,
         });
         setPreviewImage(categoryData.Image || "");
       } catch (error) {
@@ -193,6 +210,7 @@ const Category = () => {
       formData.append("Name", values.name);
       formData.append("ParentCategoryId", values.parentId);
       formData.append("Published", values.published);
+      formData.append("DiscountId", values.discountId);
 
       if (imageFile) {
         formData.append("Image", imageFile);
@@ -245,6 +263,14 @@ const Category = () => {
           {published ? "Published" : "Unpublished"}
         </Tag>
       ),
+      align: "center",
+    },
+    {
+      title: "Discount",
+      dataIndex: "discountName",
+      key: "discountName",
+      width: 200,
+      render: (discountName) => discountName || "None",
       align: "center",
     },
     {
@@ -427,6 +453,21 @@ const Category = () => {
               {dataSource.map((category) => (
                 <Option key={category.id} value={category.id}>
                   {category.path}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="discountId" label="Discount">
+            <Select
+              allowClear
+              placeholder="Select discount"
+              showSearch
+              optionFilterProp="children"
+            >
+              <Option value={null}>None</Option>
+              {discounts.map((discount) => (
+                <Option key={discount.Id} value={discount.Id}>
+                  {discount.Name}
                 </Option>
               ))}
             </Select>
