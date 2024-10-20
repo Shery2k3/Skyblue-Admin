@@ -30,15 +30,11 @@ const Dashboard = () => {
     allTime: 0,
   });
 
-  const [monthlyOrder, setMonthlyOrder] = useState([]);
+  const [orderChart, setMonthlyOrder] = useState([]);
+  const [orderChartState, setOrderChartState] = useState("year");
 
-  const [newCustomers, setNewCustomers] = useState([
-    { name: "Today", uv: 0 },
-    { name: "Month", uv: 0 },
-    { name: "3 Months", uv: 0 },
-    { name: "6 months", uv: 0 },
-    { name: "Year", uv: 0 },
-  ]);
+  const [newCustomers, setNewCustomers] = useState([]);
+  const [newCustomersState, setNewCustomersState] = useState("year");
 
   const [orders, setOrders] = useState([]);
   const [bestSellerByQuantity, setBestSellerByQuantity] = useState([]);
@@ -52,16 +48,12 @@ const Dashboard = () => {
         const [
           dashboardStatsResponse,
           orderStatsResponse,
-          monthlyOrderResponse,
-          newCustomersResponse,
           ordersResponse,
           bestSellersResponse,
           bestSellersByAmountResponse,
         ] = await Promise.all([
           retryRequest(() => axiosInstance.get("/admin/stats")),
           retryRequest(() => axiosInstance.get("/admin/orderStats")),
-          retryRequest(() => axiosInstance.get("/admin/monthly-orders")),
-          retryRequest(() => axiosInstance.get("/admin/newCustomers")),
           retryRequest(() => axiosInstance.get(`/admin/all-orders?size=20`)),
           retryRequest(() => axiosInstance.get("/admin/bestSellerByQuantity")),
           retryRequest(() => axiosInstance.get("/admin/bestSellerByAmount")),
@@ -70,24 +62,6 @@ const Dashboard = () => {
         // Process and set the data
         setDashboardStats(dashboardStatsResponse.data);
         setOrderStats(orderStatsResponse.data.data);
-
-        const monthlyOrderData = monthlyOrderResponse.data
-          .map((item) => ({
-            month: item.month, // or however the month is represented in your API response
-            orders: item.orders, // or however the orders count is represented
-          }))
-          .reverse(); // Reverse the array
-
-        setMonthlyOrder(monthlyOrderData);
-
-        const newCustomerData = newCustomersResponse.data;
-        setNewCustomers([
-          { name: "Today", uv: newCustomerData.today },
-          { name: "Month", uv: newCustomerData.thisMonth },
-          { name: "3 Months", uv: newCustomerData.lastThreeMonths },
-          { name: "6 months", uv: newCustomerData.lastSixMonths },
-          { name: "Year", uv: newCustomerData.thisYear },
-        ]);
 
         const data = ordersResponse.data.data.map((order) => ({
           key: order.Id,
@@ -119,6 +93,50 @@ const Dashboard = () => {
     fetchAllData();
   }, [retryRequest]);
 
+  useEffect(() => {
+    const fetchOrderChart = async (state) => {
+      try {
+        const response = await retryRequest(() =>
+          axiosInstance.get(`/admin/past-orders?period=${state}`)
+        );
+        const orderChartData = response.data
+          .map((item) => ({
+            day: item.month || item.date,
+            Orders: item.orders,
+          }))
+
+        setMonthlyOrder(orderChartData);
+      } catch (error) {
+        console.error("Error fetching New Orders:", error);
+        message.error("Failed to fetching New Orders");
+      }
+    };
+
+    fetchOrderChart(orderChartState);
+  }, [orderChartState]);
+
+  useEffect(() => {
+    const fetchNewCustomer = async (state) => {
+      try {
+        const response = await retryRequest(() =>
+          axiosInstance.get(`/admin/past-customers?period=${state}`)
+        );
+        const customerChartData = response.data.map((item) => ({
+          day: item.month || item.date,
+          Customers: item.orders,
+        }));
+        setNewCustomers(customerChartData);
+
+        setMonthlyOrder(orderChartData);
+      } catch (error) {
+        console.error("Error fetching New Customers:", error);
+        message.error("Failed to fetching New Customers");
+      }
+    };
+
+    fetchNewCustomer(newCustomersState);
+  }, [newCustomersState]);
+
   return (
     <>
       <Loader isActive={isLoading} />
@@ -144,10 +162,10 @@ const Dashboard = () => {
           {/* Orders stats */}
           <Row gutter={[16, 16]} style={{ marginTop: "20px" }}>
             <Col xs={24} md={12}>
-              <Chart orderTotalData={monthlyOrder} />
+              <Chart title="Orders" datakey="Orders" orderTotalData={orderChart} state={orderChartState} setState={setOrderChartState} />
             </Col>
             <Col xs={24} md={12}>
-              <NewCustomers data={newCustomers} />
+              <Chart title="New Customers" datakey="Customers" orderTotalData={newCustomers} state={newCustomersState} setState={setNewCustomersState}/>
             </Col>
           </Row>
 
