@@ -6,6 +6,7 @@ import LogoAccent from "/LogoAccent.png";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext/AuthContext";
 import { Alert } from "antd";
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons"; // Icons for showing/hiding password
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ const LoginForm = () => {
     password: "",
     rememberMe: false,
   });
+  const [passwordVisible, setPasswordVisible] = useState(false); // State to track password visibility
   const [alert, setAlert] = useState({
     visible: false,
     message: "",
@@ -20,7 +22,7 @@ const LoginForm = () => {
   });
 
   const { login } = useContext(AuthContext);
-  const navigate = useNavigate(); // Use useNavigate instead of useHistory
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -60,11 +62,15 @@ const LoginForm = () => {
         visible: true,
         message: error.response
           ? error.response.data.message ||
-            "An error occurred during login. Please try again."
+          "An error occurred during login. Please try again."
           : "An error occurred during login. Please try again.",
         type: "error",
       });
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible((prevVisibility) => !prevVisibility);
   };
 
   return (
@@ -87,17 +93,22 @@ const LoginForm = () => {
               required
             />
           </div>
-          <div className="input-box">
+          <div className="input-box password-box">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              placeholder="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+            <div className="password-wrapper">
+              <input
+                type={passwordVisible ? "text" : "password"}
+                placeholder="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <span onClick={togglePasswordVisibility} className="password-toggle-icon">
+                {passwordVisible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+              </span>
+            </div>
           </div>
           <div className="remember-forget">
             <label>
