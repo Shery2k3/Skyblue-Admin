@@ -21,8 +21,8 @@ import {
   CaretRightOutlined,
 } from "@ant-design/icons";
 import API_BASE_URL from "../../../constants";
-import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
-import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
+import axiosInstance from "../../../Api/axiosConfig";
+import useRetryRequest from "../../../Api/useRetryRequest";
 import styled from "styled-components";
 
 const { Option } = Select;
