@@ -1,6 +1,7 @@
-import React from "react";
 import CustomLayout from "../../../Components/Layout/Layout";
 import { Typography } from "antd";
+import FlyerItems from "./Sections/FlyerItems";
+import FlyerGenerate from "./Sections/FlyerGenerate";
 
 const Flyer = () => {
   const { Title } = Typography;
@@ -10,6 +11,8 @@ const Flyer = () => {
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Flyer
       </Title>
+      <FlyerGenerate />
+      <FlyerItems />
     </CustomLayout>
   );
 };
