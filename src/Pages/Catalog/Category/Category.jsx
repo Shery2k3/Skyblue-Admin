@@ -208,22 +208,27 @@ const Category = () => {
       const values = await form.validateFields();
       const formData = new FormData();
       formData.append("Name", values.name);
-      formData.append("ParentCategoryId", values.parentId);
+      formData.append("ParentCategoryId", values.parentId || 0);
       formData.append("Published", values.published);
-      formData.append("DiscountId", values.discountId);
-
+      formData.append("DiscountId", values.discountId || null);
+  
       if (imageFile) {
         formData.append("Image", imageFile);
       }
-
+  
+      const config = {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      };
+  
       if (editingCategory) {
         await axiosInstance.patch(
           `${API_BASE_URL}/admin/category/edit/${editingCategory.id}`,
-          formData
+          formData,
+          config
         );
         message.success("Category updated successfully");
       } else {
-        await axiosInstance.post(`${API_BASE_URL}/admin/category/add`, formData);
+        await axiosInstance.post(`${API_BASE_URL}/admin/category/add`, formData, config);
         message.success("Category added successfully");
       }
       setIsModalVisible(false);
