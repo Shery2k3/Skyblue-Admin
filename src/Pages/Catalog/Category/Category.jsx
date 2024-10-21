@@ -211,13 +211,14 @@ const Category = () => {
       formData.append("ParentCategoryId", values.parentId || 0);
       formData.append("Published", values.published);
       formData.append("DiscountId", values.discountId || null);
+      formData.append("removedImage", values.removedImage || false);
   
       if (imageFile) {
         formData.append("Image", imageFile);
       }
   
       const config = {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { "Content-Type": "multipart/form-data" },
       };
   
       if (editingCategory) {
@@ -329,6 +330,7 @@ const Category = () => {
     form.setFieldsValue({ image: "" });
     setImageFile(null);
     setPreviewImage("");
+    form.setFieldsValue({ removedImage: true });
   };
 
   const handleImageUpload = ({ file }) => {
