@@ -22,31 +22,34 @@ const Manufacturers = () => {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [selectedManufacturer, setSelectedManufacturer] = useState(null);
   const [name, setName] = useState("");
-  const [description, setDescription] = useState(""); // Added description state
+  const [description, setDescription] = useState("");
   const [published, setPublished] = useState(false);
   const [displayOrder, setDisplayOrder] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { confirm } = Modal;
   const { Title, Text } = Typography;
-  const { TextArea } = Input;
+  const { TextArea, Search } = Input; // Use Input.Search
   const retryRequest = useRetryRequest();
   const buttonSize = useResponsiveButtonSize();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchManufacturers();
   }, []);
 
-  const fetchManufacturers = async () => {
+  const fetchManufacturers = async (query = "") => {
     try {
       const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`)
+        axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`, {
+          params: { name: query },
+        })
       );
       const data = response.data.map((manufacturer) => ({
         key: manufacturer.Id,
         id: manufacturer.Id,
         name: manufacturer.Name,
-        description: manufacturer.Description, // Added description mapping
+        description: manufacturer.Description,
         published: manufacturer.Published,
         displayOrder: manufacturer.DisplayOrder,
       }));
@@ -58,7 +61,7 @@ const Manufacturers = () => {
 
   const handleAdd = () => {
     setName("");
-    setDescription(""); // Clear description input for new manufacturer
+    setDescription("");
     setPublished(false);
     setDisplayOrder(0);
     setIsAddModalVisible(true);
@@ -73,14 +76,11 @@ const Manufacturers = () => {
     try {
       const payload = {
         Name: name,
-        Description: description, 
+        Description: description,
         Published: published,
         DisplayOrder: displayOrder,
       };
-      await axiosInstance.post(
-        `${API_BASE_URL}/admin/manufacturer`,
-        payload
-      );
+      await axiosInstance.post(`${API_BASE_URL}/admin/manufacturer`, payload);
       message.success("Manufacturer added successfully");
       fetchManufacturers();
       setIsAddModalVisible(false);
@@ -93,7 +93,7 @@ const Manufacturers = () => {
   const handleEdit = (manufacturer) => {
     setSelectedManufacturer(manufacturer);
     setName(manufacturer.name);
-    setDescription(manufacturer.description); // Set description when editing
+    setDescription(manufacturer.description);
     setPublished(manufacturer.published);
     setDisplayOrder(manufacturer.displayOrder);
     setIsModalVisible(true);
@@ -108,7 +108,7 @@ const Manufacturers = () => {
       payload.Name = name;
     }
     if (description !== selectedManufacturer.description) {
-      payload.Description = description; // Include description in update
+      payload.Description = description;
     }
     if (displayOrder !== selectedManufacturer.displayOrder) {
       payload.DisplayOrder = displayOrder || 0;
@@ -141,9 +141,11 @@ const Manufacturers = () => {
       cancelText: "No",
       onOk: async () => {
         try {
-          await axiosInstance.delete(`${API_BASE_URL}/admin/manufacturer/${record.id}`);
+          await axiosInstance.delete(
+            `${API_BASE_URL}/admin/manufacturer/${record.id}`
+          );
           message.success("Manufacturer deleted successfully");
-          fetchManufacturers(); 
+          fetchManufacturers();
         } catch (error) {
           console.error("Error deleting manufacturer:", error);
           message.error("Failed to delete manufacturer");
@@ -191,12 +193,16 @@ const Manufacturers = () => {
       align: "center",
       render: (_, record) => (
         <>
-        <Button onClick={() => handleEdit(record)} style={{ marginRight: 8 }}>Edit</Button>
-        <Button onClick={() => handleView(record)} style={{ marginRight: 8 }}>view Product</Button>
-        <Button type="primary" onClick={() => handleDelete(record)} danger>
-        Delete
-      </Button>
-      </>
+          <Button onClick={() => handleEdit(record)} style={{ marginRight: 8 }}>
+            Edit
+          </Button>
+          <Button onClick={() => handleView(record)} style={{ marginRight: 8 }}>
+            View Product
+          </Button>
+          <Button type="primary" onClick={() => handleDelete(record)} danger>
+            Delete
+          </Button>
+        </>
       ),
     },
   ];
@@ -206,6 +212,17 @@ const Manufacturers = () => {
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Manufacturers
       </Title>
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <Search
+          placeholder="Search by name"
+          enterButton="Search"
+          size="large"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onSearch={() => fetchManufacturers(searchQuery)}
+          style={{ maxWidth: 400 }}
+        />
+      </div>
       <div style={{ textAlign: "right" }}>
         <Button type="primary" size={buttonSize} onClick={handleAdd}>
           Add Manufacturer
