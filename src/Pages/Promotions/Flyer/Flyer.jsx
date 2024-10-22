@@ -175,6 +175,7 @@ const Flyer = () => {
                     columns={columns}
                     dataSource={flyers}
                     rowKey="FlyerId"
+                    scroll={{ x: "max-content" }}
                     pagination={{ pageSize: 15 }}
                 />
             )}
