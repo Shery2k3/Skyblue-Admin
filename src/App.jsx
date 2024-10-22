@@ -30,6 +30,10 @@ import AddBanner from './Pages/ContentManagement/Banner/AddBanner';
 import Error404 from './Pages/Error404/Error404';
 import AddProduct from './Pages/Sales/Orders/Sections/AddProduct';
 import OrderNotes from './Pages/Sales/Orders/Sections/Ordernotes';
+import AddFlyer from './Pages/Promotions/Flyer/AddFlyer';
+import Campaign from './Pages/Promotions/Campaign/Campaign';
+import Editcampaign from './Pages/Promotions/Campaign/Sections/Editcampaign';
+import Createcampaign from './Pages/Promotions/Campaign/Sections/Createcampaign';
 
 
 function App() {
@@ -58,7 +62,6 @@ function App() {
         <Route path="/orders" element={<ProtectedRoute element={Orders} />} />
         <Route path="/orders/:id" element={<ProtectedRoute element={OrdersDetails} />} />
         <Route path="/order-notes/:id" element={<ProtectedRoute element={OrderNotes} />} />
-
         <Route path="/orders/:orderId/addproduct/:customerId" element={<ProtectedRoute element={AddProduct} />} />
         <Route path="/current-carts" element={<ProtectedRoute element={CurrentCarts} />} />
         <Route path="/current-carts/:id?" element={<ProtectedRoute element={CurrentCartDetails} />} />
@@ -75,6 +78,10 @@ function App() {
         <Route path="/discounts" element={<ProtectedRoute element={Discounts} />} />
         <Route path="/email" element={<ProtectedRoute element={Email} />} />
         <Route path="/flyer" element={<ProtectedRoute element={Flyer} />} />
+        <Route path="/addflyer" element={<ProtectedRoute element={AddFlyer} />} />
+        <Route path="/campaign" element={<ProtectedRoute element={Campaign} />} />
+        <Route path="/campaign/create-new" element={<ProtectedRoute element={Createcampaign} />} />
+        <Route path="/campaign/edit/:id" element={<ProtectedRoute element={Editcampaign} />} />
         <Route path="/order-sheet" element={<ProtectedRoute element={OrderSheet} />} />
 
         {/* Content Management */}
