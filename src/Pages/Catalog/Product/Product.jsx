@@ -37,7 +37,9 @@ const Product = () => {
   const [category, setCategory] = useState("");
   const [product, setProduct] = useState("");
   const [manufacturers, setManufacturers] = useState([]);
+  const [vendors, setVendors] = useState([]);
   const [selectedManufacturer, setSelectedManufacturer] = useState();
+  const [selectedVendor, setSelectedVendor] = useState(); // New state for selected vendor
   const [published, setPublished] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,6 +66,10 @@ const Product = () => {
 
       if (selectedManufacturer) {
         params.manufacturer = selectedManufacturer;
+      }
+
+      if (selectedVendor) {
+        params.vendor = selectedVendor;
       }
 
       const response = await retryRequest(() =>
@@ -99,6 +105,20 @@ const Product = () => {
     fetchManufacturers();
   }, []);
 
+  useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        const response = await retryRequest(() =>
+          axiosInstance.get(`${API_BASE_URL}/admin/vendors`)
+        );
+        setVendors(response.data.data);
+      } catch (error) {
+        console.error('Error fetching vendors:', error);
+      }
+    };
+
+    fetchVendors();
+  }, []);
 
   const handleSearch = () => {
     fetchProducts(1);
@@ -129,8 +149,12 @@ const Product = () => {
     setIsModalVisible(true);
   };
 
-  const handleManufacturerChange = (event) => {
-    setSelectedManufacturer(event.target.value);
+  const handleManufacturerChange = (value) => {
+    setSelectedManufacturer(value);
+  };
+
+  const handleVendorChange = (value) => {
+    setSelectedVendor(value);
   };
 
   const columns = [
@@ -325,7 +349,7 @@ const Product = () => {
               </div>
             }
             value={selectedManufacturer}
-            onChange={(value) => setSelectedManufacturer(value)}
+            onChange={handleManufacturerChange}
             style={{ width: 200 }}
           >
             <Select.Option value={null}>
@@ -337,7 +361,26 @@ const Product = () => {
               </Select.Option>
             ))}
           </Select>
-
+          <Select
+            placeholder={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <SearchOutlined style={{ color: 'black' }} />
+                <p style={{ margin: 0, paddingLeft: '5px' }}>Vendor</p>
+              </div>
+            }
+            value={selectedVendor}
+            onChange={handleVendorChange}
+            style={{ width: 200 }}
+          >
+            <Select.Option value={null}>
+              <span style={{ color: 'red' }}>Remove Vendor</span>
+            </Select.Option>
+            {vendors.map((vendor) => (
+              <Select.Option key={vendor.Id} value={vendor.Id}>
+                {vendor.Name}
+              </Select.Option>
+            ))}
+          </Select>
           <Select
             value={published}
             onChange={(value) => setPublished(value)}
