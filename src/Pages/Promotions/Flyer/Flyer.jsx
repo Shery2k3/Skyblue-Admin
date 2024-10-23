@@ -178,7 +178,9 @@ const Flyer = () => {
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Flyer
       </Title>
-
+    </CustomLayout>
+  );
+{/* 
       <FlyerGenerate />
 
       <div style={{ textAlign: "right", marginBottom: 20 }}>
@@ -201,7 +203,7 @@ const Flyer = () => {
         />
       )}
     </CustomLayout>
-  );
+  ); */}
 };
 
 export default Flyer;
