@@ -24,11 +24,14 @@ import {
   Spin,
   Typography,
   DatePicker,
+  Card,
 } from "antd";
-import dayjs from 'dayjs';
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 import axiosInstance from "../../../../Api/axiosConfig";
 import { pdf } from "@react-pdf/renderer";
 import Flyer from "../../../../Components/Flyer/Flyer";
+import { useMediaQuery } from "react-responsive";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -42,6 +45,8 @@ const FlyerGenerate = () => {
   const [loading, setLoading] = useState(false);
   const [subject, setSubject] = useState("");
   const [flyerData, setFlyerData] = useState(null);
+
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   // Fetch roles data from backend
   const fetchCustomerRoles = async () => {
@@ -77,7 +82,7 @@ const FlyerGenerate = () => {
   // Handle End Date change
   const handleEndDateChange = (date) => {
     setEndDate(date);
-    console.log(end)
+    console.log(end);
   };
 
   // Handle price role selection change
@@ -123,8 +128,8 @@ const FlyerGenerate = () => {
       const blob = await pdf(
         <Flyer
           flyerData={flyerData}
-          startDate={dayjs(start).format('MM-DD-YYYY')}
-          endDate={ dayjs(end).format('MM-DD-YYYY') }
+          startDate={dayjs(start).format("MM-DD-YYYY")}
+          endDate={dayjs(end).format("MM-DD-YYYY")}
         />
       ).toBlob();
 
@@ -136,94 +141,133 @@ const FlyerGenerate = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <Row gutter={24}>
+    <div style={{ padding: "20px 0" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isSmallScreen ? "column" : "row",
+          justifyContent: "space-between",
+        }}
+      >
         {/* Left Section */}
-        <Col span={12}>
-          <Form.Item label="Select Type:">
-            <Select defaultValue="Select" onChange={handleTypeChange}>
-              <Option value="Select">Select</Option>
-              <Option value="SpecialPrice">SpecialPrice</Option>
-              <Option value="PriceGroup">PriceGroup</Option>
-            </Select>
-          </Form.Item>
 
-          {selectedType === "SpecialPrice" && (
-            <div>
-              <Form.Item label="Start Date:">
-                <DatePicker
-                  onChange={handleStartDateChange}
-                  placeholder="Start Date"
-                  format="M/D/YYYY"
-                />
-              </Form.Item>
-              <Form.Item label="End Date:">
-                <DatePicker
-                  onChange={handleEndDateChange}
-                  placeholder="Start Date"
-                  format="M/D/YYYY"
-                />
-              </Form.Item>
-            </div>
-          )}
-
-          {selectedType === "PriceGroup" && (
-            <Form.Item label="Price Role:">
-              <Select
-                placeholder="Select Price Role"
-                onChange={handlePriceRoleChange}
-                value={priceRole}
-              >
-                {roles
-                  .filter((role) => role.name && role.name.startsWith("P"))
-                  .map((role) => (
-                    <Option key={role.id} value={role.name}>
-                      {role.name}
-                    </Option>
-                  ))}
+        <Col span={isSmallScreen ? 24 : 12}>
+          <Card title="Flyer's Setting">
+            <Form.Item style={{ marginBottom: "16px" }}>
+              <h3 style={{ fontWeight: "500" }}>Select Type:</h3>
+              <Select defaultValue="Select" onChange={handleTypeChange}>
+                <Option value="Select">Select</Option>
+                <Option value="SpecialPrice">Special Price</Option>
+                <Option value="PriceGroup">Price Group</Option>
               </Select>
             </Form.Item>
-          )}
 
-          <Form.Item>
-            <Button
-              type="primary"
-              style={{ marginRight: "10px" }}
-              onClick={previewFlyer}
-            >
-              Flyer Preview
-            </Button>
-            <Button type="default">Export PDF</Button>
-          </Form.Item>
+            {selectedType === "SpecialPrice" && (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                }}
+              >
+                <Form.Item style={{ margin: "0 16px 16px 0" }}>
+                  <h3 style={{ fontWeight: "500" }}>Start Date:</h3>
+                  <DatePicker
+                    onChange={handleStartDateChange}
+                    placeholder="Start Date"
+                    format="M/D/YYYY"
+                  />
+                </Form.Item>
+                <Form.Item>
+                  <h3 style={{ fontWeight: "500" }}>End Date:</h3>
+                  <DatePicker
+                    onChange={handleEndDateChange}
+                    placeholder="Start Date"
+                    format="M/D/YYYY"
+                  />
+                </Form.Item>
+              </div>
+            )}
+
+            {selectedType === "PriceGroup" && (
+              <Form.Item>
+                <h3 style={{ fontWeight: "500" }}>Price Role:</h3>
+                <Select
+                  placeholder="Select Price Role"
+                  onChange={handlePriceRoleChange}
+                  value={priceRole}
+                >
+                  {roles
+                    .filter((role) => role.name && role.name.startsWith("P"))
+                    .map((role) => (
+                      <Option key={role.id} value={role.name}>
+                        {role.name}
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
+            )}
+
+            <Form.Item>
+              <Button
+                type="primary"
+                style={{ marginRight: "10px" }}
+                onClick={previewFlyer}
+              >
+                Flyer Preview
+              </Button>
+              <Button type="default">Export PDF</Button>
+            </Form.Item>
+          </Card>
         </Col>
 
         {/* Right Section */}
-        <Col span={12}>
-          <h3>Subject</h3>
-          <Form.Item>
-            <Input
-              placeholder="Enter subject"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-            />
-          </Form.Item>
 
-          <h3>Roles</h3>
-          <Form.Item>
+        <Col span={isSmallScreen ? 24 : 11}>
+          <Card
+            title="Send Flyers to Customer"
+            style={{ marginTop: isSmallScreen && "12px" }}
+          >
             {loading ? (
-              <Spin />
+              <div
+                style={{
+                  width: "100%",
+                  height: "195.44px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Spin />
+              </div>
             ) : (
-              <Select placeholder="Select a Role">
-                {roles.map((role) => (
-                  <Option key={role.id} value={role.id}>
-                    {role.name}
-                  </Option>
-                ))}
-              </Select>
+              <>
+                <h3 style={{ fontWeight: "500" }}>Subject</h3>
+                <Form.Item>
+                  <Input
+                    placeholder="Enter subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                  />
+                </Form.Item>
+
+                <h3 style={{ fontWeight: "500" }}>Roles</h3>
+                <Form.Item>
+                  <Select placeholder="Select a Role">
+                    {roles.map((role) => (
+                      <Option key={role.id} value={role.id}>
+                        {role.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Button icon={<EditOutlined />} type="primary">
+                  Send Emails
+                </Button>
+              </>
             )}
-          </Form.Item>
+          </Card>
         </Col>
-      </Row>
+      </div>
     </div>
   );
 };

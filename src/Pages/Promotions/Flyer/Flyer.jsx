@@ -96,11 +96,6 @@ const Flyer = () => {
   // Define columns for the table
   const columns = [
     {
-      title: "Flyer ID",
-      dataIndex: "FlyerId",
-      key: "flyerId",
-    },
-    {
       title: "Product Name",
       dataIndex: "ProductName",
       key: "productName",
@@ -178,16 +173,8 @@ const Flyer = () => {
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Flyer
       </Title>
-    </CustomLayout>
-  );
-{/* 
-      <FlyerGenerate />
 
-      <div style={{ textAlign: "right", marginBottom: 20 }}>
-        <Button type="primary" onClick={() => navigate("/addflyer")}>
-          Add New Product to Flyer
-        </Button>
-      </div>
+      <FlyerGenerate />
 
       {loading ? (
         <div style={{ textAlign: "center" }}>
@@ -202,8 +189,13 @@ const Flyer = () => {
           pagination={{ pageSize: 15 }}
         />
       )}
+      <div style={{ textAlign: "right", marginBottom: 20 }}>
+        <Button type="primary" onClick={() => navigate("/addflyer")}>
+          Add New Product to Flyer
+        </Button>
+      </div>
     </CustomLayout>
-  ); */}
+  );
 };
 
 export default Flyer;
