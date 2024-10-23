@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import CustomLayout from "../../Components/Layout/Layout";
 import {
   Table,
@@ -9,7 +10,6 @@ import {
   Tag,
   Typography,
 } from "antd";
-import { useEffect, useState } from "react";
 import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
 import API_BASE_URL from "../../constants.js";
 import axiosInstance from "../../Api/axiosConfig"; // Use the custom Axios instance
@@ -23,19 +23,23 @@ const Vendors = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isActive, setIsActive] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // Add search query state
 
   const retryRequest = useRetryRequest();
   const buttonSize = useResponsiveButtonSize();
   const { Title } = Typography;
+  const { Search } = Input; // Add this line
 
   useEffect(() => {
     fetchVendors();
   }, []);
 
-  const fetchVendors = async () => {
+  const fetchVendors = async (query = "") => {
     try {
       const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/vendors`)
+        axiosInstance.get(`${API_BASE_URL}/admin/vendors`, {
+          params: { name: query },
+        })
       );
       const data = response.data.data.map((vendor) => ({
         key: vendor.Id,
@@ -168,6 +172,17 @@ const Vendors = () => {
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Vendors
       </Title>
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <Search
+          placeholder="Search by name"
+          enterButton="Search"
+          size="large"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onSearch={() => fetchVendors(searchQuery)}
+          style={{ maxWidth: 400 }}
+        />
+      </div>
       <div style={{ textAlign: "right" }}>
         <Button type="primary" size={buttonSize} onClick={handleAdd}>
           Add Vendor
