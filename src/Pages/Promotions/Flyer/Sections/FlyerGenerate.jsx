@@ -22,11 +22,13 @@ import {
   Col,
   Form,
   Spin,
-  Modal,
   Typography,
-  Card,
+  DatePicker,
 } from "antd";
+import dayjs from 'dayjs';
 import axiosInstance from "../../../../Api/axiosConfig";
+import { pdf } from "@react-pdf/renderer";
+import Flyer from "../../../../Components/Flyer/Flyer";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -35,10 +37,11 @@ const FlyerGenerate = () => {
   const [selectedType, setSelectedType] = useState("Select");
   const [priceRole, setPriceRole] = useState("");
   const [roles, setRoles] = useState([]);
+  const [start, setStartDate] = useState("");
+  const [end, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [subject, setSubject] = useState("");
   const [flyerData, setFlyerData] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
 
   // Fetch roles data from backend
   const fetchCustomerRoles = async () => {
@@ -66,6 +69,17 @@ const FlyerGenerate = () => {
     }
   };
 
+  // Handle Start Date change
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+  };
+
+  // Handle End Date change
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+    console.log(end)
+  };
+
   // Handle price role selection change
   const handlePriceRoleChange = (value) => {
     setPriceRole(value);
@@ -77,7 +91,7 @@ const FlyerGenerate = () => {
   }, []);
 
   // Function to preview flyer
-  const handlePreviewFlyer = async () => {
+  const fetchFlyerData = async () => {
     setLoading(true);
     try {
       const roleId = priceRole
@@ -92,14 +106,32 @@ const FlyerGenerate = () => {
         params: params, // Pass params directly
       });
 
-      console.log(response.data.data);
-
       setFlyerData(response.data.data);
-      setModalVisible(true);
     } catch (error) {
       console.error("Error fetching flyer preview:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFlyerData();
+  }, [priceRole]);
+
+  const previewFlyer = async () => {
+    try {
+      const blob = await pdf(
+        <Flyer
+          flyerData={flyerData}
+          startDate={dayjs(start).format('MM-DD-YYYY')}
+          endDate={ dayjs(end).format('MM-DD-YYYY') }
+        />
+      ).toBlob();
+
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank"); // Open the PDF in a new tab
+    } catch (error) {
+      console.error("Error generating flyer preview:", error);
     }
   };
 
@@ -108,14 +140,32 @@ const FlyerGenerate = () => {
       <Row gutter={24}>
         {/* Left Section */}
         <Col span={12}>
-          <h3>Select Type</h3>
-          <Form.Item>
+          <Form.Item label="Select Type:">
             <Select defaultValue="Select" onChange={handleTypeChange}>
               <Option value="Select">Select</Option>
               <Option value="SpecialPrice">SpecialPrice</Option>
               <Option value="PriceGroup">PriceGroup</Option>
             </Select>
           </Form.Item>
+
+          {selectedType === "SpecialPrice" && (
+            <div>
+              <Form.Item label="Start Date:">
+                <DatePicker
+                  onChange={handleStartDateChange}
+                  placeholder="Start Date"
+                  format="M/D/YYYY"
+                />
+              </Form.Item>
+              <Form.Item label="End Date:">
+                <DatePicker
+                  onChange={handleEndDateChange}
+                  placeholder="Start Date"
+                  format="M/D/YYYY"
+                />
+              </Form.Item>
+            </div>
+          )}
 
           {selectedType === "PriceGroup" && (
             <Form.Item label="Price Role:">
@@ -139,7 +189,7 @@ const FlyerGenerate = () => {
             <Button
               type="primary"
               style={{ marginRight: "10px" }}
-              onClick={handlePreviewFlyer}
+              onClick={previewFlyer}
             >
               Flyer Preview
             </Button>
@@ -174,78 +224,6 @@ const FlyerGenerate = () => {
           </Form.Item>
         </Col>
       </Row>
-
-      {/* Modal to show flyer preview */}
-      <Modal
-        title="Flyer Preview"
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-        width={800} // Optional: Adjust width
-      >
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-          }}
-        >
-          {flyerData ? (
-            flyerData.map((flyer) => {
-              const { Id, ProductName, TierPrice, ImageUrls } = flyer;
-              const showFullCard =
-                priceRole && roles.some((role) => role.name === priceRole);
-
-              return (
-                <Card
-                  key={Id}
-                  style={{
-                    marginBottom: "20px",
-                    width: "30%",
-                    textAlign: "center",
-                  }}
-                >
-                  {ImageUrls && ImageUrls.length > 0 && (
-                    <img
-                      src={ImageUrls[0]}
-                      alt={ProductName}
-                      style={{
-                        maxWidth: "100%",
-                        height: "auto",
-                        marginBottom: "10px",
-                      }}
-                    />
-                  )}
-                  <div>
-                    ID: <strong>{Id}</strong>
-                  </div>
-                  <div style={{ marginTop: "10px" }}>
-                    <strong>Name:</strong> {ProductName}
-                  </div>
-                  {showFullCard ? (
-                    <div>
-                      <strong>Tier Price:</strong> {"$" + TierPrice || "N/A"}
-                    </div>
-                  ) : null}
-                </Card>
-              );
-            })
-          ) : (
-            <p>No flyer data available.</p>
-          )}
-        </div>
-        {/* Disclaimer at the bottom of the modal */}
-        <div
-          style={{
-            marginTop: "20px",
-            textAlign: "center",
-            fontStyle: "italic",
-          }}
-        >
-          <strong>DISCLAIMER:</strong> For price match or any other issue(s) please call at
-          416-841-9595 or 647-482-2582
-        </div>
-      </Modal>
     </div>
   );
 };
