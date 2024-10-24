@@ -72,6 +72,7 @@ const CustomerReport = () => {
 
   const handlePageChange = (page) => {
     fetchCustomerReport(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSearch = () => {
