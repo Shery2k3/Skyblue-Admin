@@ -120,7 +120,7 @@ const routeItems = [
       {
         key: "15",
         icon: <MailOutlined />,
-        label: <Link to="/email">Campaign</Link>,
+        label: <Link to="/campaign">Campaign</Link>,
       },
       {
         key: "16",
