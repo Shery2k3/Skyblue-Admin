@@ -168,6 +168,7 @@ const Manufacturers = () => {
       title: "Name",
       dataIndex: "name",
       key: "name",
+      fixed: 'left',
     },
     {
       title: "Published",

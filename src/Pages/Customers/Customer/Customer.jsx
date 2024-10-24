@@ -232,6 +232,7 @@ const Customer = () => {
       title: "Name",
       dataIndex: "name",
       key: "name",
+      fixed: 'left',
     },
     {
       title: "Email",

@@ -80,6 +80,7 @@ const BestSeller = () => {
     {
       title: "Image",
       dataIndex: "imageUrl",
+      fixed: 'left',
       render: (imageUrl) => (
         <ImageWithSkeleton src={imageUrl} alt="product-img" style={{ height: 50 }} />
       ),

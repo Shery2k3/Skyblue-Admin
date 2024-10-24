@@ -164,6 +164,7 @@ const Product = () => {
       dataIndex: "imageUrl",
       key: "imageUrl",
       align: "center",
+      fixed: 'left',
       render: (text) => (
         <div
           style={{

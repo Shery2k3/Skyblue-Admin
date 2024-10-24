@@ -157,6 +157,7 @@ const CustomerRoles = () => {
       title: "Name",
       dataIndex: "name",
       key: "name",
+      fixed: 'left',
     },
     {
       title: "Free Shipping",

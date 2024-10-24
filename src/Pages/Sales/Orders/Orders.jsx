@@ -9,6 +9,7 @@ import {
   Pagination,
   Space,
   Typography,
+  Tag,
 } from "antd";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../Api/axiosConfig"; // Import the custom Axios instance
@@ -40,10 +41,10 @@ const Orders = () => {
 
   // Status mapping
   const statusMapping = {
-    10: { label: "Pending", color: "#FFA500" }, // Orange
-    20: { label: "Processing", color: "#007BFF" }, // Blue
-    30: { label: "Completed", color: "#28A745" }, // Green
-    40: { label: "Canceled", color: "#DC3545" }, // Red
+    10: { label: "Pending", color: "#ff7300" },
+    20: { label: "Processing", color: "#108ee9" },
+    30: { label: "Completed", color: "#5bab37" },
+    40: { label: "Canceled", color: "#d43b3b" },
   };
 
   const handleStartDateChange = (date) => {
@@ -68,6 +69,7 @@ const Orders = () => {
         id: order.Id,
         orderNo: order.Id,
         customer: order.CustomerEmail,
+        orderStatus: order.OrderStatusId,
         createdOn: new Date(order.CreatedonUtc).toLocaleString("en-US", {
           month: "numeric",
           day: "numeric",
@@ -78,10 +80,6 @@ const Orders = () => {
           hour12: true,
         }),
         orderTotal: "$" + order.OrderTotal.toFixed(2),
-        status: statusMapping[order.OrderStatusId] || {
-          label: "Unknown",
-          color: "#6c757d",
-        }, // Default to gray
       }));
       setDataSource(data);
       setTotalItems(response.data.totalItems);
@@ -112,12 +110,22 @@ const Orders = () => {
       dataIndex: "orderNo",
       key: "orderNo",
       align: "center",
+      fixed: 'left',
+    },
+    {
+      title: "Order Status",
+      dataIndex: "orderStatus",
+      key: "orderStatus",
+      align: "center",
+      render: (status) => {
+        const statusInfo = statusMapping[status] || { label: "Unknown", color: "gray" };
+        return <Tag color={statusInfo.color}>{statusInfo.label}</Tag>;
+      },
     },
     {
       title: "Customer",
       dataIndex: "customer",
       key: "customer",
-      align: "center",
     },
     {
       title: "Created On",
@@ -130,15 +138,6 @@ const Orders = () => {
       dataIndex: "orderTotal",
       key: "orderTotal",
       align: "center",
-    },
-    {
-      title: "Status", // New Status Column
-      dataIndex: "status",
-      key: "status",
-      align: "center",
-      render: (status) => (
-        <span style={{ color: status.color }}>{status.label}</span>
-      ),
     },
     {
       title: "Action",

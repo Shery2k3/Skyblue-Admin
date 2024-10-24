@@ -66,6 +66,7 @@ const Dashboard = () => {
         const data = ordersResponse.data.data.map((order) => ({
           key: order.Id,
           id: order.Id,
+          orderStatus: order.OrderStatusId,
           orderNo: order.Id,
           customer: order.CustomerEmail,
           createdOn: new Date(order.CreatedonUtc).toLocaleString("en-US", {
@@ -126,8 +127,6 @@ const Dashboard = () => {
           Customers: item.orders,
         }));
         setNewCustomers(customerChartData);
-
-        setMonthlyOrder(orderChartData);
       } catch (error) {
         console.error("Error fetching New Customers:", error);
         message.error("Failed to fetching New Customers");

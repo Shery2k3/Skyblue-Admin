@@ -120,6 +120,7 @@ const Inventory = () => {
     {
       title: "Image",
       dataIndex: "imageUrl",
+      fixed: 'left',
       render: (imageUrl) => (
         <ImageWithSkeleton
           src={imageUrl}
