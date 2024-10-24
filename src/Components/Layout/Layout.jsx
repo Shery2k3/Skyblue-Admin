@@ -108,7 +108,18 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
     }
   };
 
-  const [openKeys, setOpenKeys] = useState(isSmallDevice ? [] : getDefaultOpenKeys(menuKey));
+  const [openKeys, setOpenKeys] = useState(
+    isSmallDevice || collapsed ? [] : getDefaultOpenKeys(menuKey)
+  );
+
+  // Close menu when collapsed or on a small device
+  useEffect(() => {
+    if (isSmallDevice || collapsed) {
+      setOpenKeys([]);
+    } else {
+      setOpenKeys(getDefaultOpenKeys(menuKey));
+    }
+  }, [isSmallDevice, collapsed, menuKey]);
 
   return (
     <Layout
