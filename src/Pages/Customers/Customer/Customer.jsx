@@ -219,6 +219,7 @@ const Customer = () => {
         fetchCustomers(page);
       }
     }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSearch = () => {

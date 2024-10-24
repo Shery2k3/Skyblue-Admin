@@ -145,6 +145,13 @@ const CustomerRoles = () => {
     });
   };
 
+  const handleTableChange = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
   const columns = [
     {
       title: "Name",
@@ -230,6 +237,7 @@ const CustomerRoles = () => {
         columns={columns}
         loading={loading}
         scroll={{ x: "max-content" }}
+        onChange={handleTableChange}
       />
 
       {/*To Edit an already existing vendor*/}

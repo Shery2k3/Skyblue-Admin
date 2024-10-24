@@ -44,6 +44,13 @@ const ManufacturerDetail = () => {
     fetchProducts();
   }, [retryRequest]);
 
+  const handleTableChange = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
   const handleView = (product) => {
     navigate(`/edit-product/${product.key}`);
   };
@@ -97,6 +104,7 @@ const ManufacturerDetail = () => {
         dataSource={dataSource}
         columns={columns}
         scroll={{ x: "max-content" }}
+        onChange={handleTableChange}
       />
     </CustomLayout>
   );

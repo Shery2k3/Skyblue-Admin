@@ -49,6 +49,7 @@ const CurrentCarts = () => {
 
   const handlePageChange = (page) => {
     fetchCustomers(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   useEffect(() => {

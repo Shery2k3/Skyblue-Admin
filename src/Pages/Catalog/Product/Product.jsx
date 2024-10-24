@@ -126,6 +126,7 @@ const Product = () => {
 
   const handlePageChange = (page) => {
     fetchProducts(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleKeyPress = (e) => {

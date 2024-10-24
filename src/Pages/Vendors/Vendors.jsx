@@ -134,6 +134,13 @@ const Vendors = () => {
     setAddModal(false);
   };
 
+  const handleTableChange = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
   const columns = [
     {
       title: "Name",
@@ -193,6 +200,7 @@ const Vendors = () => {
         dataSource={dataSource}
         columns={columns}
         scroll={{ x: "max-content" }}
+        onChange={handleTableChange}
       />
 
       {/*To Edit an already existing vendor*/}

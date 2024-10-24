@@ -68,6 +68,13 @@ const CurrentCartDetails = () => {
     fetchProducts();
   }, [retryRequest]);
 
+  const handleTableChange = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
   const handleNameClick = (product) => {
     navigate(`/edit-product/${product.key}`);
   };
@@ -111,6 +118,7 @@ const CurrentCartDetails = () => {
         loading={loading}
         columns={columns}
         scroll={{ x: "max-content" }}
+        onChange={handleTableChange}
       />
     </CustomLayout>
   );

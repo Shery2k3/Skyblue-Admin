@@ -246,6 +246,7 @@ const Category = () => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const columns = [
