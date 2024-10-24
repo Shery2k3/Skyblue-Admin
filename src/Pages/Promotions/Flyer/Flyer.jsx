@@ -174,7 +174,7 @@ const Flyer = () => {
         Flyer
       </Title>
 
-      <FlyerGenerate />
+      {/* <FlyerGenerate />
 
       {loading ? (
         <div style={{ textAlign: "center" }}>
@@ -193,7 +193,7 @@ const Flyer = () => {
         <Button type="primary" onClick={() => navigate("/addflyer")}>
           Add New Product to Flyer
         </Button>
-      </div>
+      </div> */}
     </CustomLayout>
   );
 };
