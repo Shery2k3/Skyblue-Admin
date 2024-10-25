@@ -110,7 +110,7 @@ const Orders = () => {
       dataIndex: "orderNo",
       key: "orderNo",
       align: "center",
-      fixed: 'left',
+      fixed: "left",
     },
     {
       title: "Order Status",
@@ -118,7 +118,10 @@ const Orders = () => {
       key: "orderStatus",
       align: "center",
       render: (status) => {
-        const statusInfo = statusMapping[status] || { label: "Unknown", color: "gray" };
+        const statusInfo = statusMapping[status] || {
+          label: "Unknown",
+          color: "gray",
+        };
         return <Tag color={statusInfo.color}>{statusInfo.label}</Tag>;
       },
     },
@@ -210,7 +213,7 @@ const Orders = () => {
         scroll={{ x: "max-content" }}
         style={{ marginBottom: 24 }}
       />
-        <div
+      <div
         style={{
           display: "flex",
           justifyContent: "center",
