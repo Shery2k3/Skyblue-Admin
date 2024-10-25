@@ -163,6 +163,10 @@ const Manufacturers = () => {
     navigate(`/Manufacturer/products/${Manufacturer.id}`);
   };
 
+  const handleAddProduct = (manufacturer) => {
+    navigate(`/manufacturer/${manufacturer.id}/addProduct`);
+  };
+
   const columns = [
     {
       title: "Name",

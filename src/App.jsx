@@ -34,6 +34,7 @@ import AddFlyer from './Pages/Promotions/Flyer/AddFlyer';
 import Campaign from './Pages/Promotions/Campaign/Campaign';
 import Editcampaign from './Pages/Promotions/Campaign/Sections/Editcampaign';
 import Createcampaign from './Pages/Promotions/Campaign/Sections/Createcampaign';
+import AddProductManufacturer from './Pages/Catalog/Manufacturers/AddProductManufacturer';
 
 
 function App() {
@@ -54,7 +55,7 @@ function App() {
         <Route path="/inventory" element={<ProtectedRoute element={Inventory} />} />
         <Route path="/manufacturers" element={<ProtectedRoute element={Manufacturers} />} />
         <Route path="/manufacturer/products/:id?" element={<ProtectedRoute element={ManufacturerDetail} />} />
-
+        <Route path="/manufacturer/products/add/:manufacturerid" element={<ProtectedRoute element={AddProductManufacturer} />} />
         {/* Vendors */}
         <Route path="/vendors" element={<ProtectedRoute element={Vendors} />} />
 

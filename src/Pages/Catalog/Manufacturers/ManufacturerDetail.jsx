@@ -4,13 +4,9 @@ import { useParams } from "react-router-dom";
 import {
     Table,
     Button,
-    Modal,
-    Checkbox,
-    message,
-    Input,
     Tag,
-    Typography,
-  } from "antd";
+    Typography, message
+} from "antd";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../Api/axiosConfig";
@@ -55,6 +51,18 @@ const ManufacturerDetail = () => {
     navigate(`/edit-product/${product.key}`);
   };
 
+  const handleDelete = async (productId, manufacturerId) => {
+    try {
+      console.log("Ids",productId, manufacturerId);
+      const response = await axiosInstance.delete(`/admin/manufacturer/product/${productId}/${manufacturerId}`);
+      message.success(response.data.message);
+      // Refresh the data after successful deletion
+      setDataSource((prev) => prev.filter((item) => item.id !== productId));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      message.error("Failed to delete the product.");
+    }
+  };
   const columns = [
     {
       title: "Product Id",
@@ -84,10 +92,19 @@ const ManufacturerDetail = () => {
       key: "action",
       align: "center",
       render: (_, record) => (
-        <Button onClick={() => handleView(record)}>View</Button>
+        <>
+          <Button onClick={() => handleView(record)}>View</Button>
+          <Button onClick={() => handleDelete(record.id, id)} type="danger" style={{ marginLeft: 8 }}>
+            Delete
+          </Button>
+        </>
       ),
     },
   ];
+
+  const handleAddProduct = () => {
+    navigate(`/manufacturer/products/add/${id}`);
+  };
 
   return (
     <CustomLayout pageTitle="Manufacturer Detail" menuKey="4">
@@ -95,7 +112,7 @@ const ManufacturerDetail = () => {
         Manufacturer's Products
       </Title>
       <div style={{ textAlign: "right" }}>
-        <Button type="primary" size={buttonSize}>
+        <Button onClick={handleAddProduct} type="primary" size={buttonSize}>
           Add Product
         </Button>
       </div>
