@@ -9,6 +9,7 @@ import {
   Font,
 } from "@react-pdf/renderer";
 import LogoAccent from "/LogoAccent.png"; // Ensure this path is correct
+import API_BASE_URL from "../../constants";
 
 Font.register({
   family: "Helvetica-Bold",
@@ -81,6 +82,9 @@ const Flyer = ({ flyerData, startDate, endDate }) => {
   const itemsPerPage = 6; // Maximum products per page
   const pages = Math.ceil(flyerData.length / itemsPerPage); // Calculate total pages
 
+
+  const proxyUrl = (url) => `${API_BASE_URL}/proxy-image?url=${encodeURIComponent(url)}`
+
   return (
     <Document>
       {Array.from({ length: pages }).map((_, pageIndex) => {
@@ -102,7 +106,7 @@ const Flyer = ({ flyerData, startDate, endDate }) => {
                   {product.ImageUrls.length > 0 && (
                     <Image
                       style={styles.productImage}
-                      src={product.ImageUrls[0]} // Display the first image
+                      src={proxyUrl(product.ImageUrls[0])} // Display the first image
                       alt="Product Image" // Added alt text for better accessibility
                     />
                   )}
