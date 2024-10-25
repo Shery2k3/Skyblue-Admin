@@ -105,7 +105,7 @@ const OrderNotes = () => {
         <Button
           type="default"
           icon={<LeftOutlined />}
-          onClick={() => navigate(`/orders/${id}`)}
+          onClick={() => navigate(-1)}
           style={{ marginBottom: "20px" }}
         >
           Go Back
