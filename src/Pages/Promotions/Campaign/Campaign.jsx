@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Select, Button, Typography, message } from "antd";
+import { Table, Select, Button, Typography, message, Popconfirm } from "antd"; // Import Popconfirm
 import CustomLayout from "../../../Components/Layout/Layout";
 import axiosInstance from "../../../Api/axiosConfig";
 import { useNavigate } from "react-router-dom";
@@ -43,6 +43,21 @@ const Campaign = () => {
     navigate(`/campaign/edit/${id}`);
   };
 
+  // Function to delete a campaign
+  const handleDelete = async (id) => {
+    try {
+      //console.log(id);
+      await retryRequest(() =>
+        axiosInstance.delete(`/admin/delete-campaigns/${id}`) // Adjust the endpoint as needed
+      );
+      message.success("Campaign deleted successfully.");
+      fetchCampaigns(); // Refresh the campaign list after deletion
+    } catch (error) {
+      console.error("Error deleting campaign", error);
+      message.error("Failed to delete campaign. Please try again.");
+    }
+  };
+
   // Columns for the Antd Table
   const columns = [
     {
@@ -66,9 +81,21 @@ const Campaign = () => {
       title: "Actions",
       key: "actions",
       render: (text, record) => (
-        <Button type="link" onClick={() => handleEdit(record.Id)}>
-          Edit
-        </Button>
+        <div>
+          <Button type="link" onClick={() => handleEdit(record.Id)}>
+            Edit
+          </Button>
+          <Popconfirm
+            title="Are you sure you want to delete this campaign?"
+            onConfirm={() => handleDelete(record.Id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" style={{ color: 'red' }}>
+              Delete
+            </Button>
+          </Popconfirm>
+        </div>
       ),
     },
   ];

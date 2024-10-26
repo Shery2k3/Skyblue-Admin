@@ -83,7 +83,10 @@ const CreateCampaign = () => {
           setPictureId(uploadedPictureId); // Store the picture ID
           message.success("Image uploaded successfully!");
 
-          // Add a 5-second delay before retrieving the image URL
+          // Display loading message
+          const hideLoadingMessage = message.loading("Processing image...", 0);
+
+          // Add a 7-second delay before retrieving the image URL
           setTimeout(async () => {
             try {
               const pictureResponse = await axiosInstance.get(`/admin/picture/${uploadedPictureId}`);
@@ -92,17 +95,20 @@ const CreateCampaign = () => {
               const quill = quillRef.current.getEditor(); // Get the Quill editor instance
               const range = quill.getSelection(); // Get the current selection
   
-              const index = range ? range.index : quill.getLength(); // Determine where to insert the image
-              quill.insertEmbed(index, 'image', imgUrl); // Insert the image at the cursor position
-              quill.setSelection(index + 1); // Move the cursor position after the inserted image
+              const index = range ? range.index : quill.getLength(); 
+              quill.insertEmbed(index, 'image', imgUrl); 
+              quill.setSelection(index + 1); 
   
               setUploading(false); // Set uploading state to false after successful upload
+              hideLoadingMessage(); // Hide loading message
+              message.success("Image processed successfully!");
             } catch (error) {
               console.error("Error retrieving the image URL after delay:", error);
+              hideLoadingMessage(); // Hide loading message
               message.error("Failed to retrieve image. Please try again.");
-              setUploading(false); // Set uploading state to false in case of error
+              setUploading(false); 
             }
-          }, 7000); // 5-second delay (5000 milliseconds)
+          }, 10000); 
         } else {
           message.error("Failed to upload image.");
           setUploading(false); // Set uploading state to false in case of failure
