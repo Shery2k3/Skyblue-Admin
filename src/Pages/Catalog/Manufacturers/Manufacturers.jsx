@@ -10,6 +10,7 @@ import {
   Input,
   Tag,
   Typography,
+  Spin, // Import Spin component
 } from "antd";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import API_BASE_URL from "../../../constants.js";
@@ -26,6 +27,7 @@ const Manufacturers = () => {
   const [published, setPublished] = useState(false);
   const [displayOrder, setDisplayOrder] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const { confirm } = Modal;
   const { Title, Text } = Typography;
@@ -39,6 +41,7 @@ const Manufacturers = () => {
   }, []);
 
   const fetchManufacturers = async (query = "") => {
+    setLoading(true); // Set loading to true before fetching
     try {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`, {
@@ -56,6 +59,8 @@ const Manufacturers = () => {
       setDataSource(data);
     } catch (error) {
       console.error("Error fetching manufacturers data:", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
     }
   };
 
@@ -163,7 +168,6 @@ const Manufacturers = () => {
     navigate(`/Manufacturer/products/${Manufacturer.id}`);
   };
 
-
   const columns = [
     {
       title: "Name",
@@ -231,11 +235,13 @@ const Manufacturers = () => {
         </Button>
       </div>
       <br />
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        scroll={{ x: "max-content" }}
-      />
+      <Spin spinning={loading}> {/* Wrap Table with Spin */}
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          scroll={{ x: "max-content" }}
+        />
+      </Spin>
 
       {/* Modal for editing a manufacturer */}
       <Modal

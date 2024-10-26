@@ -5,7 +5,8 @@ import {
     Table,
     Button,
     Tag,
-    Typography, message
+    Typography, message,
+    Spin, // Import Spin component
 } from "antd";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,7 @@ import useRetryRequest from "../../../Api/useRetryRequest";
 
 const ManufacturerDetail = () => {
   const [dataSource, setDataSource] = useState([]);
+  const [loading, setLoading] = useState(false); // Add loading state
   const { Title } = Typography;
   const { id } = useParams();
   const retryRequest = useRetryRequest();
@@ -22,6 +24,7 @@ const ManufacturerDetail = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true); // Set loading to true before fetching
       try {
         const response = await retryRequest(() =>
           axiosInstance.get(`/admin/manufacturer/products/${id}`)
@@ -35,6 +38,8 @@ const ManufacturerDetail = () => {
           setDataSource(data);
       } catch (error) {
         console.error("Error fetching manufacturer data:", error);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
       }
     };
     fetchProducts();
@@ -117,12 +122,14 @@ const ManufacturerDetail = () => {
         </Button>
       </div>
       <br />
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        scroll={{ x: "max-content" }}
-        onChange={handleTableChange}
-      />
+      <Spin spinning={loading}> {/* Wrap Table with Spin */}
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          scroll={{ x: "max-content" }}
+          onChange={handleTableChange}
+        />
+      </Spin>
     </CustomLayout>
   );
 };

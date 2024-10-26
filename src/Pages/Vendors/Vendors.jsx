@@ -9,6 +9,7 @@ import {
   Input,
   Tag,
   Typography,
+  Spin, // Import Spin component
 } from "antd";
 import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
 import API_BASE_URL from "../../constants.js";
@@ -24,6 +25,7 @@ const Vendors = () => {
   const [email, setEmail] = useState("");
   const [isActive, setIsActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // Add search query state
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const retryRequest = useRetryRequest();
   const buttonSize = useResponsiveButtonSize();
@@ -35,6 +37,7 @@ const Vendors = () => {
   }, []);
 
   const fetchVendors = async (query = "") => {
+    setLoading(true); // Set loading to true before fetching
     try {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/vendors`, {
@@ -51,6 +54,8 @@ const Vendors = () => {
       setDataSource(data);
     } catch (error) {
       console.error("Error fetching customer data:", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
     }
   };
 
@@ -196,12 +201,14 @@ const Vendors = () => {
         </Button>
       </div>
       <br />
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        scroll={{ x: "max-content" }}
-        onChange={handleTableChange}
-      />
+      <Spin spinning={loading}> {/* Wrap Table with Spin */}
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          scroll={{ x: "max-content" }}
+          onChange={handleTableChange}
+        />
+      </Spin>
 
       {/*To Edit an already existing vendor*/}
       <Modal
