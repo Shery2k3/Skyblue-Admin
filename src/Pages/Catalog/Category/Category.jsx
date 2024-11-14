@@ -29,6 +29,7 @@ import API_BASE_URL from "../../../constants";
 import axiosInstance from "../../../Api/axiosConfig";
 import useRetryRequest from "../../../Api/useRetryRequest";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -131,7 +132,6 @@ const Category = () => {
           params: { search },
         })
       );
-
       const flatData = flattenCategories(response.data);
       setDataSource(flatData);
     } catch (error) {
@@ -186,7 +186,9 @@ const Category = () => {
     if (category) {
       try {
         const response = await retryRequest(() =>
-          axiosInstance.get(`${API_BASE_URL}/admin/category/single/${category.id}`)
+          axiosInstance.get(
+            `${API_BASE_URL}/admin/category/single/${category.id}`
+          )
         );
         const categoryData = response.data;
         form.setFieldsValue({
@@ -217,15 +219,15 @@ const Category = () => {
       formData.append("Published", values.published);
       formData.append("DiscountId", values.discountId || null);
       formData.append("removedImage", values.removedImage || false);
-  
+
       if (imageFile) {
         formData.append("Image", imageFile);
       }
-  
+
       const config = {
         headers: { "Content-Type": "multipart/form-data" },
       };
-  
+
       if (editingCategory) {
         await axiosInstance.patch(
           `${API_BASE_URL}/admin/category/edit/${editingCategory.id}`,
@@ -234,7 +236,11 @@ const Category = () => {
         );
         message.success("Category updated successfully");
       } else {
-        await axiosInstance.post(`${API_BASE_URL}/admin/category/add`, formData, config);
+        await axiosInstance.post(
+          `${API_BASE_URL}/admin/category/add`,
+          formData,
+          config
+        );
         message.success("Category added successfully");
       }
       setIsModalVisible(false);
@@ -249,11 +255,14 @@ const Category = () => {
     setIsModalVisible(false);
   };
 
+  const navigate = useNavigate();
   const handlePageChange = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
+  const handleView = (customer) => {
+    navigate(`/categories/${customer.key}`);
+  };
   const columns = [
     {
       title: "Category Path",
@@ -289,15 +298,17 @@ const Category = () => {
       title: "Action",
       key: "action",
       width: 100,
+      fixed: "right",
       render: (_, record) => (
-        <div style={{ textAlign: "center" }}>
-          <StyledButton
+        <div style={{ display: "flex", gap: "10px", textAlign: "center" }}>
+          <Button
             type="primary"
             icon={<EditOutlined />}
             onClick={() => showModal(record)}
           >
             Edit
-          </StyledButton>
+          </Button>{" "}
+          <Button onClick={() => handleView(record)}>View</Button>
         </div>
       ),
       align: "center",
@@ -347,7 +358,6 @@ const Category = () => {
   const handlePreview = () => {
     setPreviewVisible(true);
   };
-
   return (
     <CustomLayout pageTitle="Categories" menuKey="2">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
@@ -412,18 +422,18 @@ const Category = () => {
         onCancel={handleCancel}
         centered
       >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="image"
-            label="Image"
-            style={{ marginBottom: 24 }}
-          >
+        <Form form={form} onFinish={handleOk} layout="vertical">
+          <Form.Item name="image" label="Image" style={{ marginBottom: 24 }}>
             <ImagePreviewBox>
               {previewImage ? (
                 <Image
                   src={previewImage}
                   alt="Category"
-                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    objectFit: "contain",
+                  }}
                   preview={{
                     visible: previewVisible,
                     onVisibleChange: (visible) => setPreviewVisible(visible),
@@ -443,7 +453,11 @@ const Category = () => {
               </Upload>
               {previewImage && (
                 <>
-                  <Button onClick={handleImageRemove} icon={<DeleteOutlined />} type="danger">
+                  <Button
+                    onClick={handleImageRemove}
+                    icon={<DeleteOutlined />}
+                    type="danger"
+                  >
                     Remove
                   </Button>
                 </>
@@ -453,9 +467,11 @@ const Category = () => {
           <Form.Item
             name="name"
             label="Name"
-            rules={[{ required: true, message: "Please input the category name!" }]}
+            rules={[
+              { required: true, message: "Please input the category name!" },
+            ]}
           >
-            <Input />
+            <Input placeholder="Enter name" />
           </Form.Item>
           <Form.Item name="parentId" label="Parent Category">
             <Select

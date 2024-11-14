@@ -3,7 +3,6 @@ import {
   Table,
   Input,
   Button,
-  Select,
   Pagination,
   Tag,
   Space,
@@ -11,74 +10,101 @@ import {
   Card,
   Popconfirm,
   Modal,
+  message,
 } from "antd";
 import {
   SearchOutlined,
   DeleteOutlined,
   EditOutlined,
   ZoomInOutlined,
-  CloseCircleOutlined,
 } from "@ant-design/icons";
-import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import CustomLayout from "../../../Components/Layout/Layout";
 import API_BASE_URL from "../../../constants";
 import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios instance
 import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 
-const { Option } = Select;
 const { Title, Text } = Typography;
 
-const Product = () => {
+const CategoryDetails = () => {
+  const { id } = useParams();
+  const [catagoryId, setCatagoryId] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [category, setCategory] = useState("");
-  const [product, setProduct] = useState("");
-  const [manufacturers, setManufacturers] = useState([]);
-  const [vendors, setVendors] = useState([]);
-  const [selectedManufacturer, setSelectedManufacturer] = useState();
-  const [selectedVendor, setSelectedVendor] = useState(); // New state for selected vendor
-  const [published, setPublished] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
   const [hoveredImage, setHoveredImage] = useState(null); // New state for hovered image
-
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
-  const buttonSize = useResponsiveButtonSize();
-
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+  const [dataSource, setDataSource] = useState([]);
 
+  const flattenCategories = (categories, parentPath = "", level = 0) => {
+    let flatData = [];
+    categories.forEach((category) => {
+      const currentPath = parentPath
+        ? `${parentPath} >> ${category.Name}`
+        : category.Name;
+      flatData.push({
+        key: category.Id,
+        id: category.Id,
+        name: category.Name,
+        path: currentPath,
+        parentId: category.ParentId,
+        published: category.Published,
+        level,
+        discountName: category.DiscountName,
+        discountId: category.DiscountId,
+      });
+      if (category.children && category.children.length > 0) {
+        flatData = flatData.concat(
+          flattenCategories(category.children, currentPath, level + 1)
+        );
+      }
+    });
+    return flatData;
+  };
+  const fetchCategories = async (search = "") => {
+    setLoading(true); // Set loading to true
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/category/all`, {
+          params: { search },
+        })
+      );
+      const flatData = flattenCategories(response.data);
+      setDataSource(flatData);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      message.error("Failed to fetch categories");
+    } finally {
+      setLoading(false); // Set loading to false
+    }
+  };
   const fetchProducts = async (page = 1) => {
     setLoading(true);
     try {
-      const params = {
-        category,
-        product,
-        published,
-        size: 20,
-        page,
-      };
+      if (id) {
+        const params = {
+          category,
+          size: 20,
+          page,
+        };
 
-      if (selectedManufacturer) {
-        params.manufacturer = selectedManufacturer;
+        const response = await retryRequest(() =>
+          axiosInstance.get(`${API_BASE_URL}/admin/product/search`, { params })
+        );
+        setProducts(response.data.products);
+        setTotalItems(response.data.totalItems);
+        setCurrentPage(response.data.currentPage);
+      } else {
+        navigate(-1);
       }
-
-      if (selectedVendor) {
-        params.vendor = selectedVendor;
-      }
-
-      const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/product/search`, { params })
-      );
-      // console.log("response", response.data.products);
-      setProducts(response.data.products);
-      setTotalItems(response.data.totalItems);
-      setCurrentPage(response.data.currentPage);
     } catch (err) {
       setError(err);
     } finally {
@@ -88,36 +114,7 @@ const Product = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    const fetchManufacturers = async () => {
-      try {
-        const response = await retryRequest(() =>
-          axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`)
-        );
-        setManufacturers(response.data);
-      } catch (error) {
-        console.error("Error fetching manufacturers:", error);
-      }
-    };
-
-    fetchManufacturers();
-  }, []);
-
-  useEffect(() => {
-    const fetchVendors = async () => {
-      try {
-        const response = await retryRequest(() =>
-          axiosInstance.get(`${API_BASE_URL}/admin/vendors`)
-        );
-        setVendors(response.data.data);
-      } catch (error) {
-        console.error("Error fetching vendors:", error);
-      }
-    };
-
-    fetchVendors();
+    fetchCategories();
   }, []);
 
   const handleSearch = () => {
@@ -149,15 +146,6 @@ const Product = () => {
     setSelectedImage(imageUrl);
     setIsModalVisible(true);
   };
-
-  const handleManufacturerChange = (value) => {
-    setSelectedManufacturer(value);
-  };
-
-  const handleVendorChange = (value) => {
-    setSelectedVendor(value);
-  };
-
   const columns = [
     {
       title: "Image",
@@ -287,7 +275,6 @@ const Product = () => {
             type="link"
             icon={<EditOutlined />}
             onClick={() => {
-              console.log(`Navigating to /edit-product/${record.Id}`);
               navigate(`/edit-product/${record.Id}`);
             }}
           >
@@ -307,13 +294,30 @@ const Product = () => {
       ),
     },
   ];
-
+  useEffect(() => {
+    if (dataSource && dataSource.length > 0) {
+      const matchedCategory = dataSource.find((item) => item.id === Number(id));
+      if (matchedCategory) {
+        setCatagoryId(id);
+      } else {
+        navigate("/categories/");
+      }
+    }
+  }, [id, dataSource]);
   return (
-    <CustomLayout pageTitle="Products" menuKey="3">
+    <CustomLayout pageTitle="catagories" menuKey="2">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
-        Products
+        Catagories
       </Title>
-      <div
+      <Input
+        placeholder="Category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        onKeyDown={handleKeyPress}
+        style={{ width: isSmallScreen ? "100%" : 200 }}
+        prefix={<SearchOutlined />}
+      />
+      {/* <div
         style={{
           marginBottom: 24,
           display: "flex",
@@ -417,7 +421,7 @@ const Product = () => {
         >
           Add Product
         </Button>
-      </div>
+      </div> */}
       <Card
         style={{ borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
       >
@@ -476,4 +480,4 @@ const Product = () => {
   );
 };
 
-export default Product;
+export default CategoryDetails;
