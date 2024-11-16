@@ -17,7 +17,7 @@ const Price = ({ priceDetail }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedPrice, setEditedPrice] = useState(priceDetail);
   const [loading, setLoading] = useState(false);
-  
+
   const { id } = useParams();
 
   // Toggle edit mode
@@ -29,10 +29,10 @@ const Price = ({ priceDetail }) => {
     const match = value.match(/([\D]*)(\d+\.?\d*)([\D]*)/);
     return match
       ? {
-          prefix: match[1] || "",
-          number: match[2] || "",
-          suffix: match[3] || "",
-        }
+        prefix: match[1] || "",
+        number: match[2] || "",
+        suffix: match[3] || "",
+      }
       : { prefix: "", number: value, suffix: "" };
   };
 
@@ -40,7 +40,7 @@ const Price = ({ priceDetail }) => {
   const handleInputChange = (value, key) => {
     // Update the editedPrice state with the new numeric value
     setEditedPrice((prev) =>
-      prev.map((item) => 
+      prev.map((item) =>
         item.key === key ? { ...item, children: `$${value}` } : item // Add dollar sign
       )
     );
@@ -54,7 +54,7 @@ const Price = ({ priceDetail }) => {
     editedPrice.forEach(item => {
       if (item.children) {
         const numericValue = extractNumeric(item.children).number; // Extract numeric part
-        switch(item.label) {
+        switch (item.label) {
           case 'Order Subtotal(Excl Tax)':
             dataToUpdate.orderSubtotalExclTax = parseFloat(numericValue);
             break;

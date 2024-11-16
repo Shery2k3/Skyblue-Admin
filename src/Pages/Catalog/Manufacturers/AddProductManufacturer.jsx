@@ -9,33 +9,31 @@ import {
   Typography,
   Card,
   Modal,
-  Alert,
+  message,
 } from "antd";
 import { SearchOutlined, ZoomInOutlined } from "@ant-design/icons";
-import API_BASE_URL from "../../../../constants";
-import axiosInstance from "../../../../Api/axiosConfig";
-import useRetryRequest from "../../../../Api/useRetryRequest";
+import API_BASE_URL from "../../../constants";
+import axiosInstance from "../../../Api/axiosConfig";
+import useRetryRequest from "../../../Api/useRetryRequest";
 import { useMediaQuery } from "react-responsive";
-import CustomLayout from "../../../../Components/Layout/Layout";
-import { useParams } from "react-router-dom";
+import CustomLayout from "../../../Components/Layout/Layout";
+import { useNavigate, useParams } from "react-router-dom";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
 
-const AddProduct = () => {
-  const { orderId, customerId } = useParams();
+const AddProductManufacturer = () => {
+  const { customerId, manufacturerid } = useParams(); // Removed orderId from params
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("");
   const [product, setProduct] = useState("");
-  const [manufacturers, setManufacturers] = useState([]);
-  const [selectedManufacturer, setSelectedManufacturer] = useState();
   const [published, setPublished] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+
 
   const retryRequest = useRetryRequest();
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
@@ -51,10 +49,7 @@ const AddProduct = () => {
         page,
       };
 
-      if (selectedManufacturer) {
-        params.manufacturer = selectedManufacturer;
-      }
-
+      // The manufacturer filter can be removed since it's not being used
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/product/search`, { params })
       );
@@ -72,20 +67,6 @@ const AddProduct = () => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const fetchManufacturers = async () => {
-      try {
-        const response = await retryRequest(() =>
-          axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`)
-        );
-        setManufacturers(response.data);
-      } catch (error) {
-        console.error("Error fetching manufacturers:", error);
-      }
-    };
-    fetchManufacturers();
-  }, []);
-
   const handleSearch = () => {
     fetchProducts(1);
   };
@@ -101,31 +82,31 @@ const AddProduct = () => {
   };
 
   const handleAddProduct = (product) => {
-    setSelectedProduct({ ...product, orderId, customerId });
+    setSelectedProduct({ ...product, customerId }); // Removed orderId from here
     setIsModalVisible(true);
-    setQuantity(1);
   };
 
   const handleSaveProduct = async () => {
-    if (selectedProduct) {
-      const productData = {
-        customerId: selectedProduct.customerId, // from selectedProduct
-        quantity, // quantity from state
+    try {
+      const payload = {
+        productId: selectedProduct.Id,
+        isFeaturedProduct: false, // or true if needed
+        displayOrder: 0, // Set dynamically if necessary
       };
 
-      try {
-        const response = await axiosInstance.post(
-          `${API_BASE_URL}/admin/orders/${orderId}/add-product/${selectedProduct.Id}`,
-          productData
-        );
-        console.log("Response from server:", response.data);
-        setIsModalVisible(false);
-      } catch (error) {
-        console.error("Error saving product:", error);
-      }
+      await axiosInstance.post(
+        `${API_BASE_URL}/admin/add-manufacturer-product/${manufacturerid}`, // Using manufacturerid from params
+        payload
+      );
+
+      message.success("Product successfully added to manufacturer!");
+      setIsModalVisible(false);
+      fetchProducts();
+    } catch (error) {
+      console.error("Error adding product to manufacturer:", error);
+      message.error("Failed to add product to manufacturer.");
     }
   };
-
 
   const columns = [
     {
@@ -134,15 +115,7 @@ const AddProduct = () => {
       key: "imageUrl",
       align: "center",
       render: (text) => (
-        <div
-          style={{
-            position: "relative",
-            display: "inline-block",
-            cursor: "pointer",
-            width: "100%",
-            height: "100%",
-          }}
-        >
+        <div style={{ position: "relative", display: "inline-block", cursor: "pointer", width: "100%", height: "100%" }}>
           <img
             src={text}
             alt="product"
@@ -203,17 +176,10 @@ const AddProduct = () => {
 
   return (
     <>
-      <CustomLayout pageTitle="Order Details" menuKey="7">
+      <CustomLayout pageTitle="Order Details" menuKey="4">
         <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
-          Add Product
+          Add Product To Manufacturer
         </Title>
-        {/* Warning Alert */}
-        <Alert
-          message="Please be sure to update the Price Details tab to avoid conflicts."
-          type="warning"
-          showIcon
-          style={{ marginBottom: 20 }} // Add some space below the alert
-        />
         <Card
           style={{
             borderRadius: "8px",
@@ -245,18 +211,6 @@ const AddProduct = () => {
               style={{ width: isSmallScreen ? "100%" : 200 }}
               prefix={<SearchOutlined />}
             />
-            <Select
-              placeholder="Manufacturer"
-              value={selectedManufacturer}
-              onChange={(value) => setSelectedManufacturer(value)}
-              style={{ width: 200 }}
-            >
-              {manufacturers.map((manufacturer) => (
-                <Option key={manufacturer.Id} value={manufacturer.Id}>
-                  {manufacturer.Name}
-                </Option>
-              ))}
-            </Select>
             <Select
               value={published}
               onChange={(value) => setPublished(value)}
@@ -314,55 +268,18 @@ const AddProduct = () => {
         <Modal
           title="Add Product"
           visible={isModalVisible}
-          footer={null}
+          onOk={handleSaveProduct}
           onCancel={() => setIsModalVisible(false)}
-          centered
-          width={400}
+          okText="Save"
+          cancelText="Cancel"
+          destroyOnClose
         >
-          {selectedProduct && (
-            <div style={{ textAlign: "center" }}>
-              {/* Warning Alert in Modal */}
-              <Alert
-                message="Please be sure to update the Price Details tab to avoid conflicts."
-                type="warning"
-                showIcon
-                style={{ marginBottom: 16 }} // Add some space below the alert
-              />
-
-              <Title level={4}>Product Details</Title>
-              <Text strong>ID: {selectedProduct.Id}</Text>
-              <br />
-              <Text>Name: {selectedProduct.Name}</Text>
-              <br />
-              <Text>Order ID: {selectedProduct.orderId}</Text>
-              <br />
-              <Text>Customer ID: {selectedProduct.customerId}</Text>
-              <br />
-
-              {/* Quantity Input */}
-              <Text>Quantity:</Text>
-              <Input
-                type="number"
-                min={1}
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                style={{ marginTop: 8, width: "100%" }} // Adjust margin for spacing
-                placeholder="Enter quantity"
-              />
-              <Button
-                type="primary"
-                onClick={handleSaveProduct}
-                style={{ marginTop: 20 }}
-              >
-                Save Product
-              </Button>
-            </div>
-          )}
+          <p>Product: {selectedProduct?.Name}</p>
+          
         </Modal>
-
       </CustomLayout>
     </>
   );
 };
 
-export default AddProduct;
+export default AddProductManufacturer;

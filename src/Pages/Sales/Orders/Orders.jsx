@@ -64,11 +64,13 @@ const Orders = () => {
           params: { orderStatusId, start, end, size: 20, page },
         })
       );
+      console.log('API Response Data:', response.data);
       const data = response.data.data.map((order) => ({
         key: order.Id,
         id: order.Id,
         orderNo: order.Id,
         customer: order.CustomerEmail,
+        customerName: `${order.CustomerFirstName} ${order.CustomerLastName}`,  // New field for full name
         orderStatus: order.OrderStatusId,
         createdOn: new Date(order.CreatedonUtc).toLocaleString("en-US", {
           month: "numeric",
@@ -110,7 +112,7 @@ const Orders = () => {
       dataIndex: "orderNo",
       key: "orderNo",
       align: "center",
-      fixed: 'left',
+      fixed: "left",
     },
     {
       title: "Order Status",
@@ -118,15 +120,25 @@ const Orders = () => {
       key: "orderStatus",
       align: "center",
       render: (status) => {
-        const statusInfo = statusMapping[status] || { label: "Unknown", color: "gray" };
+        const statusInfo = statusMapping[status] || {
+          label: "Unknown",
+          color: "gray",
+        };
         return <Tag color={statusInfo.color}>{statusInfo.label}</Tag>;
       },
+    },
+    {
+      title: "Customer Name", // New column for first and last name
+      dataIndex: "customerName",
+      key: "customerName",
+      align: "center",
     },
     {
       title: "Customer",
       dataIndex: "customer",
       key: "customer",
     },
+
     {
       title: "Created On",
       dataIndex: "createdOn",
@@ -210,7 +222,7 @@ const Orders = () => {
         scroll={{ x: "max-content" }}
         style={{ marginBottom: 24 }}
       />
-        <div
+      <div
         style={{
           display: "flex",
           justifyContent: "center",

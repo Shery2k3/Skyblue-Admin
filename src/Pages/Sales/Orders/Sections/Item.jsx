@@ -1,9 +1,55 @@
-import { Table, Input, Button, Space, Image, message, Spin, Divider, Alert } from "antd";
+import {
+  Table,
+  Input,
+  Button,
+  Space,
+  Skeleton,
+  Image,
+  message,
+  Spin,
+  Divider,
+  Alert,
+} from "antd";
 import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, useParams } from "react-router-dom";
-import axiosInstance from '../../../../Api/axiosConfig';
+import axiosInstance from "../../../../Api/axiosConfig";
+
+const ImageWithSkeleton = ({ src, alt, style }) => {
+  const [loading, setLoading] = useState(true);
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        ...style,
+      }}
+    >
+      {loading && (
+        <Skeleton.Image
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+          }}
+          active
+        />
+      )}
+      <img
+        src={src}
+        alt={alt}
+        style={{ ...style, display: loading ? "none" : "block" }}
+        onLoad={() => setLoading(false)}
+      />
+    </div>
+  );
+};
 
 const ItemTable = ({ dataSource }) => {
   const { id } = useParams(); // Destructure to get orderId from the route
@@ -36,7 +82,7 @@ const ItemTable = ({ dataSource }) => {
       message.error("Product not found");
       return;
     }
-  
+
     const {
       productid, // Destructure productid from productToSave
       quantity,
@@ -48,9 +94,9 @@ const ItemTable = ({ dataSource }) => {
       discountamountexcltax: discountAmountExclTax,
       originalproductcost: originalProductCost,
     } = productToSave;
-  
+
     setLoading(true);
-  
+
     try {
       await axiosInstance.patch(
         `/admin/orders/${id}/order-items/${productToSave.productid}`, // Use the correct productid here
@@ -74,7 +120,7 @@ const ItemTable = ({ dataSource }) => {
       setLoading(false);
     }
   };
-  
+
   const handleCancel = () => {
     setEditingKey(null);
   };
@@ -84,12 +130,12 @@ const ItemTable = ({ dataSource }) => {
       title: "Image",
       dataIndex: "imageUrl",
       key: "imageUrl",
+      fixed: "left",
       render: (imageUrl) => (
-        <Image
-          width={50}
+        <ImageWithSkeleton
           src={imageUrl}
-          alt="Product"
-          style={{ borderRadius: "5px" }}
+          alt="product"
+          style={{ maxHeight: 75, maxWidth: 75 }}
         />
       ),
     },
@@ -153,7 +199,11 @@ const ItemTable = ({ dataSource }) => {
               <Input
                 value={record.unitpriceexcltax}
                 onChange={(e) =>
-                  handleInputChange(e.target.value, record.key, "unitpriceexcltax")
+                  handleInputChange(
+                    e.target.value,
+                    record.key,
+                    "unitpriceexcltax"
+                  )
                 }
                 style={{ width: 70 }}
                 size="small"
@@ -168,7 +218,11 @@ const ItemTable = ({ dataSource }) => {
               <Input
                 value={record.unitpriceincltax}
                 onChange={(e) =>
-                  handleInputChange(e.target.value, record.key, "unitpriceincltax")
+                  handleInputChange(
+                    e.target.value,
+                    record.key,
+                    "unitpriceincltax"
+                  )
                 }
                 style={{ width: 70 }}
                 size="small"
@@ -262,8 +316,8 @@ const ItemTable = ({ dataSource }) => {
     <>
       <Divider orientation="left">Product Details</Divider>
 
-      <Button 
-        type="primary" 
+      <Button
+        type="primary"
         onClick={handleAddProduct}
         style={{ marginBottom: 16 }}
       >
@@ -307,10 +361,14 @@ ItemTable.propTypes = {
         .isRequired,
       priceincltax: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
         .isRequired,
-      unitpriceexcltax: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
-        .isRequired,
-      unitpriceincltax: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
-        .isRequired,
+      unitpriceexcltax: PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.string,
+      ]).isRequired,
+      unitpriceincltax: PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.string,
+      ]).isRequired,
       quantity: PropTypes.number.isRequired,
       vendor: PropTypes.string.isRequired,
       location: PropTypes.string.isRequired,

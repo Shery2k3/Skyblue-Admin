@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Table, Button, Spin, Typography, Skeleton } from 'antd';
-import CustomLayout from '../../../Components/Layout/Layout';
-import axiosInstance from '../../../Api/axiosConfig';
-import useRetryRequest from '../../../Api/useRetryRequest';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Table, Button, Spin, Typography, Skeleton } from "antd";
+import CustomLayout from "../../../Components/Layout/Layout";
+import axiosInstance from "../../../Api/axiosConfig";
+import useRetryRequest from "../../../Api/useRetryRequest";
 
 const { Title } = Typography;
 
@@ -11,15 +11,23 @@ const ImageWithSkeleton = ({ src, alt, style }) => {
   const [loading, setLoading] = useState(true);
 
   return (
-    <div style={{ position: 'relative', ...style }}>
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        ...style,
+      }}
+    >
       {loading && (
         <Skeleton.Image
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100%',
+            width: "100%",
+            height: "100%",
           }}
           active
         />
@@ -27,7 +35,7 @@ const ImageWithSkeleton = ({ src, alt, style }) => {
       <img
         src={src}
         alt={alt}
-        style={{ ...style, display: loading ? 'none' : 'block' }}
+        style={{ ...style, display: loading ? "none" : "block" }}
         onLoad={() => setLoading(false)}
       />
     </div>
@@ -68,7 +76,7 @@ const BestSeller = () => {
   const handleTableChange = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
   };
 
@@ -80,9 +88,13 @@ const BestSeller = () => {
     {
       title: "Image",
       dataIndex: "imageUrl",
-      fixed: 'left',
+      fixed: "left",
       render: (imageUrl) => (
-        <ImageWithSkeleton src={imageUrl} alt="product-img" style={{ height: 50 }} />
+        <ImageWithSkeleton
+          src={imageUrl}
+          alt="product-img"
+          style={{ height: 50 }}
+        />
       ),
       align: "center",
     },

@@ -1,9 +1,19 @@
-import  { useEffect, useState } from 'react';
-import { Table, Spin, Button, Modal, Form, Input, Divider, Pagination, message } from 'antd';
-import axiosInstance from '../../../../Api/axiosConfig';
-import CustomLayout from '../../../../Components/Layout/Layout';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
-
+import { useEffect, useState } from "react";
+import {
+  Table,
+  Spin,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Divider,
+  Pagination,
+  message,
+} from "antd";
+import { LeftOutlined } from "@ant-design/icons";
+import axiosInstance from "../../../../Api/axiosConfig";
+import CustomLayout from "../../../../Components/Layout/Layout";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 
 const OrderNotes = () => {
   const { id } = useParams(); // Get orderId from URL params
@@ -22,7 +32,7 @@ const OrderNotes = () => {
     try {
       const response = await axiosInstance.get(`/admin/orders/notes/${id}`);
       if (response.data.success) {
-        const notes = response.data.data.map(note => ({
+        const notes = response.data.data.map((note) => ({
           key: note.Id,
           orderId: note.OrderId,
           note: note.Note,
@@ -31,10 +41,10 @@ const OrderNotes = () => {
         }));
         setDataSource(notes);
       } else {
-        message.error('Failed to fetch order notes. Please try again.');
+        message.error("Failed to fetch order notes. Please try again.");
       }
     } catch (error) {
-      console.log('An error occurred while fetching order notes.', error);
+      console.log("An error occurred while fetching order notes.", error);
     } finally {
       setLoading(false); // Set loading to false after fetching
     }
@@ -51,26 +61,28 @@ const OrderNotes = () => {
       });
 
       if (response?.data.success) {
-        message.success('Order note added successfully');
+        message.success("Order note added successfully");
         form.resetFields();
         setIsModalVisible(false);
         fetchOrderNotes(); // Refresh the notes after adding a note
       }
     } catch (error) {
-      message.error('Failed to add order note.');
+      message.error("Failed to add order note.");
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      const response = await axiosInstance.delete(`/admin/orders/notes-delete/${id}`);
+      const response = await axiosInstance.delete(
+        `/admin/orders/notes-delete/${id}`
+      );
 
       if (response?.data.success) {
-        message.success('Order note deleted successfully');
+        message.success("Order note deleted successfully");
         fetchOrderNotes(); // Refresh the notes after deleting a note
       }
     } catch (error) {
-      message.error('Failed to delete order note.');
+      message.error("Failed to delete order note.");
     }
   };
 
@@ -84,18 +96,36 @@ const OrderNotes = () => {
 
   return (
     <CustomLayout pageTitle="Order Details" menuKey="7">
-      <div style={{ padding: '20px' }}>
-        <Divider level={2} style={{ marginBottom: '20px' }}>
-          Order Notes
+      <div style={{ padding: "20px" }}>
+        <Divider level={2} style={{ marginBottom: "20px" }}>
+          Order Notes for Order #{id}
         </Divider>
-        
+
         {/* Go Back Button */}
-        <Button type="default" onClick={() => navigate(`/orders/${id}`)}>
+        <Button
+          type="default"
+          icon={<LeftOutlined />}
+          onClick={() => navigate(-1)}
+          style={{ marginBottom: "20px" }}
+        >
           Go Back
         </Button>
-        
+
+        <div style={{ marginBottom: "20px", textAlign: "right" }}>
+          <Button type="primary" onClick={() => setIsModalVisible(true)}>
+            Add Note
+          </Button>
+        </div>
+
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "300px",
+            }}
+          >
             <Spin size="large" />
           </div>
         ) : (
@@ -104,52 +134,63 @@ const OrderNotes = () => {
               dataSource={paginatedData}
               columns={[
                 {
-                  title: 'Order ID',
-                  dataIndex: 'orderId',
-                  key: 'orderId',
-                  align: 'center',
+                  title: "Order ID",
+                  dataIndex: "orderId",
+                  key: "orderId",
+                  align: "center",
                 },
                 {
-                  title: 'Note',
-                  dataIndex: 'note',
-                  key: 'note',
-                  align: 'left',
+                  title: "Note",
+                  dataIndex: "note",
+                  key: "note",
+                  align: "left",
                 },
                 {
-                  title: 'Created On',
-                  dataIndex: 'createdOn',
-                  key: 'createdOn',
-                  align: 'center',
+                  title: "Created On",
+                  dataIndex: "createdOn",
+                  key: "createdOn",
+                  align: "center",
                 },
                 {
-                  title: 'Action',
-                  key: 'action',
+                  title: "Action",
+                  key: "action",
                   render: (_, record) => (
-                    <Button type="link" danger onClick={() => handleDelete(record.id)}>
+                    <Button
+                      type="link"
+                      danger
+                      onClick={() => handleDelete(record.id)}
+                    >
                       Delete
                     </Button>
                   ),
                 },
               ]}
               pagination={false}
-              scroll={{ x: 'max-content' }}
+              scroll={{ x: "max-content" }}
               bordered
               locale={{
-                emptyText: <span style={{ color: 'gray' }}>No order notes available</span>,
+                emptyText: (
+                  <span style={{ color: "gray" }}>
+                    No order notes available
+                  </span>
+                ),
               }}
             />
-            <div style={{ marginTop: '20px', textAlign: 'right' }}>
-              <Button type="primary" onClick={() => setIsModalVisible(true)}>
-                Add Note
-              </Button>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                paddingBottom: "20px",
+              }}
+            >
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={totalItems}
+                onChange={handleChangePage}
+                style={{ marginTop: "20px", textAlign: "center" }}
+              />
             </div>
-            <Pagination
-              current={currentPage}
-              pageSize={pageSize}
-              total={totalItems}
-              onChange={handleChangePage}
-              style={{ marginTop: '20px', textAlign: 'center' }}
-            />
           </>
         )}
 
@@ -163,7 +204,7 @@ const OrderNotes = () => {
             <Form.Item
               name="Note"
               label="Note"
-              rules={[{ required: true, message: 'Please input your note!' }]}
+              rules={[{ required: true, message: "Please input your note!" }]}
             >
               <Input.TextArea rows={4} />
             </Form.Item>

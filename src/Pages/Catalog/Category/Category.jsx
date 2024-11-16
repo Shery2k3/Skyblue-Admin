@@ -15,6 +15,7 @@ import {
   Pagination,
   Upload,
   Image,
+  Spin,
 } from "antd";
 import {
   EditOutlined,
@@ -112,6 +113,7 @@ const Category = () => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [discounts, setDiscounts] = useState([]);
+  const [loading, setLoading] = useState(false); // Add loading state
   const pageSize = 15;
 
   const retryRequest = useRetryRequest();
@@ -122,6 +124,7 @@ const Category = () => {
   }, []);
 
   const fetchCategories = async (search = "") => {
+    setLoading(true); // Set loading to true
     try {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/category/all`, {
@@ -134,6 +137,8 @@ const Category = () => {
     } catch (error) {
       console.error("Error fetching categories:", error);
       message.error("Failed to fetch categories");
+    } finally {
+      setLoading(false); // Set loading to false
     }
   };
 
@@ -378,15 +383,17 @@ const Category = () => {
           </StyledButton>
         </ResponsiveSpace>
       </div>
-      <StyledTable
-        dataSource={dataSource.slice(
-          (currentPage - 1) * pageSize,
-          currentPage * pageSize
-        )}
-        columns={columns}
-        pagination={false}
-        scroll={{ x: "max-content" }}
-      />
+      <Spin spinning={loading}>
+        <StyledTable
+          dataSource={dataSource.slice(
+            (currentPage - 1) * pageSize,
+            currentPage * pageSize
+          )}
+          columns={columns}
+          pagination={false}
+          scroll={{ x: "max-content" }}
+        />
+      </Spin>
       <CenteredFooter>
         <ResponsivePagination
           current={currentPage}

@@ -4,13 +4,10 @@ import { useParams } from "react-router-dom";
 import {
     Table,
     Button,
-    Modal,
-    Checkbox,
-    message,
-    Input,
     Tag,
-    Typography,
-  } from "antd";
+    Typography, message,
+    Spin, // Import Spin component
+} from "antd";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../Api/axiosConfig";
@@ -18,6 +15,7 @@ import useRetryRequest from "../../../Api/useRetryRequest";
 
 const ManufacturerDetail = () => {
   const [dataSource, setDataSource] = useState([]);
+  const [loading, setLoading] = useState(false); // Add loading state
   const { Title } = Typography;
   const { id } = useParams();
   const retryRequest = useRetryRequest();
@@ -26,6 +24,7 @@ const ManufacturerDetail = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true); // Set loading to true before fetching
       try {
         const response = await retryRequest(() =>
           axiosInstance.get(`/admin/manufacturer/products/${id}`)
@@ -39,6 +38,8 @@ const ManufacturerDetail = () => {
           setDataSource(data);
       } catch (error) {
         console.error("Error fetching manufacturer data:", error);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
       }
     };
     fetchProducts();
@@ -55,6 +56,18 @@ const ManufacturerDetail = () => {
     navigate(`/edit-product/${product.key}`);
   };
 
+  const handleDelete = async (productId, manufacturerId) => {
+    try {
+      console.log("Ids",productId, manufacturerId);
+      const response = await axiosInstance.delete(`/admin/manufacturer/product/${productId}/${manufacturerId}`);
+      message.success(response.data.message);
+      // Refresh the data after successful deletion
+      setDataSource((prev) => prev.filter((item) => item.id !== productId));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      message.error("Failed to delete the product.");
+    }
+  };
   const columns = [
     {
       title: "Product Id",
@@ -84,10 +97,19 @@ const ManufacturerDetail = () => {
       key: "action",
       align: "center",
       render: (_, record) => (
-        <Button onClick={() => handleView(record)}>View</Button>
+        <>
+          <Button onClick={() => handleView(record)}>View</Button>
+          <Button onClick={() => handleDelete(record.id, id)} type="danger" style={{ marginLeft: 8 }}>
+            Delete
+          </Button>
+        </>
       ),
     },
   ];
+
+  const handleAddProduct = () => {
+    navigate(`/manufacturer/products/add/${id}`);
+  };
 
   return (
     <CustomLayout pageTitle="Manufacturer Detail" menuKey="4">
@@ -95,17 +117,19 @@ const ManufacturerDetail = () => {
         Manufacturer's Products
       </Title>
       <div style={{ textAlign: "right" }}>
-        <Button type="primary" size={buttonSize}>
+        <Button onClick={handleAddProduct} type="primary" size={buttonSize}>
           Add Product
         </Button>
       </div>
       <br />
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        scroll={{ x: "max-content" }}
-        onChange={handleTableChange}
-      />
+      <Spin spinning={loading}> {/* Wrap Table with Spin */}
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          scroll={{ x: "max-content" }}
+          onChange={handleTableChange}
+        />
+      </Spin>
     </CustomLayout>
   );
 };

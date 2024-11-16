@@ -136,7 +136,7 @@ const CustomerRoles = () => {
         try {
           await axiosInstance.delete(`${API_BASE_URL}/admin/roles/${record.id}`);
           message.success("Role deleted successfully");
-          fetchCustomerRoles(); 
+          fetchCustomerRoles();
         } catch (error) {
           console.error("Error deleting Role:", error);
           message.error("Failed to delete Role");
@@ -244,13 +244,13 @@ const CustomerRoles = () => {
       {/*To Edit an already existing vendor*/}
       <Modal
         centered
-        title="Edit Vendor"
+        title="Edit Customer"
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
       >
         <Input
-          placeholder="Vendor Name"
+          placeholder="customer Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -267,7 +267,7 @@ const CustomerRoles = () => {
       {/*To add a new vendor*/}
       <Modal
         centered
-        title="Add Vendor"
+        title="Add Customer Role"
         open={isAddModalVisible}
         onOk={addRole}
         onCancel={handleCancel}
