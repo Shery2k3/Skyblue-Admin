@@ -1,3 +1,5 @@
+// @desc This component includes modals for editing, SEO management, New Manufacturer and viewing manufacturer products.
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomLayout from "../../../Components/Layout/Layout";
@@ -37,6 +39,12 @@ const Manufacturers = () => {
   const [editDisocunt, setEditDiscount] = useState(false);
   const [roles, setRoles] = useState([]);
 
+  const [metaDescription, setMetaDescription] = useState(""); // Meta fields state
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaKeywords, setMetaKeywords] = useState("");
+  const [seoPageName, setSeoPageName] = useState(""); // Search engine-friendly page name
+  const [isSEOModalVisible, setIsSEOModalVisible] = useState(false); // SEO modal visibility state
+
   const { confirm } = Modal;
   const { Title, Text } = Typography;
   const { TextArea, Search } = Input; // Use Input.Search
@@ -75,6 +83,7 @@ const Manufacturers = () => {
           params: { name: query },
         })
       );
+      console.log(response.data);
       setDataSource(response.data);
 
       console.log("datad scoure", dataSource);
@@ -209,6 +218,54 @@ const Manufacturers = () => {
     navigate(`/Manufacturer/products/${Manufacturer.id}`);
   };
 
+  const handleSEOClick = (manufacturer) => {
+    console.log("Seo Click", manufacturer);
+    // Open SEO modal and pre-fill fields with selected manufacturer data
+    setSelectedManufacturer(manufacturer);
+    setSeoPageName(manufacturer.name); // Set the search engine-friendly page name
+    setMetaDescription(manufacturer.metaDescription); // Set default meta description
+    setMetaTitle(manufacturer.metaTitle); // Set default meta title
+    setMetaKeywords(manufacturer.metaKeywords); // Empty keywords by default
+    setIsSEOModalVisible(true);
+  };
+
+  const handleSEOModalCancel = () => {
+    setIsSEOModalVisible(false);
+  };
+
+  const handleSEOUpdate = async () => {
+    const payload = {};
+
+    // Only include fields in the payload if they have been modified
+    if (metaDescription !== selectedManufacturer.metaDescription) {
+      payload.MetaDescription = metaDescription;
+    }
+    if (metaTitle !== selectedManufacturer.metaTitle) {
+      payload.MetaTitle = metaTitle;
+    }
+    if (metaKeywords !== selectedManufacturer.metaKeywords) {
+      payload.MetaKeywords = metaKeywords;
+    }
+
+    // If any field was updated, send the request
+    if (Object.keys(payload).length > 0) {
+      try {
+        await axiosInstance.patch(
+          `${API_BASE_URL}/admin/manufacturer/${selectedManufacturer.id}`,
+          payload
+        );
+        message.success("SEO updated successfully");
+        fetchManufacturers(); // Refresh manufacturers data
+      } catch (error) {
+        console.error("Error updating SEO:", error);
+        message.error("Failed to update SEO");
+      }
+    }
+
+    // Close the modal after the update
+    setIsSEOModalVisible(false);
+  };
+
   const columns = [
     {
       title: "Name",
@@ -245,6 +302,13 @@ const Manufacturers = () => {
           </Button>
           <Button onClick={() => handleView(record)} style={{ marginRight: 8 }}>
             View Product
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => handleSEOClick(record)}
+            style={{ marginRight: 8 }}
+          >
+            SEO
           </Button>
           <Button type="primary" onClick={() => handleDelete(record)} danger>
             Delete
@@ -389,6 +453,50 @@ const Manufacturers = () => {
             </Col>
           </Row>
         </div>
+      </Modal>
+
+      {/* SEO Modal */}
+      <Modal
+        centered
+        title="SEO Settings"
+        visible={isSEOModalVisible}
+        onOk={handleSEOUpdate}
+        onCancel={handleSEOModalCancel}
+      >
+        <Row>
+          <Col span={24}>
+            <Text strong>Page Name (SEO-Friendly URL):</Text>
+            <Input value={seoPageName} disabled />
+          </Col>
+        </Row>
+        <Row>
+          <Col span={24}>
+            <Text strong>Meta Title:</Text>
+            <Input
+              value={metaTitle}
+              onChange={(e) => setMetaTitle(e.target.value)}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col span={24}>
+            <Text strong>Meta Description:</Text>
+            <TextArea
+              rows={4}
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col span={24}>
+            <Text strong>Meta Keywords:</Text>
+            <Input
+              value={metaKeywords}
+              onChange={(e) => setMetaKeywords(e.target.value)}
+            />
+          </Col>
+        </Row>
       </Modal>
 
       {/* Modal for adding a manufacturer */}
