@@ -63,38 +63,23 @@ const Manufacturers = () => {
     }
   };
 
- const fetchManufacturers = async (query = "") => {
-  setLoading(true); // Set loading to true before fetching
-  try {
-    const response = await retryRequest(() =>
-      axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`, {
-        params: { name: query },
-      })
-    );
+  const fetchManufacturers = async (query = "") => {
+    setLoading(true); // Set loading to true before fetching
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`, {
+          params: { name: query },
+        })
+      );
+      setDataSource(response.data);
 
-    console.log("Fetched Manufacturers Data:", response.data);
-
-    const data = response.data.map((manufacturer) => ({
-      key: manufacturer.Id,
-      id: manufacturer.Id,
-      name: manufacturer.Name,
-      description: manufacturer.Description,
-      published: manufacturer.Published,
-      displayOrder: manufacturer.DisplayOrder,
-    }));
-
-    console.log("Mapped Data:", data);
-    
-    setDataSource(data); // Set the state with the fetched data
-
-  } catch (error) {
-    console.error("Error fetching manufacturers data:", error);
-    message.error("Failed to fetch manufacturers data");
-  } finally {
-    setLoading(false); // Set loading to false after fetching
-  }
-};
-
+      console.log("datad scoure", dataSource);
+    } catch (error) {
+      console.error("Error fetching manufacturers data:", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
+    }
+  };
 
   const handleAdd = () => {
     setName("");
@@ -134,7 +119,7 @@ const Manufacturers = () => {
     setDescription(manufacturer.description);
     setPublished(manufacturer.published);
     setDisplayOrder(manufacturer.displayOrder);
-    setEditDiscount(manufacturer.discountId);  // Set the discountId
+    setEditDiscount(manufacturer.discountId); // Set the discountId
     setIsModalVisible(true);
   };
 
