@@ -11,11 +11,14 @@ import {
   Tag,
   Typography,
   Spin, // Import Spin component
+  Tooltip,
 } from "antd";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import API_BASE_URL from "../../../constants.js";
 import axiosInstance from "../../../Api/axiosConfig";
 import useRetryRequest from "../../../Api/useRetryRequest";
+
+import { Select } from "antd";
 
 const Manufacturers = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -28,41 +31,70 @@ const Manufacturers = () => {
   const [displayOrder, setDisplayOrder] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false); // Add loading state
+  const [discounts, setDiscounts] = useState([]);
+  const [editDisocunt, setEditDiscount] = useState(false);
 
   const { confirm } = Modal;
   const { Title, Text } = Typography;
   const { TextArea, Search } = Input; // Use Input.Search
+  const { Option } = Select;
   const retryRequest = useRetryRequest();
   const buttonSize = useResponsiveButtonSize();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchManufacturers();
+    fetchDiscounts();
   }, []);
 
-  const fetchManufacturers = async (query = "") => {
-    setLoading(true); // Set loading to true before fetching
+  const fetchDiscounts = async () => {
     try {
-      const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`, {
-          params: { name: query },
-        })
+      const response = await retryRequest(
+        () => axiosInstance.get(`${API_BASE_URL}/admin/alldiscounts`) // Fetch all discounts
       );
-      const data = response.data.map((manufacturer) => ({
-        key: manufacturer.Id,
-        id: manufacturer.Id,
-        name: manufacturer.Name,
-        description: manufacturer.Description,
-        published: manufacturer.Published,
-        displayOrder: manufacturer.DisplayOrder,
-      }));
-      setDataSource(data);
+      // Filter the discounts to only include those with DiscountTypeId 3
+      const filteredDiscounts = response.data.filter(
+        (discount) => discount.DiscountTypeId === 3
+      );
+      setDiscounts(filteredDiscounts); // Set the filtered discounts
     } catch (error) {
-      console.error("Error fetching manufacturers data:", error);
-    } finally {
-      setLoading(false); // Set loading to false after fetching
+      console.error("Error fetching discounts:", error);
+      message.error("Failed to fetch discounts");
     }
   };
+
+ const fetchManufacturers = async (query = "") => {
+  setLoading(true); // Set loading to true before fetching
+  try {
+    const response = await retryRequest(() =>
+      axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`, {
+        params: { name: query },
+      })
+    );
+
+    console.log("Fetched Manufacturers Data:", response.data);
+
+    const data = response.data.map((manufacturer) => ({
+      key: manufacturer.Id,
+      id: manufacturer.Id,
+      name: manufacturer.Name,
+      description: manufacturer.Description,
+      published: manufacturer.Published,
+      displayOrder: manufacturer.DisplayOrder,
+    }));
+
+    console.log("Mapped Data:", data);
+    
+    setDataSource(data); // Set the state with the fetched data
+
+  } catch (error) {
+    console.error("Error fetching manufacturers data:", error);
+    message.error("Failed to fetch manufacturers data");
+  } finally {
+    setLoading(false); // Set loading to false after fetching
+  }
+};
+
 
   const handleAdd = () => {
     setName("");
@@ -96,11 +128,13 @@ const Manufacturers = () => {
   };
 
   const handleEdit = (manufacturer) => {
+    console.log("manufacturer", manufacturer);
     setSelectedManufacturer(manufacturer);
     setName(manufacturer.name);
     setDescription(manufacturer.description);
     setPublished(manufacturer.published);
     setDisplayOrder(manufacturer.displayOrder);
+    setEditDiscount(manufacturer.discountId);  // Set the discountId
     setIsModalVisible(true);
   };
 
@@ -117,6 +151,9 @@ const Manufacturers = () => {
     }
     if (displayOrder !== selectedManufacturer.displayOrder) {
       payload.DisplayOrder = displayOrder || 0;
+    }
+    if (editDisocunt !== selectedManufacturer.discountId) {
+      payload.DiscountId = editDisocunt;
     }
 
     if (Object.keys(payload).length > 0) {
@@ -173,7 +210,7 @@ const Manufacturers = () => {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      fixed: 'left',
+      fixed: "left",
     },
     {
       title: "Published",
@@ -235,7 +272,9 @@ const Manufacturers = () => {
         </Button>
       </div>
       <br />
-      <Spin spinning={loading}> {/* Wrap Table with Spin */}
+      <Spin spinning={loading}>
+        {" "}
+        {/* Wrap Table with Spin */}
         <Table
           dataSource={dataSource}
           columns={columns}
@@ -267,6 +306,27 @@ const Manufacturers = () => {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+        <br />
+        <br />
+
+        <Text>Discount:</Text>
+        <Tooltip title="Select a discount to apply to this manufacturer. You can manage discounts by selecting dicounts on Promotion menu.">
+          <span style={{ cursor: "pointer", marginLeft: 8 }}>?</span>
+        </Tooltip>
+
+        <Select
+          placeholder="Select Discount"
+          value={editDisocunt}
+          onChange={(value) => setEditDiscount(value)}
+          style={{ width: "100%" }}
+        >
+          {discounts.map((discount) => (
+            <Option key={discount.Id} value={discount.Id}>
+              {discount.Name} ${discount.DiscountAmount}
+            </Option>
+          ))}
+        </Select>
+
         <br />
         <br />
         <Text>Display Order:</Text>
