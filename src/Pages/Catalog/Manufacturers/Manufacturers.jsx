@@ -12,6 +12,8 @@ import {
   Typography,
   Spin, // Import Spin component
   Tooltip,
+  Row,
+  Col,
 } from "antd";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import API_BASE_URL from "../../../constants.js";
@@ -33,6 +35,7 @@ const Manufacturers = () => {
   const [loading, setLoading] = useState(false); // Add loading state
   const [discounts, setDiscounts] = useState([]);
   const [editDisocunt, setEditDiscount] = useState(false);
+  const [roles, setRoles] = useState([]);
 
   const { confirm } = Modal;
   const { Title, Text } = Typography;
@@ -45,6 +48,7 @@ const Manufacturers = () => {
   useEffect(() => {
     fetchManufacturers();
     fetchDiscounts();
+    fetchCustomerRoles();
   }, []);
 
   const fetchDiscounts = async () => {
@@ -78,6 +82,21 @@ const Manufacturers = () => {
       console.error("Error fetching manufacturers data:", error);
     } finally {
       setLoading(false); // Set loading to false after fetching
+    }
+  };
+
+  const fetchCustomerRoles = async () => {
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get("/admin/roles")
+      );
+      const data = response.data.map((role) => ({
+        id: role.Id,
+        name: role.Name,
+      }));
+      setRoles(data);
+    } catch (error) {
+      console.error("Error fetching roles:", error);
     }
   };
 
@@ -275,60 +294,101 @@ const Manufacturers = () => {
         onOk={updateManufacturer}
         onCancel={handleCancel}
       >
-        <br />
-        <Text>Manufacturer Name:</Text>
-        <Input
-          placeholder="Manufacturer Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <br />
-        <br />
-        <Text>Description:</Text>
-        <TextArea
-          rows={10}
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <br />
-        <br />
+        <div style={{ padding: "20px" }}>
+          {/* Manufacturer Name */}
+          <Row>
+            <Col span={24}>
+              <Text strong>Manufacturer Name:</Text>
+              <Input
+                placeholder="Enter Manufacturer Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                style={{ marginBottom: "15px" }}
+              />
+            </Col>
+          </Row>
 
-        <Text>Discount:</Text>
-        <Tooltip title="Select a discount to apply to this manufacturer. You can manage discounts by selecting dicounts on Promotion menu.">
-          <span style={{ cursor: "pointer", marginLeft: 8 }}>?</span>
-        </Tooltip>
+          {/* Description */}
+          <Row>
+            <Col span={24}>
+              <Text strong>Description:</Text>
+              <TextArea
+                rows={5}
+                placeholder="Enter Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{ marginBottom: "15px" }}
+              />
+            </Col>
+          </Row>
 
-        <Select
-          placeholder="Select Discount"
-          value={editDisocunt}
-          onChange={(value) => setEditDiscount(value)}
-          style={{ width: "100%" }}
-        >
-          {discounts.map((discount) => (
-            <Option key={discount.Id} value={discount.Id}>
-              {discount.Name} ${discount.DiscountAmount}
-            </Option>
-          ))}
-        </Select>
+          {/* Discount Selection */}
+          <Row>
+            <Col span={24}>
+              <Text strong>Discount:</Text>
+              <Tooltip title="Select a discount to apply to this manufacturer. You can manage discounts by selecting discounts on the Promotion menu.">
+                <span style={{ cursor: "pointer", marginLeft: 8 }}>?</span>
+              </Tooltip>
+              <Select
+                placeholder="Select Discount"
+                value={editDisocunt}
+                onChange={(value) => setEditDiscount(value)}
+                style={{ width: "100%", marginBottom: "15px" }}
+              >
+                {discounts.map((discount) => (
+                  <Option key={discount.Id} value={discount.Id}>
+                    {discount.Name} ${discount.DiscountAmount}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+          </Row>
 
-        <br />
-        <br />
-        <Text>Display Order:</Text>
-        <Input
-          placeholder="Display Order"
-          type="number"
-          value={displayOrder}
-          onChange={(e) => setDisplayOrder(parseInt(e.target.value))}
-        />
-        <br />
-        <br />
-        <Checkbox
-          checked={published}
-          onChange={(e) => setPublished(e.target.checked)}
-        >
-          Published
-        </Checkbox>
+          {/* Limited to Customers */}
+          <Row>
+            <Col span={24}>
+              <Text strong>Limited to Customers:</Text>
+              <Select
+                placeholder="Select Customer Role"
+                style={{ width: "100%", marginBottom: "15px" }}
+              >
+                <Option value="0">All</Option>
+                {roles.map((role) => (
+                  <Option key={role.id} value={role.id}>
+                    {role.name}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+          </Row>
+
+          {/* Display Order */}
+          <Row>
+            <Col span={24}>
+              <Text strong>Display Order:</Text>
+              <Input
+                placeholder="Enter Display Order"
+                type="number"
+                value={displayOrder}
+                onChange={(e) => setDisplayOrder(parseInt(e.target.value))}
+                style={{ marginBottom: "15px" }}
+              />
+            </Col>
+          </Row>
+
+          {/* Published Checkbox */}
+          <Row>
+            <Col span={24}>
+              <Checkbox
+                checked={published}
+                onChange={(e) => setPublished(e.target.checked)}
+                style={{ marginBottom: "15px" }}
+              >
+                Published
+              </Checkbox>
+            </Col>
+          </Row>
+        </div>
       </Modal>
 
       {/* Modal for adding a manufacturer */}
