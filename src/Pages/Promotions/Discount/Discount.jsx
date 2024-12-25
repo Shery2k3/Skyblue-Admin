@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../../Api/axiosConfig"; // Import the custom Axios instance
 import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 import dayjs from "dayjs";
+import EditDiscount from "./EditDiscount";
+import {useNavigate } from "react-router-dom";
 
 const Discounts = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -21,6 +23,8 @@ const Discounts = () => {
   const [type, setType] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+
+  const navigate = useNavigate();
 
   const retryRequest = useRetryRequest(); // Use the retry logic hook
   const { Title } = Typography;
@@ -95,10 +99,12 @@ const Discounts = () => {
   };
 
   const handleEdit = (discount) => {
-    setSelectedDiscount(discount);
-    setName(discount.name);
-    setAmount(parseFloat(discount.discount.replace("$", "")));
-    setIsModalVisible(true);
+    navigate(`/edit-discounts/${discount.id}`);
+    // console.log(discount);
+    // setSelectedDiscount(discount);
+    // setName(discount.name);
+    // setAmount(parseFloat(discount.discount.replace("$", "")));
+    // setIsModalVisible(true);
   };
 
   const handleDelete = async (discount) => {
@@ -258,32 +264,7 @@ const Discounts = () => {
       )}
 
       {/* Edit existing discount */}
-      <Modal
-        centered
-        title="Edit Discount Details"
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <br />
-        <Input
-          placeholder="Discount Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <br />
-        <br />
-        <InputNumber
-          value={amount}
-          placeholder="Discount Amount"
-          formatter={(value) =>
-            `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-          }
-          parser={(value) => value?.replace(/\$\s?|(,*)/g, "")}
-          onChange={(value) => setAmount(value)} // Directly use the value
-          style={{ width: "100%" }}
-        />
-      </Modal>
+      
 
       {/* Add new discount */}
       <Modal

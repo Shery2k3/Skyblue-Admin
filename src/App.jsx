@@ -35,6 +35,7 @@ import Campaign from './Pages/Promotions/Campaign/Campaign';
 import Editcampaign from './Pages/Promotions/Campaign/Sections/Editcampaign';
 import Createcampaign from './Pages/Promotions/Campaign/Sections/Createcampaign';
 import AddProductManufacturer from './Pages/Catalog/Manufacturers/AddProductManufacturer';
+import EditDiscount from './Pages/Promotions/Discount/EditDiscount';
 
 
 function App() {
@@ -77,6 +78,7 @@ function App() {
 
         {/* Promotions */}
         <Route path="/discounts" element={<ProtectedRoute element={Discounts} />} />
+        <Route path="/edit-discounts/:id" element={<ProtectedRoute element={EditDiscount} />} />
         <Route path="/email" element={<ProtectedRoute element={Email} />} />
         <Route path="/flyer" element={<ProtectedRoute element={Flyer} />} />
         <Route path="/addflyer" element={<ProtectedRoute element={AddFlyer} />} />
