@@ -11,8 +11,12 @@ import {
   Modal,
   message,
   Select,
+  Row,
+  Col,
+  Flex,
 } from "antd";
 import {
+  ArrowLeftOutlined,
   DeleteOutlined,
   EditOutlined,
   ZoomInOutlined,
@@ -300,162 +304,74 @@ const CategoryDetails = () => {
   ];
   return (
     <CustomLayout pageTitle="catagories" menuKey="2">
-      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
-        Categories
-      </Title>
-      <Select
-        placeholder="Select a category"
-        onChange={handleCategoryChange}
-        style={{ width: 200 }}
-        onKeyDown={handleKeyPress}
-      >
-        {dataSource.map((category) => (
-          <Select.Option key={category.id} value={category.id}>
-            {category.name}
-          </Select.Option>
-        ))}
-      </Select>
-      {/* <div
-        style={{
-          marginBottom: 24,
-          display: "flex",
-          justifyContent: "center",
-          flexWrap: "wrap",
-        }}
-      >
-        <Space
-          size={buttonSize}
-          align="center"
-          style={{ justifyContent: "center" }}
-          wrap
-        >
-          <Input
-            placeholder="Category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            onKeyDown={handleKeyPress}
-            style={{ width: isSmallScreen ? "100%" : 200 }}
-            prefix={<SearchOutlined />}
-          />
-          <Input
-            placeholder="Product"
-            value={product}
-            onChange={(e) => setProduct(e.target.value)}
-            onKeyDown={handleKeyPress}
-            style={{ width: isSmallScreen ? "100%" : 200 }}
-            prefix={<SearchOutlined />}
-          />
-          <Select
-            placeholder={
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <SearchOutlined style={{ color: "black" }} />
-                <p style={{ margin: 0, paddingLeft: "5px" }}>Manufacturer</p>
-              </div>
-            }
-            value={selectedManufacturer}
-            onChange={handleManufacturerChange}
-            style={{ width: 200 }}
+      <Row gutter={[16, 16]}>
+        <Col span={24}>
+          <Title level={2} style={{ textAlign: "center" }}>
+            Categories
+          </Title>
+        </Col>
+        <Col span={24}>
+          <Flex gap={12} justifyContent="center" alignItems="center">
+            <ArrowLeftOutlined onClick={() => navigate(-1)} />
+            <Select
+              placeholder="Select a category"
+              onChange={handleCategoryChange}
+              style={{ width: isSmallScreen ? "100%" : 200 }}
+              defaultValue={Number(id)} // Add this line
+              onKeyDown={handleKeyPress}
+            >
+              {dataSource.map((category) => (
+                <Select.Option key={category.id} value={category.id}>
+                  {category.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Flex>
+        </Col>
+        <Col span={24}>
+          <Card
+            style={{
+              borderRadius: "8px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            }}
           >
-            <Select.Option value={null}>
-              <span style={{ color: "red" }}>Remove Manufacturer</span>
-            </Select.Option>
-            {manufacturers.map((manufacturer) => (
-              <Select.Option key={manufacturer.Id} value={manufacturer.Id}>
-                {manufacturer.Name}
-              </Select.Option>
-            ))}
-          </Select>
-          <Select
-            placeholder={
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <SearchOutlined style={{ color: "black" }} />
-                <p style={{ margin: 0, paddingLeft: "5px" }}>Vendor</p>
-              </div>
-            }
-            value={selectedVendor}
-            onChange={handleVendorChange}
-            style={{ width: 200 }}
-          >
-            <Select.Option value={null}>
-              <span style={{ color: "red" }}>Remove Vendor</span>
-            </Select.Option>
-            {vendors.map((vendor) => (
-              <Select.Option key={vendor.Id} value={vendor.Id}>
-                {vendor.Name}
-              </Select.Option>
-            ))}
-          </Select>
-          <Select
-            value={published}
-            onChange={(value) => setPublished(value)}
-            style={{ width: isSmallScreen ? "100%" : 200 }}
-          >
-            <Option value="1">Published</Option>
-            <Option value="0">Unpublished</Option>
-            <Option value="">All</Option>
-          </Select>
-          <Button
-            type="primary"
-            onClick={handleSearch}
-            icon={<SearchOutlined />}
-            style={{ width: isSmallScreen ? "100%" : "auto" }}
-          >
-            Search
-          </Button>
-        </Space>
-      </div>
-      <div
-        style={{
-          textAlign: "right",
-          marginTop: "40px",
-          marginBottom: "20px",
-          float: "center",
-        }}
-      >
-        <Button
-          type="primary"
-          onClick={() => navigate("/edit-product")}
-          size="small"
-        >
-          Add Product
-        </Button>
-      </div> */}
-      <Card
-        style={{ borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
-      >
-        <Table
-          columns={columns}
-          dataSource={products}
-          loading={loading}
-          rowKey="Id"
-          pagination={false}
-          scroll={{ x: "max-content" }}
-          style={{ marginBottom: 24 }}
-        />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            paddingBottom: "20px",
-          }}
-        >
-          <Pagination
-            current={currentPage}
-            total={totalItems}
-            pageSize={20}
-            onChange={handlePageChange}
-            showSizeChanger={false}
-            showQuickJumper
-            size={isSmallScreen ? "small" : "default"}
-            simple={isSmallScreen}
-          />
-        </div>
-      </Card>
-      {error && (
-        <div style={{ color: "red", textAlign: "center", marginTop: 16 }}>
-          {error.message}
-        </div>
-      )}
+            <Table
+              columns={columns}
+              dataSource={products}
+              loading={loading}
+              rowKey="Id"
+              pagination={false}
+              scroll={{ x: "max-content" }}
+              style={{ marginBottom: 24 }}
+            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                paddingBottom: "20px",
+              }}
+            >
+              <Pagination
+                current={currentPage}
+                total={totalItems}
+                pageSize={20}
+                onChange={handlePageChange}
+                showSizeChanger={false}
+                showQuickJumper
+                size={isSmallScreen ? "small" : "default"}
+                simple={isSmallScreen}
+              />
+            </div>
+          </Card>
+        </Col>
+        <Col span={24}>
+          {error && (
+            <div style={{ color: "red", textAlign: "center", marginTop: 16 }}>
+              {error.message}
+            </div>
+          )}
+        </Col>
+      </Row>
       <Modal
         open={isModalVisible}
         footer={null}
