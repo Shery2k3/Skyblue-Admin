@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Modal, Table, Space, message, Input, Checkbox } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../../Api/axiosConfig';
 import useRetryRequest from '../../../../Api/useRetryRequest';
 import debounce from 'lodash/debounce';
@@ -11,6 +11,7 @@ import debounce from 'lodash/debounce';
 const AppliedToCategory = () => {
   const { id: discountId } = useParams();
   const retryRequest = useRetryRequest();
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -61,6 +62,32 @@ const AppliedToCategory = () => {
     }
   };
 
+  // Add new function to fetch applied discounts
+  const fetchAppliedDiscounts = async () => {
+    setLoading(true);
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`/admin/get-discount-to-category/${discountId}`)
+      );
+      
+      if (response.data?.success) {
+        setAppliedCategories(response.data.result.map(category => ({
+          key: category.Category_Id,
+          categoryId: category.Category_Id,
+          categoryName: category.Name,
+          discountId: category.Discount_Id
+        })));
+        // Remove this line as we don't want to pre-select applied categories
+        // setSelectedCategories(response.data.result.map(cat => cat.Category_Id));
+      }
+    } catch (error) {
+      console.error("Error fetching applied discounts:", error);
+      message.error("Failed to fetch applied categories");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Debounced search
   const debouncedSearch = useCallback(
     debounce((value) => {
@@ -85,13 +112,15 @@ const AppliedToCategory = () => {
     setLoading(true);
     try {
       await retryRequest(() =>
-        axiosInstance.post(`/admin/applyDiscountToCategory/${discountId}`, {
+        {axiosInstance.post(`/admin/applyDiscountToCategory/${discountId}`, {
           categoryIds: selectedCategories
-        })
+        });
+        console.log(selectedCategories)
+        }
       );
       message.success('Discount applied successfully');
       setIsModalOpen(false);
-      setSelectedCategories([]);
+      fetchAppliedDiscounts(); // Refresh the list after applying
     } catch (error) {
       console.error("Error applying discount:", error);
       message.error("Failed to apply discount");
@@ -119,17 +148,24 @@ const AppliedToCategory = () => {
     {
       title: 'Select',
       key: 'select',
-      render: (_, record) => (
-        <Checkbox
-          checked={selectedCategories.includes(record.id)}
-          onChange={() => handleSelectionChange(record.id)}
-        />
-      ),
+      render: (_, record) => {
+        const isAlreadyApplied = appliedCategories.some(
+          cat => cat.categoryId === record.id
+        );
+        return (
+          <Checkbox
+            checked={isAlreadyApplied || selectedCategories.includes(record.id)}
+            disabled={isAlreadyApplied}
+            onChange={() => handleSelectionChange(record.id)}
+          />
+        );
+      },
     }
   ];
 
   useEffect(() => {
     fetchCategories();
+    fetchAppliedDiscounts();
   }, []);
 
   // Table columns for applied categories
@@ -144,21 +180,40 @@ const AppliedToCategory = () => {
       key: 'action',
       render: (_, record) => (
         <Space>
-          <Button type="link" onClick={() => handleViewProduct(record)}>View</Button>
-          <Button type="link" danger onClick={() => handleDeleteDiscount(record.discountId)}>Delete</Button>
+          <Button type="link" onClick={() => handleViewProduct(record)}>
+            View
+          </Button>
+          <Button 
+            type="link" 
+            danger 
+            onClick={() => handleDeleteDiscount(record.categoryId)}
+          >
+            Delete
+          </Button>
         </Space>
       ),
     },
   ];
 
   const handleViewProduct = (record) => {
-    console.log("Viewing product:", record);
+    navigate(`/category`); // Assuming you have a category view page
   };
 
   // Function to delete a discount from a category
-  const handleDeleteDiscount = (discountId) => {
-    setAppliedCategories(appliedCategories.filter(cat => cat.discountId !== discountId));
-    message.success('Discount removed');
+  const handleDeleteDiscount = async (categoryId) => {
+    try {
+      await retryRequest(() =>
+        axiosInstance.delete(`/admin/remove-discount-from-category/${discountId}`, {
+          data: { categoryIds: [categoryId] }
+        })
+      );
+      
+      message.success('Discount removed successfully');
+      fetchAppliedDiscounts(); // Refresh the list
+    } catch (error) {
+      console.error("Error removing discount:", error);
+      message.error("Failed to remove discount");
+    }
   };
 
   return (
