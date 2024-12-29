@@ -89,7 +89,7 @@ const EditDiscount = () => {
             <AppliedToProduct />
           ) : datasource?.DiscountTypeId === 5 ? (
             <AppliedToCategory />
-          ) : datasource?.DiscountTypeId ===3? (
+          ) : datasource?.DiscountTypeId === 3 ? (
             <AppliedToManufacturer/>
           ): (
             <div>No specific application type</div>
