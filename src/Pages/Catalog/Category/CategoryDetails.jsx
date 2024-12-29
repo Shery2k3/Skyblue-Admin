@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
-  Input,
   Button,
   Pagination,
   Tag,
@@ -11,9 +10,9 @@ import {
   Popconfirm,
   Modal,
   message,
+  Select,
 } from "antd";
 import {
-  SearchOutlined,
   DeleteOutlined,
   EditOutlined,
   ZoomInOutlined,
@@ -29,11 +28,9 @@ const { Title, Text } = Typography;
 
 const CategoryDetails = () => {
   const { id } = useParams();
-  const [catagoryId, setCatagoryId] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [category, setCategory] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -43,7 +40,6 @@ const CategoryDetails = () => {
   const retryRequest = useRetryRequest();
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
   const [dataSource, setDataSource] = useState([]);
-
   const flattenCategories = (categories, parentPath = "", level = 0) => {
     let flatData = [];
     categories.forEach((category) => {
@@ -86,12 +82,23 @@ const CategoryDetails = () => {
       setLoading(false); // Set loading to false
     }
   };
-  const fetchProducts = async (page = 1) => {
+
+  useEffect(() => {
+    if (dataSource && dataSource.length > 0) {
+      const matchedCategory = dataSource.find((item) => item.id === Number(id));
+      if (matchedCategory) {
+        fetchProducts(id);
+      } else {
+        navigate("/categories/");
+      }
+    }
+  }, [id, dataSource]);
+  const fetchProducts = async (catagoryId, page = 1) => {
     setLoading(true);
     try {
       if (id) {
         const params = {
-          category,
+          categoryId: catagoryId,
           size: 20,
           page,
         };
@@ -111,15 +118,9 @@ const CategoryDetails = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
-    fetchProducts();
     fetchCategories();
   }, []);
-
-  const handleSearch = () => {
-    fetchProducts(1);
-  };
 
   const handlePageChange = (page) => {
     fetchProducts(page);
@@ -128,7 +129,7 @@ const CategoryDetails = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      handleSearch();
+      handleCategoryChange();
     }
   };
 
@@ -145,6 +146,9 @@ const CategoryDetails = () => {
   const handleImageClick = (imageUrl) => {
     setSelectedImage(imageUrl);
     setIsModalVisible(true);
+  };
+  const handleCategoryChange = (value) => {
+    fetchProducts(value);
   };
   const columns = [
     {
@@ -294,29 +298,23 @@ const CategoryDetails = () => {
       ),
     },
   ];
-  useEffect(() => {
-    if (dataSource && dataSource.length > 0) {
-      const matchedCategory = dataSource.find((item) => item.id === Number(id));
-      if (matchedCategory) {
-        setCatagoryId(id);
-      } else {
-        navigate("/categories/");
-      }
-    }
-  }, [id, dataSource]);
   return (
     <CustomLayout pageTitle="catagories" menuKey="2">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
-        Catagories
+        Categories
       </Title>
-      <Input
-        placeholder="Category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
+      <Select
+        placeholder="Select a category"
+        onChange={handleCategoryChange}
+        style={{ width: 200 }}
         onKeyDown={handleKeyPress}
-        style={{ width: isSmallScreen ? "100%" : 200 }}
-        prefix={<SearchOutlined />}
-      />
+      >
+        {dataSource.map((category) => (
+          <Select.Option key={category.id} value={category.id}>
+            {category.name}
+          </Select.Option>
+        ))}
+      </Select>
       {/* <div
         style={{
           marginBottom: 24,

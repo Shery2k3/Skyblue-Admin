@@ -1,9 +1,18 @@
-import { Button, Descriptions, Divider, Input, Space, message, Spin, Select } from "antd";
+import {
+  Button,
+  Descriptions,
+  Divider,
+  Input,
+  Space,
+  message,
+  Spin,
+  Select,
+} from "antd";
 import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import axiosInstance from "../../../../Api/axiosConfig"; // Adjust the import as necessary
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -11,10 +20,8 @@ const Order = ({ orderDetail }) => {
   const [isEditing, setIsEditing] = useState(false); // Toggle edit mode
   const [editedOrder, setEditedOrder] = useState(orderDetail); // Local state for edits
   const [loading, setLoading] = useState(false); // For showing spinner during save
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate(); // Initialize useNavigate
-
-
 
   // Status Mapping for `orderStatusId`
   const statusMapping = {
@@ -42,27 +49,28 @@ const Order = ({ orderDetail }) => {
   const handleSave = async () => {
     setLoading(true); // Start spinner
     try {
-      console.log("id", id);
-      const status = editedOrder.find(item => item.label === "Order Status")?.children;
-
-      console.log("Order ID", id, "Status", status);
+      const status = editedOrder.find(
+        (item) => item.label === "Order Status"
+      )?.children;
 
       if (status) {
-        console.log("status", status);
         await axiosInstance.patch(`/admin/editOrder/${id}`, { status });
         message.success("Order status updated successfully");
       }
 
-      const shippingMethod = editedOrder.find(item => item.label === "Shipping Method")?.children;
+      const shippingMethod = editedOrder.find(
+        (item) => item.label === "Shipping Method"
+      )?.children;
       if (shippingMethod) {
-        await axiosInstance.patch(`/admin/orders/${id}/shipping-info`, { shippingMethod });
+        await axiosInstance.patch(`/admin/orders/${id}/shipping-info`, {
+          shippingMethod,
+        });
         message.success("Shipping method updated successfully");
       }
 
       setIsEditing(false); // Exit edit mode after successful save
     } catch (error) {
       message.error("Failed to update order");
-      console.log("Something went wrong", error);
     } finally {
       setLoading(false); // Stop spinner
     }
@@ -98,7 +106,9 @@ const Order = ({ orderDetail }) => {
               </Select>
             ) : item.label === "Order Status" ? (
               statusMapping[item.children] || "Unknown Status"
-            ) : isEditing && item.label !== "Order #" && item.label !== "Order GUID" ? (
+            ) : isEditing &&
+              item.label !== "Order #" &&
+              item.label !== "Order GUID" ? (
               <Input
                 value={item.children}
                 onChange={(e) => handleInputChange(e.target.value, item.key)}

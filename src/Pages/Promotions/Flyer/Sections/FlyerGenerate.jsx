@@ -82,7 +82,6 @@ const FlyerGenerate = () => {
   // Handle End Date change
   const handleEndDateChange = (date) => {
     setEndDate(date);
-    console.log(end);
   };
 
   // Handle price role selection change

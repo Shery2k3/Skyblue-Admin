@@ -141,7 +141,9 @@ const EditProduct = () => {
       const discountName = discount ? discount.Name : "";
 
       // Find the manufacturer name
-      const manufacturer = manufacturers.find(m => m.Id === product.Manufacturer?.Id);
+      const manufacturer = manufacturers.find(
+        (m) => m.Id === product.Manufacturer?.Id
+      );
       const manufacturerName = manufacturer ? manufacturer.Name : "";
 
       const formValues = {
@@ -167,7 +169,7 @@ const EditProduct = () => {
         DiscountId: discountId,
         DiscountName: discountName,
         ManufacturerId: product.Manufacturer?.Id || null,
-        ManufacturerName: manufacturerName
+        ManufacturerName: manufacturerName,
       };
 
       // Set tier prices
@@ -189,7 +191,10 @@ const EditProduct = () => {
     try {
       const updatedFields = {};
       Object.keys(values).forEach((key) => {
-        if (key === 'ManufacturerId' && values['ManufacturerId'] !== null || values[key] !== initialValues[key]) {
+        if (
+          (key === "ManufacturerId" && values["ManufacturerId"] !== null) ||
+          values[key] !== initialValues[key]
+        ) {
           updatedFields[key] = values[key];
         }
       });
@@ -217,13 +222,7 @@ const EditProduct = () => {
         formData.append("images", newImage);
       }
 
-      // Log the form data
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ": " + pair[1]);
-      }
-
       if (id) {
-        console.log(formData)
         await axiosInstance.patch(
           `${API_BASE_URL}/admin/product/${id}`,
           formData,
@@ -431,18 +430,23 @@ const EditProduct = () => {
                 style={styles.formItem}
               >
                 <Select
-                  placeholder={initialValues.ManufacturerName || "Select a manufacturer"}
+                  placeholder={
+                    initialValues.ManufacturerName || "Select a manufacturer"
+                  }
                   onChange={(value) => {
                     if (value === 0) {
                       form.setFieldsValue({ ManufacturerId: 0 });
                     }
                   }}
                   style={{
-                    width: '200px',
-                    borderColor: form.getFieldValue('ManufacturerId') === 0 ? '#ff4d4f' : undefined,
+                    width: "200px",
+                    borderColor:
+                      form.getFieldValue("ManufacturerId") === 0
+                        ? "#ff4d4f"
+                        : undefined,
                   }}
                 >
-                  <Option key={0} value={0} style={{ color: 'red' }}>
+                  <Option key={0} value={0} style={{ color: "red" }}>
                     Clear Manufacturer
                   </Option>
                   {manufacturers.map((manufacturer) => (
@@ -451,8 +455,8 @@ const EditProduct = () => {
                     </Option>
                   ))}
                 </Select>
-                {form.getFieldValue('ManufacturerId') === 0 && (
-                  <Typography.Text type="danger" style={{ marginLeft: '8px' }}>
+                {form.getFieldValue("ManufacturerId") === 0 && (
+                  <Typography.Text type="danger" style={{ marginLeft: "8px" }}>
                     Manufacturer will be removed on update
                   </Typography.Text>
                 )}

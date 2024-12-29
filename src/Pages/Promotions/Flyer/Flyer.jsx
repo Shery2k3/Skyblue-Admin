@@ -34,7 +34,6 @@ const Flyer = () => {
         const response = await retryRequest(() =>
           axiosInstance.get("/admin/flyers/all-flyers")
         );
-        console.log("response", response.data);
         setFlyers(response.data.flyers);
       } catch (error) {
         console.error("Error fetching flyers:", error);

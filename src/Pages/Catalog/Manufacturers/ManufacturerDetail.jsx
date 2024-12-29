@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import CustomLayout from "../../../Components/Layout/Layout";
 import { useParams } from "react-router-dom";
 import {
-    Table,
-    Button,
-    Tag,
-    Typography, message,
-    Spin, // Import Spin component
+  Table,
+  Button,
+  Tag,
+  Typography,
+  message,
+  Spin, // Import Spin component
 } from "antd";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { useNavigate } from "react-router-dom";
@@ -30,12 +31,12 @@ const ManufacturerDetail = () => {
           axiosInstance.get(`/admin/manufacturer/products/${id}`)
         );
         const data = response.data.map((product) => ({
-            key: product.Id,
-            id: product.Id,
-            name: product.Name,
-            isFeatured: product.IsFeaturedProduct,
-          }));
-          setDataSource(data);
+          key: product.Id,
+          id: product.Id,
+          name: product.Name,
+          isFeatured: product.IsFeaturedProduct,
+        }));
+        setDataSource(data);
       } catch (error) {
         console.error("Error fetching manufacturer data:", error);
       } finally {
@@ -48,7 +49,7 @@ const ManufacturerDetail = () => {
   const handleTableChange = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
   };
 
@@ -58,13 +59,13 @@ const ManufacturerDetail = () => {
 
   const handleDelete = async (productId, manufacturerId) => {
     try {
-      console.log("Ids",productId, manufacturerId);
-      const response = await axiosInstance.delete(`/admin/manufacturer/product/${productId}/${manufacturerId}`);
+      const response = await axiosInstance.delete(
+        `/admin/manufacturer/product/${productId}/${manufacturerId}`
+      );
       message.success(response.data.message);
       // Refresh the data after successful deletion
       setDataSource((prev) => prev.filter((item) => item.id !== productId));
     } catch (error) {
-      console.error("Error deleting product:", error);
       message.error("Failed to delete the product.");
     }
   };
@@ -99,7 +100,11 @@ const ManufacturerDetail = () => {
       render: (_, record) => (
         <>
           <Button onClick={() => handleView(record)}>View</Button>
-          <Button onClick={() => handleDelete(record.id, id)} type="danger" style={{ marginLeft: 8 }}>
+          <Button
+            onClick={() => handleDelete(record.id, id)}
+            type="danger"
+            style={{ marginLeft: 8 }}
+          >
             Delete
           </Button>
         </>
@@ -122,7 +127,9 @@ const ManufacturerDetail = () => {
         </Button>
       </div>
       <br />
-      <Spin spinning={loading}> {/* Wrap Table with Spin */}
+      <Spin spinning={loading}>
+        {" "}
+        {/* Wrap Table with Spin */}
         <Table
           dataSource={dataSource}
           columns={columns}

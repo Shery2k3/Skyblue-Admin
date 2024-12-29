@@ -75,7 +75,6 @@ const Product = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/product/search`, { params })
       );
-      // console.log("response", response.data.products);
       setProducts(response.data.products);
       setTotalItems(response.data.totalItems);
       setCurrentPage(response.data.currentPage);
@@ -287,7 +286,6 @@ const Product = () => {
             type="link"
             icon={<EditOutlined />}
             onClick={() => {
-              console.log(`Navigating to /edit-product/${record.Id}`);
               navigate(`/edit-product/${record.Id}`);
             }}
           >
