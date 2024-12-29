@@ -15,6 +15,7 @@ import {
   TagOutlined,
   MailOutlined,
   NotificationOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { Menu } from "antd";
@@ -52,10 +53,23 @@ const routeItems = [
       },
     ],
   },
+ 
   {
-    key: "6",
+    key: "sub6", 
     icon: <ShopOutlined />,
-    label: <Link to="/vendors">Vendors</Link>,
+    label: "Vendor Orders", 
+    children: [ 
+      {
+        key: "6",
+        icon: <ShopOutlined />,
+        label: <Link to="/vendors">Vendors</Link>,
+      },
+      {
+        key: "20",
+        icon: <EditOutlined />,
+        label: <Link to="/bulk-edit">Bulk Edit</Link>,
+      },
+    ],
   },
   {
     key: "sub2",

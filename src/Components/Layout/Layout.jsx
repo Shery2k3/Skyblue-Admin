@@ -90,6 +90,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
       sub3: ["10", "11", "12", "13"],
       sub4: ["14", "15", "16", "17"],
       sub5: ["18", "19"],
+      sub6: ["6", "20"],
     };
     for (const submenu in submenuKeys) {
       if (submenuKeys[submenu].includes(key)) {
