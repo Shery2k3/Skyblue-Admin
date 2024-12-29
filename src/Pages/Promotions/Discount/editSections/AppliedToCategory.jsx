@@ -19,6 +19,7 @@ const AppliedToCategory = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [tableLoading, setTableLoading] = useState(false);
 
   // Flatten categories helper function
   const flattenCategories = (categories, parentPath = "") => {
@@ -64,7 +65,7 @@ const AppliedToCategory = () => {
 
   // Add new function to fetch applied discounts
   const fetchAppliedDiscounts = async () => {
-    setLoading(true);
+    setTableLoading(true);
     try {
       const response = await retryRequest(() =>
         axiosInstance.get(`/admin/get-discount-to-category/${discountId}`)
@@ -77,14 +78,12 @@ const AppliedToCategory = () => {
           categoryName: category.Name,
           discountId: category.Discount_Id
         })));
-        // Remove this line as we don't want to pre-select applied categories
-        // setSelectedCategories(response.data.result.map(cat => cat.Category_Id));
       }
     } catch (error) {
       console.error("Error fetching applied discounts:", error);
       message.error("Failed to fetch applied categories");
     } finally {
-      setLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -203,11 +202,10 @@ const AppliedToCategory = () => {
   const handleDeleteDiscount = async (categoryId) => {
     try {
       await retryRequest(() =>
-        axiosInstance.delete(`/admin/remove-discount-from-category/${discountId}`, {
-          data: { categoryIds: [categoryId] }
+        axiosInstance.post(`/admin/removeDiscountFromCategory/${discountId}`, {
+          categoryIds: [categoryId]
         })
       );
-      
       message.success('Discount removed successfully');
       fetchAppliedDiscounts(); // Refresh the list
     } catch (error) {
@@ -256,6 +254,7 @@ const AppliedToCategory = () => {
         rowKey="discountId"
         pagination={false}
         style={{ marginTop: 20 }}
+        loading={tableLoading}
       />
     </div>
   );
