@@ -1,5 +1,5 @@
 //@des when leadoing a page edit text is displayng on middle first and then right
-//@des improve the ui ex add "$" sign wehn on edit o when pecentage selcted add "%" sign etc
+//@des improve the ui example add "$" sign wehn on edit or when pecentage selcted add "%" sign etc
 
 
 import { useEffect, useState } from "react";
