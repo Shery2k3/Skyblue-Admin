@@ -1,3 +1,15 @@
+//@desc: Add "View Product" & "SEO" Button 
+//@desc: Create new dynamic route For view product("/category/:{categoryID}") within the category and a modal of "SEO"
+//@desc: Just Add fields of Meta Title, Meta Description, Meta Keywords on SEO modal
+//@desc: Onclick on "Edit" and "Add Category" add additional fileds i-e description, show on homepage(radioBtn), Limit to customer Role(RadioButton) 
+
+//@desc: Update the api of Edit and create category (Requirements are above)
+//@desc: Create New API of view products w.r.t categoryID
+//@desc: Create New API of SEO w.r.t categoryID
+
+//@Desc: Please Dont wait for backend developer to end his task just start your task and create a dummy data for testing
+
+
 import React, { useEffect, useState } from "react";
 import CustomLayout from "../../../Components/Layout/Layout";
 import {
