@@ -36,6 +36,7 @@ import Editcampaign from './Pages/Promotions/Campaign/Sections/Editcampaign';
 import Createcampaign from './Pages/Promotions/Campaign/Sections/Createcampaign';
 import AddProductManufacturer from './Pages/Catalog/Manufacturers/AddProductManufacturer';
 import EditDiscount from './Pages/Promotions/Discount/EditDiscount';
+import BulkEdit from './Pages/Vendors/BulkEdit';
 
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
         <Route path="/manufacturer/products/add/:manufacturerid" element={<ProtectedRoute element={AddProductManufacturer} />} />
         {/* Vendors */}
         <Route path="/vendors" element={<ProtectedRoute element={Vendors} />} />
+        <Route path='/bulk-edit' element={<ProtectedRoute element={BulkEdit} />} />
 
         {/* Sales */}
         <Route path="/orders" element={<ProtectedRoute element={Orders} />} />
