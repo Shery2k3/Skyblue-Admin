@@ -1,7 +1,10 @@
 //@desc: Add "View Product" & "SEO" Button 
 //@desc: Create new dynamic route For view product("/category/:{categoryID}") within the category and a modal of "SEO"
 //@desc: Just Add fields of Meta Title, Meta Description, Meta Keywords on SEO modal
-//@desc: Onclick on "Edit" and "Add Category" add additional fileds i-e description, show on homepage(radioBtn), Limit to customer Role(RadioButton) 
+//@desc: Onclick on "Edit" and "Add Category" add additional fileds i-e description, show on homepage(radioBtn), Limit to customer Role
+//@desc: limite to customer role should be a dropdown with options of Every Role API Endpoint is: const response = await axiosInstance.get(
+//        `${API_BASE_URL}/admin/customer/roles`
+//      );
 
 //@desc: Update the api of Edit and create category (Requirements are above)
 //@desc: Create New API of view products w.r.t categoryID
