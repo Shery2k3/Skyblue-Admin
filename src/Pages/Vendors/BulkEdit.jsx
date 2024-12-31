@@ -16,13 +16,20 @@ const BulkEdit = () => {
     pageSize: 25,
     total: 0,
   });
-  const [filters, setFilters] = useState({ category: "", vendor: "", manufacturer: "", productName: "" });
+  const [filters, setFilters] = useState({
+    category: "",
+    vendor: "",
+    manufacturer: "", // Added manufacturer to filters
+    productName: "",
+  });
   const [vendors, setVendors] = useState([]);
+  const [manufacturers, setManufacturers] = useState([]); // State for manufacturers
   const [editMode, setEditMode] = useState(false);
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
   const [changedProducts, setChangedProducts] = useState({});
-
+  
+  // Fetch products with manufacturer filter
   const fetchProducts = useCallback(async (page = 1) => {
     setLoading(true);
     try {
@@ -30,7 +37,6 @@ const BulkEdit = () => {
       const response = await axiosInstance.get("/admin/bulk-products", { params });
       if (response?.data?.success) {
         const { products, totalItems } = response.data.data;
-        console.log(response.data.data);
         setProducts(products.map((p) => ({ ...p, key: p.Id })));
         setPagination((prev) => ({ ...prev, current: page, total: totalItems }));
       } else {
@@ -44,6 +50,7 @@ const BulkEdit = () => {
     }
   }, [filters, pagination.pageSize]);
 
+  // Fetch vendors
   const fetchVendors = useCallback(async () => {
     try {
       const vendorsResponse = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/vendors`));
@@ -53,39 +60,59 @@ const BulkEdit = () => {
     }
   }, [retryRequest]);
 
+  // Fetch manufacturers
+  useEffect(() => {
+    const fetchManufacturers = async () => {
+      try {
+        const response = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`));
+        setManufacturers(response.data);
+      } catch (error) {
+        console.error('Error fetching manufacturers:', error);
+      }
+    };
+
+    fetchManufacturers();
+  }, []);
+
+  // Trigger fetchProducts on load
   useEffect(() => {
     fetchProducts();
     fetchVendors();
   }, [fetchProducts, fetchVendors]);
 
+  // Handle table pagination changes
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({ ...prev, current: pagination.current }));
     fetchProducts(pagination.current);
   };
 
+  // Handle filter changes
   const handleFilterChange = (value, name) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Toggle edit mode
   const toggleEditMode = () => {
     setEditMode(!editMode);
   };
 
+  // Handle save changes
   const handleSave = () => {
     console.log("Changes:", changedProducts);
   };
 
+  // Handle edit input change
   const handleEditChange = (key, field, value) => {
     setProducts((prev) =>
       prev.map((product) => (product.key === key ? { ...product, [field]: value } : product))
     );
-
     setChangedProducts((prev) => ({
       ...prev,
       [key]: { ...(prev[key] || {}), [field]: value },
     }));
   };
 
+  // Columns for the table
   const columns = [
     {
       title: "Product Name",
@@ -195,6 +222,7 @@ const BulkEdit = () => {
     },
   ];
 
+
   return (
     <CustomLayout pageTitle="Bulk Edit" menuKey="20">
       <div>
@@ -216,6 +244,20 @@ const BulkEdit = () => {
             {vendors.map((vendor) => (
               <Option key={vendor.Id} value={vendor.Id}>
                 {vendor.Name}
+              </Option>
+            ))}
+          </Select>
+          {/* Manufacturer Filter */}
+          <Select
+            placeholder="Select Manufacturer"
+            value={filters.manufacturer}
+            onChange={(value) => handleFilterChange(value, "manufacturer")}
+            style={{ width: 200 }}
+          >
+            <Option value="">All Manufacturers</Option>
+            {manufacturers.map((manufacturer) => (
+              <Option key={manufacturer.id} value={manufacturer.id}>
+                {manufacturer.name}
               </Option>
             ))}
           </Select>
