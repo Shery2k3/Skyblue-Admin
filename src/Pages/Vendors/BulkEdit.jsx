@@ -1,4 +1,12 @@
-//@desc: filter on bassi of catgeoyr and make whole responsive 
+//@desc: Arsal
+//@desc: Make Whole page responsive
+//@desc: When we Click "Edit", try to increase width of "product name" column for better view
+//@desc: Once backend developer check GET api you'll have to put filter of productSearch and on basis of category(will be dropdwown && already made btn)
+
+//@desc: Shery
+//@desc: Just check api of getting all bulk product "Controller/admin/bulkRepo.js", Route on BE is "/bulk-products", will it work with category and product search filter? oo not, if not then modify the api to work with these filters
+//@desc: Make simple delete api of deleting many product at once, ig take product id in array and delete them(Please Keep track whatever youre deleting)
+
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomLayout from "../../Components/Layout/Layout";
