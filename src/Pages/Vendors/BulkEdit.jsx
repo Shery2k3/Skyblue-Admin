@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomLayout from "../../Components/Layout/Layout";
 import axiosInstance from "../../Api/axiosConfig";
-import { Table, Button, Input, Select, Space, message, Spin } from "antd";
+import { Table, Button, Input, Select, Space, message, Spin, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import API_BASE_URL from "../../constants";
 import useRetryRequest from "../../Api/useRetryRequest";
@@ -140,28 +140,29 @@ const BulkEdit = () => {
       key: "VendorId",
       render: (text, record) =>
         editMode ? (
-          <Select
-            value={record.VendorId}
-            onChange={(value) => handleEditChange(record.key, "VendorId", value)}
-            style={{ width: 200 }}
-            placeholder="Select a vendor"
-          >
-            {vendors.map((vendor) => (
-              <Option key={vendor.Id} value={vendor.Id}>
-                <span
-                  style={{
-                    color: vendor.Name === record.VendorName ? "red" : "black",
-                  }}
-                >
-                  {vendor.Name}
-                </span>
-              </Option>
-            ))}
-          </Select>
+          <Tooltip title="Red vendor name means they are already a vendor.">
+            <Select
+              value={record.VendorId}
+              onChange={(value) => handleEditChange(record.key, "VendorId", value)}
+              style={{ width: 200 }}
+              placeholder="Select a vendor"
+            >
+              {vendors.map((vendor) => (
+                <Option key={vendor.Id} value={vendor.Id}>
+                  <span
+                    style={{
+                      color: vendor.Name === record.VendorName ? "red" : "black",
+                    }}
+                  >
+                    {vendor.Name}
+                  </span>
+                </Option>
+              ))}
+            </Select>
+          </Tooltip>
         ) : (
           record.VendorName || "N/A"
         ),
-      
     },
     {
       title: "Published",
