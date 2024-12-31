@@ -1,6 +1,7 @@
 //@desc: Arsal
 //@desc: Make Whole page responsive
 //@desc: When we Click "Edit", try to increase width of "product name" column for better view
+//@desc: Vendor changes I will tell on discord
 //@desc: Once backend developer check GET api you'll have to put filter of productSearch and on basis of category(will be dropdwown && already made btn)
 
 //@desc: Shery
@@ -20,31 +21,50 @@ const { Option } = Select;
 const BulkEdit = () => {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 25,
-    total: 0,
-  });
-  const [filters, setFilters] = useState({
-    category: "",
-    vendor: "",
-    manufacturer: "", // Added manufacturer to filters
-    productName: "",
-  });
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 25, total: 0 });
+  const [filters, setFilters] = useState({ category: "", vendor: "", manufacturer: "", productName: "" });
   const [vendors, setVendors] = useState([]);
-  const [manufacturers, setManufacturers] = useState([]); // State for manufacturers
-  const [categories, setCategories] = useState([]); // State for categories
+  const [manufacturers, setManufacturers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [editMode, setEditMode] = useState(false);
+  const [changedProducts, setChangedProducts] = useState({});
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
-  const [changedProducts, setChangedProducts] = useState({});
-  
-  // Fetch products with manufacturer filter
+
+  const fetchVendors = useCallback(async () => {
+    try {
+      const response = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/vendors`));
+      setVendors(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching vendors:", error);
+    }
+  }, [retryRequest]);
+
+  const fetchManufacturers = useCallback(async () => {
+    try {
+      const response = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`));
+      setManufacturers(response.data || []);
+    } catch (error) {
+      console.error("Error fetching manufacturers:", error);
+    }
+  }, [retryRequest]);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/category/all`));
+      setCategories(response.data || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      message.error("Failed to fetch categories");
+    }
+  }, [retryRequest]);
+
   const fetchProducts = useCallback(async (page = 1) => {
     setLoading(true);
     try {
-      const params = { page, pageSize: pagination.pageSize, ...filters };
-      const response = await axiosInstance.get("/admin/bulk-products", { params });
+      const response = await axiosInstance.get("/admin/bulk-products", {
+        params: { page, pageSize: pagination.pageSize, ...filters },
+      });
       if (response?.data?.success) {
         const { products, totalItems } = response.data.data;
         setProducts(products.map((p) => ({ ...p, key: p.Id })));
@@ -60,84 +80,49 @@ const BulkEdit = () => {
     }
   }, [filters, pagination.pageSize]);
 
-  // Fetch vendors
-  const fetchVendors = useCallback(async () => {
-    try {
-      const vendorsResponse = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/vendors`));
-      setVendors(vendorsResponse.data.data || []);
-    } catch (error) {
-      console.error("Error fetching vendors:", error);
-    }
-  }, [retryRequest]);
-
-  // Fetch manufacturers
-  useEffect(() => {
-    const fetchManufacturers = async () => {
-      try {
-        const response = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`));
-        setManufacturers(response.data);
-      } catch (error) {
-        console.error('Error fetching manufacturers:', error);
-      }
-    };
-
-    fetchManufacturers();
-  }, []);
-
-  // Trigger fetchProducts on load
   useEffect(() => {
     fetchProducts();
     fetchVendors();
-    fetchCategories()
-  }, [fetchProducts, fetchVendors]);
+    fetchCategories();
+    fetchManufacturers();
+  }, [fetchProducts, fetchVendors, fetchCategories, fetchManufacturers]);
 
-  // Handle table pagination changes
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({ ...prev, current: pagination.current }));
     fetchProducts(pagination.current);
   };
 
-  // Handle filter changes
   const handleFilterChange = (value, name) => {
-    console.log("Filter change:", name, value);
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Toggle edit mode
   const toggleEditMode = () => {
     setEditMode(!editMode);
   };
 
-  const handleEditChange = async (key, field, value) => {
-    // Update the products state locally
+  const handleEditChange = (key, field, value) => {
     setProducts((prev) =>
-      prev.map((product) =>
-        product.key === key ? { ...product, [field]: value } : product
-      )
+      prev.map((product) => (product.key === key ? { ...product, [field]: value } : product))
     );
-  
-    // Update the changed products state
     setChangedProducts((prev) => ({
       ...prev,
       [key]: { ...(prev[key] || {}), [field]: value },
     }));
   };
-  
+
   const handleSave = async () => {
-    // Send the changes to the API only when Save is clicked
     if (Object.keys(changedProducts).length === 0) {
       message.warning("No changes to save.");
       return;
     }
-  
-    setLoading(true); // Set loading to true before the API request
+    setLoading(true);
     try {
-      const response = await retryRequest(() => 
+      const response = await retryRequest(() =>
         axiosInstance.patch(`${API_BASE_URL}/admin/bulk-products/bulk-edit`, { changes: changedProducts })
       );
       if (response?.data?.success) {
         message.success("Products updated successfully.");
-        setChangedProducts({}); // Clear the changed products after saving
+        setChangedProducts({});
       } else {
         message.error("Failed to update products.");
       }
@@ -145,11 +130,10 @@ const BulkEdit = () => {
       console.error("Error updating products:", error);
       message.error("An error occurred while updating products.");
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
-  
-  // Columns for the table
+
   const columns = [
     {
       title: "Product Name",
@@ -259,27 +243,6 @@ const BulkEdit = () => {
     },
   ];
 
-
-  //will implemnt later
-  const fetchCategories = async () => {
-    setLoading(true); // Set loading to true
-    try {
-      const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/category/all`)
-      );
-      console.log("Categories:", response.data);
-      setCategories(response.data || []); // Set categories to response data
-
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      message.error("Failed to fetch categories");
-    } finally {
-      setLoading(false); // Set loading to false
-    }
-  };
-
-
-
   return (
     <CustomLayout pageTitle="Bulk Edit" menuKey="20">
       <div>
@@ -304,7 +267,6 @@ const BulkEdit = () => {
               </Option>
             ))}
           </Select>
-          {/* Manufacturer Filter */}
           <Select
             placeholder="Select Manufacturer"
             value={filters.manufacturer}
