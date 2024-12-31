@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import CustomLayout from "../../Components/Layout/Layout";
 import axiosInstance from "../../Api/axiosConfig";
 import { Table, Button, Input, Select, Space, message, Spin, Tooltip } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
 import API_BASE_URL from "../../constants";
 import useRetryRequest from "../../Api/useRetryRequest";
 
@@ -17,7 +16,7 @@ const BulkEdit = () => {
     pageSize: 25,
     total: 0,
   });
-  const [filters, setFilters] = useState({ category: "", vendor: "", manufacturer: "" });
+  const [filters, setFilters] = useState({ category: "", vendor: "", manufacturer: "", productName: "" });
   const [vendors, setVendors] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const navigate = useNavigate();
@@ -64,8 +63,7 @@ const BulkEdit = () => {
     fetchProducts(pagination.current);
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
+  const handleFilterChange = (value, name) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -87,7 +85,6 @@ const BulkEdit = () => {
       [key]: { ...(prev[key] || {}), [field]: value },
     }));
   };
-
 
   const columns = [
     {
@@ -131,7 +128,7 @@ const BulkEdit = () => {
         editMode ? (
           <Input value={record.Sku} onChange={(e) => handleEditChange(record.key, "Sku", e.target.value)} />
         ) : (
-          text || "N/A" // Show N/A if SKU is null
+          text || "N/A"
         ),
     },
     {
@@ -181,7 +178,6 @@ const BulkEdit = () => {
           <span style={{ color: published ? "green" : "red" }}>{published ? "True" : "False"}</span>
         ),
     },
-    
     {
       title: "Actions",
       key: "Actions",
@@ -190,11 +186,10 @@ const BulkEdit = () => {
           <Button onClick={() => navigate(`/edit-product/${record.Id}`)}>View</Button>
           <Button
             danger
-            onClick={()=>{console.log(record.Id)}}
+            onClick={() => { console.log(record.Id); }}
           >
             Delete
           </Button>
-        
         </Space>
       ),
     },
@@ -205,6 +200,28 @@ const BulkEdit = () => {
       <div>
         <h1>Bulk Edit</h1>
         <Space style={{ marginBottom: 20 }}>
+          <Input
+            placeholder="Search by Product Name"
+            value={filters.productName}
+            onChange={(e) => handleFilterChange(e.target.value, "productName")}
+            style={{ width: 200 }}
+          />
+          <Select
+            placeholder="Select Vendor"
+            value={filters.vendor}
+            onChange={(value) => handleFilterChange(value, "vendor")}
+            style={{ width: 200 }}
+          >
+            <Option value="">All Vendors</Option>
+            {vendors.map((vendor) => (
+              <Option key={vendor.Id} value={vendor.Id}>
+                {vendor.Name}
+              </Option>
+            ))}
+          </Select>
+          <Button type="primary" onClick={() => fetchProducts(1)}>
+            Apply Filters
+          </Button>
           <Button type="primary" onClick={toggleEditMode}>
             {editMode ? "Cancel" : "Edit"}
           </Button>
