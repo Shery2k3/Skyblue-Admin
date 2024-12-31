@@ -1,3 +1,4 @@
+//@desc: filter on bassi of catgeoyr and make whole responsive 
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomLayout from "../../Components/Layout/Layout";
@@ -24,6 +25,7 @@ const BulkEdit = () => {
   });
   const [vendors, setVendors] = useState([]);
   const [manufacturers, setManufacturers] = useState([]); // State for manufacturers
+  const [categories, setCategories] = useState([]); // State for categories
   const [editMode, setEditMode] = useState(false);
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
@@ -78,6 +80,7 @@ const BulkEdit = () => {
   useEffect(() => {
     fetchProducts();
     fetchVendors();
+    fetchCategories()
   }, [fetchProducts, fetchVendors]);
 
   // Handle table pagination changes
@@ -88,6 +91,7 @@ const BulkEdit = () => {
 
   // Handle filter changes
   const handleFilterChange = (value, name) => {
+    console.log("Filter change:", name, value);
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -96,22 +100,47 @@ const BulkEdit = () => {
     setEditMode(!editMode);
   };
 
-  // Handle save changes
-  const handleSave = () => {
-    console.log("Changes:", changedProducts);
-  };
-
-  // Handle edit input change
-  const handleEditChange = (key, field, value) => {
+  const handleEditChange = async (key, field, value) => {
+    // Update the products state locally
     setProducts((prev) =>
-      prev.map((product) => (product.key === key ? { ...product, [field]: value } : product))
+      prev.map((product) =>
+        product.key === key ? { ...product, [field]: value } : product
+      )
     );
+  
+    // Update the changed products state
     setChangedProducts((prev) => ({
       ...prev,
       [key]: { ...(prev[key] || {}), [field]: value },
     }));
   };
-
+  
+  const handleSave = async () => {
+    // Send the changes to the API only when Save is clicked
+    if (Object.keys(changedProducts).length === 0) {
+      message.warning("No changes to save.");
+      return;
+    }
+  
+    setLoading(true); // Set loading to true before the API request
+    try {
+      const response = await retryRequest(() => 
+        axiosInstance.patch(`${API_BASE_URL}/admin/bulk-products/bulk-edit`, { changes: changedProducts })
+      );
+      if (response?.data?.success) {
+        message.success("Products updated successfully.");
+        setChangedProducts({}); // Clear the changed products after saving
+      } else {
+        message.error("Failed to update products.");
+      }
+    } catch (error) {
+      console.error("Error updating products:", error);
+      message.error("An error occurred while updating products.");
+    } finally {
+      setLoading(false); // Reset loading state
+    }
+  };
+  
   // Columns for the table
   const columns = [
     {
@@ -221,6 +250,26 @@ const BulkEdit = () => {
       ),
     },
   ];
+
+
+  //will implemnt later
+  const fetchCategories = async () => {
+    setLoading(true); // Set loading to true
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/category/all`)
+      );
+      console.log("Categories:", response.data);
+      setCategories(response.data || []); // Set categories to response data
+
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      message.error("Failed to fetch categories");
+    } finally {
+      setLoading(false); // Set loading to false
+    }
+  };
+
 
 
   return (
