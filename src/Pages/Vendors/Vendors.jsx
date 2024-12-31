@@ -24,6 +24,17 @@ const Vendors = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isActive, setIsActive] = useState(false);
+
+  const [description, setDescription] = useState("");
+  const [adminComment, setAdminComment] = useState("");
+  const [displayOrder, setDisplayOrder] = useState(0);
+
+  const [metaKeywords, setMetaKeywords] = useState("");
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+
+  const [isSeoModalVisible, setSeoModalVisible] = useState(false);
+
   const [searchQuery, setSearchQuery] = useState(""); // Add search query state
   const [loading, setLoading] = useState(false); // Add loading state
 
@@ -70,16 +81,17 @@ const Vendors = () => {
         name: name,
         email: email,
         active: isActive,
-        description: "Vendor Description",
-        adminComment: "Admin Comment",
-        displayOrder: 0,
-        metaKeywords: "keywords",
-        metaDescription: "meta description",
-        metaTitle: "meta title",
+        description: description,
+        adminComment: adminComment,
+        displayOrder: displayOrder,
+        metaKeywords: "",
+        metaDescription: "",
+        metaTitle: "",
         pageSize: 10,
         allowCustomersToSelectPageSize: false,
         pageSizeOptions: "10,20,50",
       };
+      console.log("Payload:", payload);
       await axiosInstance.post(`${API_BASE_URL}/admin/create-vendors`, payload);
       message.success("Vendor added successfully");
       fetchVendors();
@@ -146,6 +158,27 @@ const Vendors = () => {
     });
   };
 
+  const handleSeo = (vendor) => {
+    setSelectedVendor(vendor);
+    setMetaTitle(vendor.name);
+    setSeoModalVisible(true);
+  };
+
+
+  const handleSeoSave = () => {
+    console.log({
+      metaTitle,
+      metaKeywords,
+      metaDescription,
+    });
+    setSeoModalVisible(false);
+  };
+
+
+  const handleViewProduct = (vendorId) => {
+    console.log("Vendor ID:", vendorId);
+  };
+
   const columns = [
     {
       title: "Name",
@@ -174,7 +207,19 @@ const Vendors = () => {
       key: "action",
       align: "center",
       render: (_, record) => (
-        <Button onClick={() => handleEdit(record)}>Edit</Button>
+        <div>
+          <Button onClick={() => handleEdit(record)}>Edit</Button>
+          <Button size={buttonSize} onClick={() => handleSeo(record)}>
+            SEO
+          </Button>
+          <Button
+            size={buttonSize}
+            style={{ marginLeft: 8 }}
+            onClick={() => handleViewProduct(record.id)}
+          >
+            View Product
+          </Button>
+        </div>
       ),
     },
   ];
@@ -267,6 +312,52 @@ const Vendors = () => {
           placeholder="Vendor Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+        />
+        <br /><br />
+        <Input
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <br /><br />
+        <Input
+          placeholder="Admin Comment"
+          value={adminComment}
+          onChange={(e) => setAdminComment(e.target.value)}
+        />
+        <br /><br />
+        <Input
+          placeholder="Display Order"
+          type="number"
+          value={displayOrder}
+          onChange={(e) => setDisplayOrder(Number(e.target.value))}
+        />
+      </Modal>
+
+      {/* SEO Modal */}
+      <Modal
+        centered
+        title="Manage SEO"
+        open={isSeoModalVisible}
+        onOk={handleSeoSave}
+        onCancel={() => setSeoModalVisible(false)}
+      >
+        <Input
+          placeholder="Meta Title"
+          value={metaTitle}
+          onChange={(e) => setMetaTitle(e.target.value)}
+        />
+        <br /><br />
+        <Input
+          placeholder="Meta Keywords"
+          value={metaKeywords}
+          onChange={(e) => setMetaKeywords(e.target.value)}
+        />
+        <br /><br />
+        <Input
+          placeholder="Meta Description"
+          value={metaDescription}
+          onChange={(e) => setMetaDescription(e.target.value)}
         />
       </Modal>
     </CustomLayout>
