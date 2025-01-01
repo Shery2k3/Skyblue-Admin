@@ -54,6 +54,7 @@ const EditVendor = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/orders/countries-states`)
       );
+      console.log(response.data);
       setCountries(response.data.data.countries);
       setStates(response.data.data.states);
     } catch (error) {
@@ -101,16 +102,30 @@ const EditVendor = () => {
     }
   };
 
-  const handleSaveChangesAddress = (values) => {
+  const handleSaveChangesAddress = async (values) => {
     // Include selectedCountry and selectedState in the values object
     const updatedValues = {
       ...values,
-      country: selectedCountry,  // Add selected country
-      state: selectedState       // Add selected state
+      country: selectedCountry, // Add selected country
+      state: selectedState, // Add selected state
     };
-  
+
     console.log("Form Data Submitted:", updatedValues);
-  }
+
+
+    //Error Here
+
+    try {
+      const response = await axiosInstance.patch(
+        `${API_BASE_URL}/admin/update-vendor-address/${id}`,
+        updatedValues
+      );
+      console.log(response);
+    } catch (error) {
+      console.error("Error updating address:", error);
+      
+    }
+  };
 
   const handleSaveChangesSEO = async (values) => {
     const updatedSEOData = {
@@ -291,6 +306,7 @@ const EditVendor = () => {
                   ))}
                 </select>
               </div>
+              {console.log(countries)}
               <div>
                 <label>State/Province:</label>
                 <select
