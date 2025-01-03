@@ -32,8 +32,9 @@ const EditVendor = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
 
-  const [address, setAddress]= useState([]);
+  const [address, setAddress] = useState([]);
 
+  //vendors data
   const fetchVendor = async () => {
     setLoading(true);
     try {
@@ -56,14 +57,14 @@ const EditVendor = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/getvendoraddress/${id}`)
       );
-      console.log("Vendor address",response.data);
-      setAddress(response.data);
+      console.log("Vendor address", response.data);
+      setAddress(response.data.data);
     } catch (error) {
       console.error("Error fetching vendor:", error);
     }
-  }
+  };
 
-
+  //Country/state data
   const fetchCountryList = async () => {
     try {
       const response = await retryRequest(() =>
@@ -77,11 +78,7 @@ const EditVendor = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCountryList();
-    fetchVendor();
-    fetcVendorAddress()
-  }, []);
+  //Filter w.r.t Country Name, state Name
 
   const handleCountryChange = (e) => {
     const countryId = e.target.value;
@@ -93,6 +90,15 @@ const EditVendor = () => {
     setSelectedState(""); // Reset the selected state
   };
 
+  useEffect(() => {
+    fetchCountryList();
+    fetchVendor();
+    fetcVendorAddress();
+  }, []);
+
+  //APIs
+
+  //vendorinfo Update
   const handleSaveChangesInfo = async (values) => {
     const updatedVendorData = {
       name: values.name,
@@ -118,6 +124,7 @@ const EditVendor = () => {
     }
   };
 
+  //vendor Address update
   const handleSaveChangesAddress = async (values) => {
     // Include selectedCountry and selectedState in the values object
     const updatedValues = {
@@ -128,9 +135,6 @@ const EditVendor = () => {
 
     console.log("Form Data Submitted:", updatedValues);
 
-
-    //Error Here
-
     try {
       const response = await axiosInstance.patch(
         `${API_BASE_URL}/admin/update-vendor-address/${id}`,
@@ -140,10 +144,10 @@ const EditVendor = () => {
       message.success("Address updated successfully");
     } catch (error) {
       console.error("Error updating address:", error);
-      
     }
   };
 
+  //SEO update
   const handleSaveChangesSEO = async (values) => {
     const updatedSEOData = {
       metaTitle: values.metaTitle,
@@ -164,6 +168,7 @@ const EditVendor = () => {
     }
   };
 
+  //Note update
   const handleSaveChangesNote = (values) => {
     console.log("Form Data Submitted:", values);
   };
@@ -347,42 +352,42 @@ const EditVendor = () => {
             <Form.Item
               label="City"
               name="city"
-              initialValue={vendorData.City || ""}
+              initialValue={address.City || ""}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="Address 1"
               name="address1"
-              initialValue={vendorData.Address1 || ""}
+              initialValue={address.Address1 || ""}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="Address 2"
               name="address2"
-              initialValue={vendorData.Address2 || ""}
+              initialValue={address.Address2 || ""}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="ZIP/Postal Code"
               name="zipCode"
-              initialValue={vendorData.ZipCode || ""}
+              initialValue={address.ZipPostalCode || ""}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="Phone"
               name="phone"
-              initialValue={vendorData.Phone || ""}
+              initialValue={address.PhoneNumber || ""}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="Fax Number"
               name="fax"
-              initialValue={vendorData.Fax || ""}
+              initialValue={address.FaxNumber || ""}
             >
               <Input />
             </Form.Item>
@@ -393,6 +398,7 @@ const EditVendor = () => {
           </Form>
         </TabPane>
       </Tabs>
+      {console.log("Address", address)}
     </CustomLayout>
   );
 };
