@@ -32,6 +32,8 @@ const EditVendor = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
 
+  const [address, setAddress]= useState([]);
+
   const fetchVendor = async () => {
     setLoading(true);
     try {
@@ -49,12 +51,25 @@ const EditVendor = () => {
     }
   };
 
+  const fetcVendorAddress = async () => {
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/getvendoraddress/${id}`)
+      );
+      console.log("Vendor address",response.data);
+      setAddress(response.data);
+    } catch (error) {
+      console.error("Error fetching vendor:", error);
+    }
+  }
+
+
   const fetchCountryList = async () => {
     try {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/orders/countries-states`)
       );
-      console.log(response.data);
+      //console.log(response.data);
       setCountries(response.data.data.countries);
       setStates(response.data.data.states);
     } catch (error) {
@@ -65,6 +80,7 @@ const EditVendor = () => {
   useEffect(() => {
     fetchCountryList();
     fetchVendor();
+    fetcVendorAddress()
   }, []);
 
   const handleCountryChange = (e) => {
@@ -121,6 +137,7 @@ const EditVendor = () => {
         updatedValues
       );
       console.log(response);
+      message.success("Address updated successfully");
     } catch (error) {
       console.error("Error updating address:", error);
       
@@ -306,7 +323,6 @@ const EditVendor = () => {
                   ))}
                 </select>
               </div>
-              {console.log(countries)}
               <div>
                 <label>State/Province:</label>
                 <select
