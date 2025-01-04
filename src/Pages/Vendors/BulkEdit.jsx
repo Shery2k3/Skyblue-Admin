@@ -6,7 +6,9 @@
 
 //@desc: Shery
 //@desc: Just check api of getting all bulk product "Controller/admin/bulkRepo.js", Route on BE is "/bulk-products", will it work with category and product search filter? oo not, if not then modify the api to work with these filters
+//? WORKS WITH FILTERS
 //@desc: Make simple delete api of deleting many product at once, ig take product id in array and delete them(Please Keep track whatever youre deleting)
+//? DELETE /admin/bulk-delete-products/ #body JSON: { productIds: [1, 2, 3] }
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
