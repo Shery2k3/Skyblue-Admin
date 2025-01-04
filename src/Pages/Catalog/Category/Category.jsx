@@ -7,8 +7,8 @@
 //      );
 
 //@desc: Update the api of Edit and create category (Requirements are above)
-//@desc: Create New API of view products w.r.t categoryID
-//@desc: Create New API of SEO w.r.t categoryID
+//@desc: Create New API of view products w.r.t categoryID //? USE /product/search with categoryId in query
+//@desc: Create New API of SEO w.r.t categoryID //? SEO fields (Meta Title, Meta Description, Meta Keywords) are now available in single category API
 
 //@Desc: Please Dont wait for backend developer to end his task just start your task and create a dummy data for testing
 
