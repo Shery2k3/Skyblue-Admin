@@ -13,7 +13,7 @@ import {
   message,
   Select,
 } from "antd";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../Api/axiosConfig";
 import useRetryRequest from "../../Api/useRetryRequest";
 import CustomLayout from "../../Components/Layout/Layout";
@@ -27,6 +27,7 @@ const EditVendor = () => {
   const [loading, setLoading] = useState(false);
   const [vendorData, setVendorData] = useState({});
   const retryRequest = useRetryRequest();
+  const navigate = useNavigate();
 
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
@@ -191,7 +192,13 @@ const EditVendor = () => {
         Edit Vendor
         <br /> {vendorData.Name}
       </Title>
-      <Button>Go Back</Button>
+      <Button
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        Go Back
+      </Button>
       <Tabs defaultActiveKey="1" centered>
         {/* Vendor Info Tab */}
         <TabPane tab="Vendor Info" key="1">
