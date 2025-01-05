@@ -10,7 +10,6 @@ import {
   Tag,
   Typography,
   Spin,
-  Tabs, // Import Spin component
 } from "antd";
 import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
 import API_BASE_URL from "../../constants.js";
@@ -19,41 +18,27 @@ import useRetryRequest from "../../Api/useRetryRequest"; // Import the retry hoo
 import { useNavigate } from "react-router-dom";
 
 const Vendors = () => {
+  const retryRequest = useRetryRequest();
+  const buttonSize = useResponsiveButtonSize();
+  const navigate = useNavigate();
+
+  const { Title } = Typography;
+  const { Search } = Input;
+
   const [dataSource, setDataSource] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddModalVisible, setAddModal] = useState(false);
-  const [selectedVendor, setSelectedVendor] = useState(null);
+
+  //Add Vendor States
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isActive, setIsActive] = useState(false);
-
   const [description, setDescription] = useState("");
   const [adminComment, setAdminComment] = useState("");
   const [displayOrder, setDisplayOrder] = useState(0);
 
-  const [metaKeywords, setMetaKeywords] = useState("");
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
-
-  const [isSeoModalVisible, setSeoModalVisible] = useState(false);
-
-  // Address States
-  const [addressLine1, setAddressLine1] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [postalCode, setPostalCode] = useState("");
-
-  //Edit Vendor States
-
-  const [searchQuery, setSearchQuery] = useState(""); // Add search query state
-  const [loading, setLoading] = useState(false); // Add loading state
-
-  const retryRequest = useRetryRequest();
-  const buttonSize = useResponsiveButtonSize();
-  const { Title } = Typography;
-  const { Search } = Input; // Add this line
-
-  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchVendors();
@@ -124,56 +109,6 @@ const Vendors = () => {
     setAddModal(true);
   };
 
-  const handleEdit = (vendor) => {
-    console.log("handle Save", vendor);
-    navigate(`/vendors/edit/${vendor.id}`);
-
-    // setSelectedVendor(vendor);
-    // setName(vendor.name);
-    // setIsActive(vendor.active);
-    // setEmail(vendor.email);
-    // setDescription(vendor.description);
-    // setAdminComment(vendor.adminComment);
-    // setDisplayOrder(vendor.displayOrder);
-    // setIsModalVisible(true);
-
-    // // Mock data for address; replace with fetched data if necessary
-    // setAddressLine1("123 Main St");
-    // setCity("New York");
-    // setState("NY");
-    // setPostalCode("10001");
-    // setIsModalVisible(true);
-  };
-
-  const handleOk = async () => {
-    const payload = {};
-    if (isActive !== selectedVendor.active) {
-      payload.active = isActive;
-    }
-    if (name !== selectedVendor.name) {
-      payload.name = name;
-    }
-    if (email !== selectedVendor.email) {
-      payload.email = email;
-    }
-
-    if (Object.keys(payload).length > 0) {
-      try {
-        await axiosInstance.patch(
-          `${API_BASE_URL}/admin/editvendor/${selectedVendor.id}`,
-          payload
-        );
-        message.success("Vendor updated successfully");
-        fetchVendors();
-      } catch (error) {
-        console.error("Error updating Vendor:", error);
-        message.error("Failed to update Vendor");
-      }
-    }
-
-    setIsModalVisible(false);
-  };
-
   const handleCancel = () => {
     setIsModalVisible(false);
     setAddModal(false);
@@ -186,23 +121,12 @@ const Vendors = () => {
     });
   };
 
-  const handleSeo = (vendor) => {
-    setSelectedVendor(vendor);
-    setMetaTitle(vendor.name);
-    setSeoModalVisible(true);
-  };
-
-  const handleSeoSave = () => {
-    console.log({
-      metaTitle,
-      metaKeywords,
-      metaDescription,
-    });
-    setSeoModalVisible(false);
-  };
-
   const handleViewProduct = (vendorId) => {
-    console.log("Vendor ID:", vendorId);
+    navigate(`/vendors/viewproduct/${vendorId}`);
+  };
+
+  const handleEdit = (vendor) => {
+    navigate(`/vendors/edit/${vendor.id}`);
   };
 
   const columns = [
@@ -235,9 +159,6 @@ const Vendors = () => {
       render: (_, record) => (
         <div>
           <Button onClick={() => handleEdit(record)}>Edit</Button>
-          <Button size={buttonSize} onClick={() => handleSeo(record)}>
-            SEO
-          </Button>
           <Button
             size={buttonSize}
             style={{ marginLeft: 8 }}
@@ -249,36 +170,6 @@ const Vendors = () => {
       ),
     },
   ];
-
-  const handleAddressSave = async () => {
-    const payload = {
-      addressLine1: addressLine1,
-      city: city,
-      state: state,
-      postalCode: postalCode,
-    };
-    console.log("Payload:", payload);
-  };
-
-  const handleVendorSave = async () => {
-    const payload = {
-      name,
-      email,
-      active: isActive,
-    };
-    console.log("Payload:", payload);
-    //  try {
-    //    await axiosInstance.patch(
-    //      `${API_BASE_URL}/admin/editvendor/${selectedVendor.id}`,
-    //      payload
-    //    );
-    //    message.success("Vendor updated successfully");
-    //    fetchVendors();
-    //  } catch (error) {
-    //    console.error("Error updating vendor:", error);
-    //    message.error("Failed to update vendor");
-    //  }
-  };
 
   return (
     <CustomLayout pageTitle="Vendors" menuKey="6">
@@ -312,98 +203,6 @@ const Vendors = () => {
           onChange={handleTableChange}
         />
       </Spin>
-
-      {/*To Edit an already existing vendor*/}
-      <Modal
-        centered
-        title="Edit Vendor"
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <Tabs defaultActiveKey="1">
-          <Tabs.TabPane tab="Edit Vendor" key="1">
-            <Checkbox
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-            >
-              Active
-            </Checkbox>
-            <br />
-            <br />
-            <Input
-              placeholder="Vendor Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <br />
-            <br />
-            <Input
-              placeholder="Vendor Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <br />
-            <br />
-            <Input
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-            <br />
-            <br />
-            <Input
-              placeholder="Admin Comment"
-              value={adminComment}
-              onChange={(e) => setAdminComment(e.target.value)}
-            />
-            <br />
-            <br />
-            <Input
-              placeholder="Display Order"
-              type="number"
-              value={displayOrder}
-              onChange={(e) => setDisplayOrder(Number(e.target.value))}
-            />
-            <Button type="primary" onClick={handleVendorSave}>
-              Save Vendor
-            </Button>
-          </Tabs.TabPane>
-          {/* FOr address edit */}
-          <Tabs.TabPane tab="Edit Address" key="2">
-            <Input
-              placeholder="Address Line 1"
-              value={addressLine1}
-              onChange={(e) => setAddressLine1(e.target.value)}
-            />
-            <br />
-            <br />
-            <Input
-              placeholder="City"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
-            <br />
-            <br />
-            <Input
-              placeholder="State"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-            />
-            <br />
-            <br />
-            <Input
-              placeholder="Postal Code"
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
-            />
-            <br />
-            <Button type="primary" onClick={handleAddressSave}>
-              Save Address
-            </Button>
-          </Tabs.TabPane>
-        </Tabs>
-      </Modal>
 
       {/*To add a new vendor*/}
       <Modal
@@ -454,35 +253,6 @@ const Vendors = () => {
           type="number"
           value={displayOrder}
           onChange={(e) => setDisplayOrder(Number(e.target.value))}
-        />
-      </Modal>
-
-      {/* SEO Modal */}
-      <Modal
-        centered
-        title="Manage SEO"
-        open={isSeoModalVisible}
-        onOk={handleSeoSave}
-        onCancel={() => setSeoModalVisible(false)}
-      >
-        <Input
-          placeholder="Meta Title"
-          value={metaTitle}
-          onChange={(e) => setMetaTitle(e.target.value)}
-        />
-        <br />
-        <br />
-        <Input
-          placeholder="Meta Keywords"
-          value={metaKeywords}
-          onChange={(e) => setMetaKeywords(e.target.value)}
-        />
-        <br />
-        <br />
-        <Input
-          placeholder="Meta Description"
-          value={metaDescription}
-          onChange={(e) => setMetaDescription(e.target.value)}
         />
       </Modal>
     </CustomLayout>

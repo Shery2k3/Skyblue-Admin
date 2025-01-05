@@ -38,6 +38,7 @@ import AddProductManufacturer from './Pages/Catalog/Manufacturers/AddProductManu
 import EditDiscount from './Pages/Promotions/Discount/EditDiscount';
 import BulkEdit from './Pages/Vendors/BulkEdit';
 import EditVendor from './Pages/Vendors/EditVendor';
+import VendorProduct from './Pages/Vendors/VendorProduct';
 
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
         <Route path="/manufacturer/products/add/:manufacturerid" element={<ProtectedRoute element={AddProductManufacturer} />} />
         {/* Vendors */}
         <Route path="/vendors" element={<ProtectedRoute element={Vendors} />} />
+        <Route path="/vendors/viewproduct/:id" element={<ProtectedRoute element={VendorProduct} />} />
         <Route path="/vendors/edit/:id" element={<ProtectedRoute element={EditVendor} />} />
         <Route path='/bulk-edit' element={<ProtectedRoute element={BulkEdit} />} />
 
