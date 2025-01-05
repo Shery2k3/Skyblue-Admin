@@ -1,50 +1,34 @@
 import React, { useEffect, useState } from "react";
 import CustomLayout from "../../Components/Layout/Layout";
-import { Button, Table, Tag, Typography } from "antd";
+import { Button, Table, Tag, Typography, Dropdown, Menu } from "antd";
 import useRetryRequest from "../../Api/useRetryRequest";
 import API_BASE_URL from "../../constants";
 import axiosInstance from "../../Api/axiosConfig";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const VendorProduct = () => {
   const { id } = useParams();
   const { Title } = Typography;
+  const navigate = useNavigate();
   const retryRequest = useRetryRequest();
 
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 0, // total number of items
-  });
+  const [filterStatus, setFilterStatus] = useState("all"); // State to manage the filter
 
-  const fetchVendorsProduct = async (page = 1, pageSize = 10) => {
+  const fetchVendorsProduct = async () => {
     setLoading(true); // Set loading to true before fetching
     try {
       const response = await retryRequest(() =>
-        axiosInstance.get(
-          `${API_BASE_URL}/admin/vendor-products/${id}?page=${page}&pageSize=${pageSize}`
-        )
+        axiosInstance.get(`${API_BASE_URL}/admin/vendor-products/${id}`)
       );
-      const { data, meta } = response.data;
-      console.log("Data:", data, "Meta:", meta);
-      const formattedData = data.map((vendor) => ({
-        key: vendor.Id,
-        id: vendor.Id,
-        name: vendor.Name,
-        email: vendor.Email,
-        active: vendor.Active,
+      const data = response.data.data.map((product) => ({
+        key: product.Id,
+        id: product.Id,
+        name: product.Name,
+        published: product.Published,
       }));
-
-      console.log("Formatted Data:", formattedData);
-
-      setDataSource(formattedData);
-      setPagination({
-        current: meta.page,
-        pageSize: meta.pageSize,
-        total: meta.totalItems, // Assuming API returns the total items
-      });
+      setDataSource(data);
     } catch (error) {
       console.error("Error fetching customer data:", error);
     } finally {
@@ -52,14 +36,19 @@ const VendorProduct = () => {
     }
   };
 
-  const handleTableChange = (pagination) => {
-    const { current, pageSize } = pagination;
-    fetchVendorsProduct(current, pageSize);
+  const handleView = (record) => {
+    navigate(`/edit-product/${record.id}`);
   };
 
-  const handleView = (record) => {
-    console.log(record);
+  const handleFilterChange = (status) => {
+    setFilterStatus(status); // Update the filter status
   };
+
+  // Filter the data based on the selected filter
+  const filteredData = dataSource.filter((product) => {
+    if (filterStatus === "all") return true;
+    return filterStatus === "published" ? product.published : !product.published;
+  });
 
   const columns = [
     {
@@ -74,15 +63,15 @@ const VendorProduct = () => {
       key: "name",
     },
     {
-      title: "Is Featured",
-      dataIndex: "isFeatured",
-      key: "isFeatured",
+      title: "Published",
+      dataIndex: "published",
+      key: "published",
       align: "center",
-      render: (active) =>
-        active ? (
-          <Tag color="green">Featured</Tag>
+      render: (published) =>
+        published ? (
+          <Tag color="green">Published</Tag>
         ) : (
-          <Tag color="volcano">Not Featured</Tag>
+          <Tag color="volcano">Not Published</Tag>
         ),
     },
     {
@@ -98,25 +87,37 @@ const VendorProduct = () => {
   ];
 
   useEffect(() => {
-    fetchVendorsProduct(pagination.current, pagination.pageSize);
+    fetchVendorsProduct();
   }, []);
+
+  // Create the dropdown menu for filtering
+  const menu = (
+    <Menu onClick={(e) => handleFilterChange(e.key)}>
+      <Menu.Item key="all">All</Menu.Item>
+      <Menu.Item key="published">Published</Menu.Item>
+      <Menu.Item key="unpublished">Not Published</Menu.Item>
+    </Menu>
+  );
 
   return (
     <CustomLayout pageTitle="Vendors" menuKey="6">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Vendors Products
       </Title>
+
+      {/* Filter Dropdown */}
+      <Dropdown overlay={menu} trigger={['click']} style={{ marginBottom: 20 }}>
+        <Button>Filter: {filterStatus === 'all' ? 'All' : filterStatus === 'published' ? 'Published' : 'Not Published'}</Button>
+      </Dropdown>
+      <br/>
+      <br/>
+
+      {/* Table displaying filtered products */}
       <Table
-        dataSource={dataSource}
+        dataSource={filteredData}
         columns={columns}
         loading={loading}
-        pagination={{
-          current: pagination.current,
-          pageSize: pagination.pageSize,
-          total: pagination.total,
-          showSizeChanger: true, // Enable changing page size
-        }}
-        onChange={handleTableChange}
+        scroll={{ x: 'max-content' }} 
         bordered
       />
     </CustomLayout>
