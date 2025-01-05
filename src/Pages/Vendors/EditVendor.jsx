@@ -18,6 +18,8 @@ import axiosInstance from "../../Api/axiosConfig";
 import useRetryRequest from "../../Api/useRetryRequest";
 import CustomLayout from "../../Components/Layout/Layout";
 import API_BASE_URL from "../../constants";
+import VendorSEO from "./Edit/VendorSEOForm";
+import CustomerModal from "./Edit/CustomerModal";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -43,9 +45,8 @@ const EditVendor = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/getonevendor/${id}`)
       );
-      console.log(response.data);
       if (response.data?.success) {
-        setVendorData(response.data.data);
+        setVendorData(response.data.vendor);
       }
     } catch (error) {
       console.error("Error fetching vendor:", error);
@@ -98,6 +99,24 @@ const EditVendor = () => {
     fetcVendorAddress();
   }, []);
 
+
+  const [visible, setVisible] = useState(false);
+
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
+
+  const handleOpenModal = () => {
+    setVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setVisible(false);
+  };
+
+  const handleSelectCustomers = (customerIds) => {
+    setSelectedCustomerIds(customerIds);
+    console.log("Selected Customer IDs:", customerIds);
+  };
+
   //APIs
 
   //vendorinfo Update
@@ -149,27 +168,6 @@ const EditVendor = () => {
     }
   };
 
-  //SEO update
-  const handleSaveChangesSEO = async (values) => {
-    const updatedSEOData = {
-      metaTitle: values.metaTitle,
-      metaKeywords: values.metaKeywords,
-      metaDescription: values.metaDescription,
-    };
-
-    try {
-      const response = await axiosInstance.patch(
-        `${API_BASE_URL}/admin/editvendor/${id}`,
-        updatedSEOData
-      );
-      if (response.data.success) {
-        message.success("SEO updated successfully");
-      }
-    } catch (error) {
-      console.error("Error updating SEO:", error);
-    }
-  };
-
   //Note update
   const handleSaveChangesNote = (values) => {
     console.log("Form Data Submitted:", values);
@@ -186,11 +184,13 @@ const EditVendor = () => {
     );
   }
 
+  
+
   return (
     <CustomLayout pageTitle="Vendors" menuKey="6">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Edit Vendor
-        <br /> {vendorData.Name}
+        <br />
       </Title>
       <Button
         onClick={() => {
@@ -213,6 +213,17 @@ const EditVendor = () => {
             >
               <Input />
             </Form.Item>
+
+            <Form.Item label="Customer" name="customer">
+              <Input onClick={handleOpenModal} placeholder="Select Customers" />
+            </Form.Item>
+
+            <CustomerModal
+              visible={visible}
+              onCancel={handleCloseModal}
+              onSelectCustomers={handleSelectCustomers}
+            />
+
             <Form.Item
               label="Description"
               name="description"
@@ -264,32 +275,7 @@ const EditVendor = () => {
 
         {/* Vendor SEO Tab */}
         <TabPane tab="Vendor SEO" key="2">
-          <Form layout="vertical" onFinish={handleSaveChangesSEO}>
-            <Form.Item
-              label="Meta Title"
-              name="metaTitle"
-              initialValue={vendorData.MetaTitle}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="Meta Keywords"
-              name="metaKeywords"
-              initialValue={vendorData.MetaKeywords}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="Meta Description"
-              name="metaDescription"
-              initialValue={vendorData.MetaDescription}
-            >
-              <Input.TextArea rows={4} />
-            </Form.Item>
-            <Button type="primary" htmlType="submit">
-              Save SEO Changes
-            </Button>
-          </Form>
+          <VendorSEO vendorId={id} />
         </TabPane>
 
         {/* Vendor Note Tab */}
