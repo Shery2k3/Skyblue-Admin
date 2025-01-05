@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import CustomLayout from "../../Components/Layout/Layout";
 import { Button, Table, Tag, Typography, Dropdown, Menu } from "antd";
 import useRetryRequest from "../../Api/useRetryRequest";
@@ -15,8 +15,12 @@ const VendorProduct = () => {
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all"); // State to manage the filter
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
-  const fetchVendorsProduct = async () => {
+  const fetchVendorsProduct = useCallback(async () => {
     setLoading(true); // Set loading to true before fetching
     try {
       const response = await retryRequest(() =>
@@ -30,11 +34,15 @@ const VendorProduct = () => {
       }));
       setDataSource(data);
     } catch (error) {
-      console.error("Error fetching customer data:", error);
+      console.error("Error fetching vendor products:", error);
     } finally {
       setLoading(false); // Set loading to false after fetching
     }
-  };
+  }, [id, retryRequest]);
+
+  useEffect(() => {
+    fetchVendorsProduct();
+  }, [fetchVendorsProduct]);
 
   const handleView = (record) => {
     navigate(`/edit-product/${record.id}`);
@@ -42,15 +50,19 @@ const VendorProduct = () => {
 
   const handleFilterChange = (status) => {
     setFilterStatus(status); // Update the filter status
+    setPagination({ current: 1, pageSize: 10 }); // Reset pagination when filter changes
   };
 
-  // Filter the data based on the selected filter
-  const filteredData = dataSource.filter((product) => {
-    if (filterStatus === "all") return true;
-    return filterStatus === "published" ? product.published : !product.published;
-  });
+  // Memoize the filtered data to optimize performance and avoid re-rendering
+  const filteredData = useMemo(() => {
+    return dataSource.filter((product) => {
+      if (filterStatus === "all") return true;
+      return filterStatus === "published" ? product.published : !product.published;
+    });
+  }, [dataSource, filterStatus]);
 
-  const columns = [
+  // Memoize columns to prevent re-rendering
+  const columns = useMemo(() => [
     {
       title: "Product Id",
       dataIndex: "id",
@@ -79,16 +91,10 @@ const VendorProduct = () => {
       key: "action",
       align: "center",
       render: (_, record) => (
-        <>
-          <Button onClick={() => handleView(record)}>View</Button>
-        </>
+        <Button type="link" onClick={() => handleView(record)}>View</Button>
       ),
     },
-  ];
-
-  useEffect(() => {
-    fetchVendorsProduct();
-  }, []);
+  ], []);
 
   // Create the dropdown menu for filtering
   const menu = (
@@ -99,26 +105,47 @@ const VendorProduct = () => {
     </Menu>
   );
 
+  // Handle pagination change
+  const handlePaginationChange = (page, pageSize) => {
+    setPagination({
+      current: page,
+      pageSize: pageSize,
+    });
+  };
+
   return (
     <CustomLayout pageTitle="Vendors" menuKey="6">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Vendors Products
       </Title>
 
-      {/* Filter Dropdown */}
-      <Dropdown overlay={menu} trigger={['click']} style={{ marginBottom: 20 }}>
-        <Button>Filter: {filterStatus === 'all' ? 'All' : filterStatus === 'published' ? 'Published' : 'Not Published'}</Button>
-      </Dropdown>
-      <br/>
-      <br/>
+      <div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Button type="primary" onClick={() => navigate(-1)}>Go Back</Button>
+
+        {/* Filter Dropdown */}
+        <Dropdown overlay={menu} trigger={['click']}>
+          <Button>
+            Filter: {filterStatus === 'all' ? 'All' : filterStatus === 'published' ? 'Published' : 'Not Published'}
+          </Button>
+        </Dropdown>
+      </div>
 
       {/* Table displaying filtered products */}
       <Table
-        dataSource={filteredData}
+        dataSource={filteredData.slice(
+          (pagination.current - 1) * pagination.pageSize,
+          pagination.current * pagination.pageSize
+        )}
         columns={columns}
         loading={loading}
-        scroll={{ x: 'max-content' }} 
+        scroll={{ x: 'max-content' }} // Enable horizontal scroll for larger tables
         bordered
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: filteredData.length,
+          onChange: handlePaginationChange,
+        }}
       />
     </CustomLayout>
   );
