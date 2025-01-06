@@ -1,5 +1,9 @@
-//@desc:Go back button work
-//@desc: Improve the ui
+//@desc: Arsal
+//@desc: Aling Customer and "?" tooltip in the same line
+//@desc: there no pagination on Customers so add it
+//@desc: When adding "new customer" it is not updating page weve to refresh the page to see the changes
+
+//@desc: Shery, add functionality of "Upload Picture" button "router.patch("/editvendor/:id", adminAccess, patchVendor);" same api is used for updating seo so take care about that also.
 
 import React, { useEffect, useState } from "react";
 import {
@@ -194,7 +198,7 @@ const EditVendor = () => {
 
             {/* Display Customers Section */}
             <Form.Item label="Customers">
-            <Tooltip title="A List of a customer accounts which could be used to manage products and orders of this vendor(have access to the vendor portal). You can associate customers to a vendor by clicking the 'Add New Customer' button. If you dont want the vendor to have access to the vendor portal, then do not associate any customer account with it.">
+              <Tooltip title="A List of a customer accounts which could be used to manage products and orders of this vendor(have access to the vendor portal). You can associate customers to a vendor by clicking the 'Add New Customer' button. If you dont want the vendor to have access to the vendor portal, then do not associate any customer account with it.">
                 <span style={{ cursor: "pointer", marginLeft: 8 }}>?</span>
               </Tooltip>
               {vendorData.customers && vendorData.customers.length > 0 ? (
