@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from "react";
-import { Modal, Input, Button, Table, Spin } from "antd";
+import { Modal, Input, Button, Table, Spin, message } from "antd";
 import API_BASE_URL from "../../../constants";
 import useRetryRequest from "../../../Api/useRetryRequest";
 import axiosInstance from "../../../Api/axiosConfig";
 import { debounce } from "lodash";
 
-const CustomerModal = ({ visible, onCancel, onSelectCustomer }) => {
+const CustomerModal = ({ visible, onCancel, onSelectCustomer, vendorId }) => {
   const retryRequest = useRetryRequest();
 
   const [email, setEmail] = useState("");
@@ -28,7 +28,6 @@ const CustomerModal = ({ visible, onCancel, onSelectCustomer }) => {
         const response = await retryRequest(() =>
           axiosInstance.get(`${API_BASE_URL}/admin/searchcustomer?email=${emailSearch}`)
         );
-
         setCustomers(response.data.result);
       } catch (error) {
         console.error("Error fetching customers", error);
@@ -40,8 +39,18 @@ const CustomerModal = ({ visible, onCancel, onSelectCustomer }) => {
     [] // Empty dependency array ensures debounce function is not recreated
   );
 
-  const handleSelectCustomer = (customer) => {
-    console.log("Selected customer", customer);
+  const handleSelectCustomer = async (customer) => {
+    try {
+      const response = await retryRequest(() => axiosInstance.patch(
+        `${API_BASE_URL}/admin/addcustomertovendor/${vendorId}`,
+        { customerId: customer.Id }
+      ));
+      message.success("Customer added to vendor successfully.");
+      onSelectCustomer(customer);
+    } catch (error) {
+      console.error("Error adding customer to vendor:", error);
+      message.error("Failed to add customer to vendor.");
+    }
   };
 
   const columns = [

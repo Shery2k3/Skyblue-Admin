@@ -12,6 +12,8 @@ import {
   Checkbox,
   message,
   Select,
+  Upload,
+  Tooltip,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../Api/axiosConfig";
@@ -20,6 +22,8 @@ import CustomLayout from "../../Components/Layout/Layout";
 import API_BASE_URL from "../../constants";
 import VendorSEO from "./Edit/VendorSEOForm";
 import CustomerModal from "./Edit/CustomerModal";
+import { UploadOutlined } from "@ant-design/icons";
+import VendorAddressForm from "./Edit/VendorAddressform";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -28,23 +32,20 @@ const EditVendor = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [vendorData, setVendorData] = useState({});
+  const [visible, setVisible] = useState(false);
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
+
   const retryRequest = useRetryRequest();
   const navigate = useNavigate();
-
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [selectedState, setSelectedState] = useState("");
-
-  const [address, setAddress] = useState([]);
 
   //vendors data
   const fetchVendor = async () => {
     setLoading(true);
     try {
       const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/getonevendor/${id}`)
+        axiosInstance.get(`${API_BASE_URL}/admin/getonevendoredit/${id}`)
       );
+      console.log("Vendor Data", response.data);
       if (response.data?.success) {
         setVendorData(response.data.vendor);
       }
@@ -55,54 +56,9 @@ const EditVendor = () => {
     }
   };
 
-  const fetcVendorAddress = async () => {
-    try {
-      const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/getvendoraddress/${id}`)
-      );
-      console.log("Vendor address", response.data);
-      setAddress(response.data.data);
-    } catch (error) {
-      console.error("Error fetching vendor:", error);
-    }
-  };
-
-  //Country/state data
-  const fetchCountryList = async () => {
-    try {
-      const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/orders/countries-states`)
-      );
-      //console.log(response.data);
-      setCountries(response.data.data.countries);
-      setStates(response.data.data.states);
-    } catch (error) {
-      console.error("Error fetching countries:", error);
-    }
-  };
-
-  //Filter w.r.t Country Name, state Name
-
-  const handleCountryChange = (e) => {
-    const countryId = e.target.value;
-    setSelectedCountry(countryId);
-    // Filter the states based on the selected country
-    setStates(
-      states.filter((state) => state.CountryId === parseInt(countryId))
-    );
-    setSelectedState(""); // Reset the selected state
-  };
-
   useEffect(() => {
-    fetchCountryList();
     fetchVendor();
-    fetcVendorAddress();
   }, []);
-
-
-  const [visible, setVisible] = useState(false);
-
-  const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
 
   const handleOpenModal = () => {
     setVisible(true);
@@ -145,32 +101,53 @@ const EditVendor = () => {
     }
   };
 
-  //vendor Address update
-  const handleSaveChangesAddress = async (values) => {
-    // Include selectedCountry and selectedState in the values object
-    const updatedValues = {
-      ...values,
-      country: selectedCountry, // Add selected country
-      state: selectedState, // Add selected state
-    };
-
-    console.log("Form Data Submitted:", updatedValues);
-
-    try {
-      const response = await axiosInstance.patch(
-        `${API_BASE_URL}/admin/update-vendor-address/${id}`,
-        updatedValues
-      );
-      console.log(response);
-      message.success("Address updated successfully");
-    } catch (error) {
-      console.error("Error updating address:", error);
+  const handlePictureUpload = (file) => {
+    // Validate file type (optional)
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      message.error("You can only upload JPG, PNG, or GIF files!");
+      return;
     }
+
+    // Validate file size (optional)
+    const maxSizeInMB = 2; // 2MB
+    if (file.size / 1024 / 1024 > maxSizeInMB) {
+      message.error(`File must be smaller than ${maxSizeInMB}MB!`);
+      return;
+    }
+
+    // Generate preview (optional)
+    const previewUrl = URL.createObjectURL(file);
+    console.log("Preview URL:", previewUrl);
+
+    // Upload the file (replace this with your API logic)
+    const formData = new FormData();
+    formData.append("file", file);
   };
 
-  //Note update
-  const handleSaveChangesNote = (values) => {
-    console.log("Form Data Submitted:", values);
+  const handleDeleteCustomer = async (customerId) => {
+    try {
+      const response = await axiosInstance.patch(
+        `${API_BASE_URL}/admin/removecustomervendor`,
+        { customerId } // Sending customerId in request body
+      );
+
+      if (response.data?.success) {
+        message.success("Customer removed successfully.");
+        // Update the UI to remove the deleted customer
+        setVendorData((prevState) => ({
+          ...prevState,
+          customers: prevState.customers.filter(
+            (customer) => customer.Id !== customerId
+          ),
+        }));
+      } else {
+        message.error("Failed to remove the customer.");
+      }
+    } catch (error) {
+      console.error("Error deleting customer:", error);
+      message.error("An error occurred while removing the customer.");
+    }
   };
 
   if (loading) {
@@ -183,8 +160,6 @@ const EditVendor = () => {
       </CustomLayout>
     );
   }
-
-  
 
   return (
     <CustomLayout pageTitle="Vendors" menuKey="6">
@@ -203,9 +178,12 @@ const EditVendor = () => {
         {/* Vendor Info Tab */}
         <TabPane tab="Vendor Info" key="1">
           <Form layout="vertical" onFinish={handleSaveChangesInfo}>
+            {/* Name Field */}
             <Form.Item label="Name" name="name" initialValue={vendorData.Name}>
               <Input />
             </Form.Item>
+
+            {/* Email Field */}
             <Form.Item
               label="Email"
               name="email"
@@ -214,16 +192,62 @@ const EditVendor = () => {
               <Input />
             </Form.Item>
 
-            <Form.Item label="Customer" name="customer">
-              <Input onClick={handleOpenModal} placeholder="Select Customers" />
+            {/* Display Customers Section */}
+            <Form.Item label="Customers">
+            <Tooltip title="A List of a customer accounts which could be used to manage products and orders of this vendor(have access to the vendor portal). You can associate customers to a vendor by clicking the 'Add New Customer' button. If you dont want the vendor to have access to the vendor portal, then do not associate any customer account with it.">
+                <span style={{ cursor: "pointer", marginLeft: 8 }}>?</span>
+              </Tooltip>
+              {vendorData.customers && vendorData.customers.length > 0 ? (
+                <div style={{ marginBottom: "1rem" }}>
+                  {vendorData.customers.map((customer) => (
+                    <div
+                      key={customer.Id}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "0.5rem 1rem",
+                        border: "1px solid #d9d9d9",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    >
+                      <span>
+                        <strong>{customer.Username}</strong> - {customer.Email}{" "}
+                        ({customer.Active ? "Active" : "Inactive"})
+                      </span>
+                      <Button
+                        type="link"
+                        danger
+                        onClick={() => handleDeleteCustomer(customer.Id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div>No customers available.</div>
+              )}
+              <Button type="dashed" onClick={handleOpenModal}>
+                Add New Customer
+              </Button>
             </Form.Item>
 
-            <CustomerModal
-              visible={visible}
-              onCancel={handleCloseModal}
-              onSelectCustomers={handleSelectCustomers}
-            />
+            {/* Picture Upload */}
+            <Form.Item label="Picture">
+              <Upload
+                listType="picture"
+                beforeUpload={(file) => {
+                  handlePictureUpload(file); // Custom handler function for uploading
+                  return false; // Prevent auto-upload
+                }}
+              >
+                <Button icon={<UploadOutlined />}>Upload Picture</Button>
+              </Upload>
+            </Form.Item>
 
+            {/* Description */}
             <Form.Item
               label="Description"
               name="description"
@@ -231,6 +255,8 @@ const EditVendor = () => {
             >
               <Input.TextArea rows={4} />
             </Form.Item>
+
+            {/* Admin Comment */}
             <Form.Item
               label="Admin Comment"
               name="adminComment"
@@ -238,6 +264,8 @@ const EditVendor = () => {
             >
               <Input.TextArea rows={4} />
             </Form.Item>
+
+            {/* Active Checkbox */}
             <Form.Item
               label="Active"
               name="active"
@@ -246,6 +274,8 @@ const EditVendor = () => {
             >
               <Checkbox>Active</Checkbox>
             </Form.Item>
+
+            {/* Display Order */}
             <Form.Item
               label="Display Order"
               name="displayOrder"
@@ -253,6 +283,8 @@ const EditVendor = () => {
             >
               <Input type="number" />
             </Form.Item>
+
+            {/* Page Size */}
             <Form.Item
               label="Page Size"
               name="pageSize"
@@ -260,6 +292,8 @@ const EditVendor = () => {
             >
               <Input type="number" />
             </Form.Item>
+
+            {/* Page Size Options */}
             <Form.Item
               label="Page Size Options"
               name="pageSizeOptions"
@@ -267,10 +301,20 @@ const EditVendor = () => {
             >
               <Input placeholder="e.g., 24, 48, 72" />
             </Form.Item>
+
+            {/* Save Changes Button */}
             <Button type="primary" htmlType="submit">
               Save Changes
             </Button>
           </Form>
+
+          {/* Customer Modal */}
+          <CustomerModal
+            visible={visible}
+            onCancel={handleCloseModal}
+            onSelectCustomers={handleSelectCustomers}
+            vendorId={id}
+          />
         </TabPane>
 
         {/* Vendor SEO Tab */}
@@ -278,121 +322,11 @@ const EditVendor = () => {
           <VendorSEO vendorId={id} />
         </TabPane>
 
-        {/* Vendor Note Tab */}
-        <TabPane tab="Vendor Note" key="3">
-          <Form layout="vertical" onFinish={handleSaveChangesNote}>
-            <Form.Item
-              label="Admin Comment"
-              name="adminComment"
-              initialValue={"Admin Comment"}
-            >
-              <Input.TextArea rows={4} />
-            </Form.Item>
-            <Button type="primary" htmlType="submit">
-              Save Note
-            </Button>
-          </Form>
-        </TabPane>
-
         {/* Address Tab */}
-        <TabPane tab="Address" key="4">
-          <Form layout="vertical" onFinish={handleSaveChangesAddress}>
-            <Form.Item
-              label="Email"
-              name="email"
-              initialValue={vendorData.Email}
-            >
-              <Input disabled />
-            </Form.Item>
-
-            {/* Country Dropdown */}
-            <Form.Item
-              label="Country"
-              name="country"
-              initialValue={vendorData.Country || ""}
-            >
-              <div>
-                <label>Country:</label>
-                <select value={selectedCountry} onChange={handleCountryChange}>
-                  <option value="">Select a country</option>
-                  {countries?.map((country) => (
-                    <option key={country.Id} value={country.Id}>
-                      {country.Name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label>State/Province:</label>
-                <select
-                  value={selectedState}
-                  onChange={(e) => setSelectedState(e.target.value)}
-                  disabled={!selectedCountry}
-                >
-                  <option value="">Select a state</option>
-                  {states
-                    ?.filter(
-                      (state) => state.CountryId === parseInt(selectedCountry)
-                    )
-                    .map((state) => (
-                      <option key={state.Id} value={state.Id}>
-                        {state.Name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </Form.Item>
-            {/* Rest of the address fields */}
-            <Form.Item
-              label="City"
-              name="city"
-              initialValue={address.City || ""}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="Address 1"
-              name="address1"
-              initialValue={address.Address1 || ""}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="Address 2"
-              name="address2"
-              initialValue={address.Address2 || ""}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="ZIP/Postal Code"
-              name="zipCode"
-              initialValue={address.ZipPostalCode || ""}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="Phone"
-              name="phone"
-              initialValue={address.PhoneNumber || ""}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="Fax Number"
-              name="fax"
-              initialValue={address.FaxNumber || ""}
-            >
-              <Input />
-            </Form.Item>
-
-            <Button type="primary" htmlType="submit">
-              Save Address
-            </Button>
-          </Form>
+        <TabPane tab="Address" key="3">
+          <VendorAddressForm />
         </TabPane>
       </Tabs>
-      {console.log("Address", address)}
     </CustomLayout>
   );
 };
