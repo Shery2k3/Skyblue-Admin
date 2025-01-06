@@ -241,16 +241,16 @@ const CustomerRoles = () => {
         onChange={handleTableChange}
       />
 
-      {/*To Edit an already existing vendor*/}
+      {/*To Edit an already existing Customer*/}
       <Modal
         centered
-        title="Edit Vendor"
+        title="Edit Customer Role"
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
       >
         <Input
-          placeholder="Vendor Name"
+          placeholder="Customer Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -264,10 +264,10 @@ const CustomerRoles = () => {
         </Checkbox>
       </Modal>
 
-      {/*To add a new vendor*/}
+      {/*To add a new customer*/}
       <Modal
         centered
-        title="Add Vendor"
+        title="Add Customer"
         open={isAddModalVisible}
         onOk={addRole}
         onCancel={handleCancel}
