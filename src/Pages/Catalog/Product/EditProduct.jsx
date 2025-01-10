@@ -27,6 +27,15 @@ const { Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
+import { Tabs } from "antd";
+import EditSeo from "./Sections/EditSeo";
+import EditPictures from "./Sections/EditPictures";
+import EditProductAttribute from "./Sections/EditProductAttribute";
+import EditSpecificationAttribute from "./Sections/EditSpecificationAttribute";
+import EditPurchaseOrder from "./Sections/EditPurchaseOrder";
+import StockQuantityHistory from "./Sections/StockQuantityHistory";
+const { TabPane } = Tabs;
+
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -141,7 +150,9 @@ const EditProduct = () => {
       const discountName = discount ? discount.Name : "";
 
       // Find the manufacturer name
-      const manufacturer = manufacturers.find(m => m.Id === product.Manufacturer?.Id);
+      const manufacturer = manufacturers.find(
+        (m) => m.Id === product.Manufacturer?.Id
+      );
       const manufacturerName = manufacturer ? manufacturer.Name : "";
 
       const formValues = {
@@ -167,7 +178,7 @@ const EditProduct = () => {
         DiscountId: discountId,
         DiscountName: discountName,
         ManufacturerId: product.Manufacturer?.Id || null,
-        ManufacturerName: manufacturerName
+        ManufacturerName: manufacturerName,
       };
 
       // Set tier prices
@@ -189,7 +200,10 @@ const EditProduct = () => {
     try {
       const updatedFields = {};
       Object.keys(values).forEach((key) => {
-        if (key === 'ManufacturerId' && values['ManufacturerId'] !== null || values[key] !== initialValues[key]) {
+        if (
+          (key === "ManufacturerId" && values["ManufacturerId"] !== null) ||
+          values[key] !== initialValues[key]
+        ) {
           updatedFields[key] = values[key];
         }
       });
@@ -223,7 +237,7 @@ const EditProduct = () => {
       }
 
       if (id) {
-        console.log(formData)
+        console.log(formData);
         await axiosInstance.patch(
           `${API_BASE_URL}/admin/product/${id}`,
           formData,
@@ -350,344 +364,393 @@ const EditProduct = () => {
       <Title level={2} style={{ textAlign: "center" }}>
         {id ? "Edit Product" : "Add Product"}
       </Title>
-      <Card size="small">
-        <div style={styles.formContainer}>
-          <div style={styles.imageContainer}>
-            {imageUrl && (
-              <img src={imageUrl} alt="Product" style={styles.productImage} />
-            )}
-            <Upload
-              beforeUpload={() => false}
-              onChange={handleImageChange}
-              showUploadList={false}
-            >
-              <Button icon={<UploadOutlined />} size={buttonSize}>
-                {imageUrl ? "Change Image" : "Upload Image"}
-              </Button>
-            </Upload>
-          </div>
-
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={onFinish}
-            initialValues={{
-              VisibleIndividually: true,
-              Published: true,
-              MarkAsNew: false,
-              OrderMinimumQuantity: 1,
-              OrderMaximumQuantity: 10000,
-              StockQuantity: 10000,
-            }}
-          >
-            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-              <Form.Item
-                name="Name"
-                label="Name"
-                rules={[{ required: true }]}
-                style={styles.formItem}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="ShortDescription"
-                label="Short Description"
-                style={styles.formItem}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="FullDescription"
-                label="Full Description"
-                style={styles.formItem}
-              >
-                <TextArea rows={4} />
-              </Form.Item>
-
-              <Form.Item
-                name="CategoryId"
-                label="Category"
-                initialValue={initialValues.CategoryId}
-                style={styles.formItem}
-              >
-                <Select
-                  placeholder={
-                    initialValues.CategoryName || "Select a category"
-                  }
-                >
-                  {categories.map((category) => (
-                    <Option key={category.id} value={category.id}>
-                      {category.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="ManufacturerId"
-                label="Manufacturer"
-                style={styles.formItem}
-              >
-                <Select
-                  placeholder={initialValues.ManufacturerName || "Select a manufacturer"}
-                  onChange={(value) => {
-                    if (value === 0) {
-                      form.setFieldsValue({ ManufacturerId: 0 });
-                    }
-                  }}
-                  style={{
-                    width: '200px',
-                    borderColor: form.getFieldValue('ManufacturerId') === 0 ? '#ff4d4f' : undefined,
-                  }}
-                >
-                  <Option key={0} value={0} style={{ color: 'red' }}>
-                    Clear Manufacturer
-                  </Option>
-                  {manufacturers.map((manufacturer) => (
-                    <Option key={manufacturer.Id} value={manufacturer.Id}>
-                      {manufacturer.Name}
-                    </Option>
-                  ))}
-                </Select>
-                {form.getFieldValue('ManufacturerId') === 0 && (
-                  <Typography.Text type="danger" style={{ marginLeft: '8px' }}>
-                    Manufacturer will be removed on update
-                  </Typography.Text>
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="Product Details" key="1">
+          <Card size="small">
+            <div style={styles.formContainer}>
+              <div style={styles.imageContainer}>
+                {imageUrl && (
+                  <img
+                    src={imageUrl}
+                    alt="Product"
+                    style={styles.productImage}
+                  />
                 )}
-              </Form.Item>
+                <Upload
+                  beforeUpload={() => false}
+                  onChange={handleImageChange}
+                  showUploadList={false}
+                >
+                  <Button icon={<UploadOutlined />} size={buttonSize}>
+                    {imageUrl ? "Change Image" : "Upload Image"}
+                  </Button>
+                </Upload>
+              </div>
 
-              <Space
-                style={{
-                  width: "100%",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={onFinish}
+                initialValues={{
+                  VisibleIndividually: true,
+                  Published: true,
+                  MarkAsNew: false,
+                  OrderMinimumQuantity: 1,
+                  OrderMaximumQuantity: 10000,
+                  StockQuantity: 10000,
                 }}
               >
-                <Form.Item
-                  name="Price"
-                  label="Price"
-                  rules={[{ required: true }]}
-                  style={styles.formItem}
+                <Space
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: "100%" }}
                 >
-                  <InputNumber min={0} step={0.01} style={{ width: "100%" }} />
-                </Form.Item>
-
-                <Form.Item
-                  name="OldPrice"
-                  label="Old Price"
-                  style={styles.formItem}
-                >
-                  <InputNumber min={0} step={0.01} style={{ width: "100%" }} />
-                </Form.Item>
-
-                <Form.Item
-                  name="DiscountId"
-                  label="Discount"
-                  initialValue={initialValues.DiscountId}
-                  style={styles.formItem}
-                >
-                  <Select
-                    placeholder={
-                      initialValues.DiscountName || "Select a discount"
-                    }
-                    style={{ width: "100%" }}
-                  >
-                    {discounts.map((discount) => (
-                      <Option key={discount.Id} value={discount.Id}>
-                        {discount.Name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Space>
-
-              <Space
-                style={{
-                  width: "100%",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                }}
-              >
-                <Form.Item
-                  name="StockQuantity"
-                  label="Stock Quantity"
-                  style={styles.formItem}
-                >
-                  <InputNumber min={0} style={{ width: "100%" }} />
-                </Form.Item>
-
-                <Form.Item
-                  name="OrderMinimumQuantity"
-                  label="Minimum Order Quantity"
-                  style={styles.formItem}
-                >
-                  <InputNumber min={1} style={{ width: "100%" }} />
-                </Form.Item>
-
-                <Form.Item
-                  name="OrderMaximumQuantity"
-                  label="Maximum Order Quantity"
-                  style={styles.formItem}
-                >
-                  <InputNumber min={1} style={{ width: "100%" }} />
-                </Form.Item>
-              </Space>
-
-              <Form.Item
-                name="AllowedQuantities"
-                label="Allowed Quantities"
-                style={styles.formItem}
-              >
-                <Input placeholder="Comma-separated values, e.g. 1, 5, 10" />
-              </Form.Item>
-
-              <Space
-                style={{
-                  width: "100%",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                }}
-              >
-                <Form.Item
-                  name="Barcode"
-                  label="Barcode"
-                  style={styles.formItem}
-                >
-                  <Input style={{ width: "100%" }} />
-                </Form.Item>
-
-                <Form.Item
-                  name="Barcode2"
-                  label="Box Barcode"
-                  style={styles.formItem}
-                >
-                  <Input style={{ width: "100%" }} />
-                </Form.Item>
-              </Space>
-
-              <Form.Item
-                name="ItemLocation"
-                label="Item Location"
-                style={styles.formItem}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="BoxQty"
-                label="Box Quantity"
-                style={styles.formItem}
-              >
-                <InputNumber min={0} style={{ width: "100%" }} />
-              </Form.Item>
-
-              <Form.Item
-                name="AdminComment"
-                label="Admin Comment"
-                style={styles.formItem}
-              >
-                <TextArea rows={2} />
-              </Form.Item>
-
-              <Space
-                style={{
-                  width: "100%",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                }}
-              >
-                <Form.Item
-                  name="Published"
-                  valuePropName="checked"
-                  label="Published"
-                  style={styles.formItem}
-                >
-                  <Switch />
-                </Form.Item>
-
-                <Form.Item
-                  name="VisibleIndividually"
-                  valuePropName="checked"
-                  label="Visible Individually"
-                  style={styles.formItem}
-                >
-                  <Switch />
-                </Form.Item>
-
-                <Form.Item
-                  name="MarkAsNew"
-                  valuePropName="checked"
-                  label="Mark as New"
-                  style={styles.formItem}
-                >
-                  <Switch />
-                </Form.Item>
-              </Space>
-
-              <Title level={4}>Tier Prices</Title>
-              {[1, 2, 3, 4, 5].map((index) => (
-                <div key={index} style={styles.tierPriceContainer}>
                   <Form.Item
-                    name={`Role${index}`}
-                    label={`Role ${index}`}
-                    style={styles.tierPriceItem}
+                    name="Name"
+                    label="Name"
+                    rules={[{ required: true }]}
+                    style={styles.formItem}
+                  >
+                    <Input />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="ShortDescription"
+                    label="Short Description"
+                    style={styles.formItem}
+                  >
+                    <Input />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="FullDescription"
+                    label="Full Description"
+                    style={styles.formItem}
+                  >
+                    <TextArea rows={4} />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="CategoryId"
+                    label="Category"
+                    initialValue={initialValues.CategoryId}
+                    style={styles.formItem}
                   >
                     <Select
-                      style={{ width: "100%" }}
-                      onChange={() =>
-                        form.setFieldsValue({ [`Price${index}`]: null })
+                      placeholder={
+                        initialValues.CategoryName || "Select a category"
                       }
                     >
-                      {roles.map((role) => (
-                        <Option key={role.Id} value={role.Id}>
-                          {role.Name}
+                      {categories.map((category) => (
+                        <Option key={category.id} value={category.id}>
+                          {category.name}
                         </Option>
                       ))}
                     </Select>
                   </Form.Item>
-                  <Form.Item
-                    name={`Price${index}`}
-                    label={`Price ${index}`}
-                    style={styles.tierPriceItem}
-                  >
-                    <InputNumber
-                      min={0}
-                      step={0.01}
-                      style={{ width: "100%" }}
-                    />
-                  </Form.Item>
-                  <Popconfirm
-                    title="Are you sure you want to delete this tier price?"
-                    onConfirm={() => handleDeleteTierPrice(index)}
-                    okText="Yes"
-                    cancelText="No"
-                    disabled={!form.getFieldValue(`Role${index}`)}
-                  >
-                    <Button
-                      icon={<DeleteOutlined />}
-                      style={{
-                        ...styles.deleteButton,
-                        opacity: form.getFieldValue(`Role${index}`) ? 1 : 0.5,
-                      }}
-                      type="text"
-                      disabled={!form.getFieldValue(`Role${index}`)}
-                      loading={deletingTierPrice}
-                    />
-                  </Popconfirm>
-                </div>
-              ))}
 
-              <Form.Item style={{ textAlign: "center" }}>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  {id ? "Update Product" : "Add Product"}
-                </Button>
-              </Form.Item>
-            </Space>
-          </Form>
-        </div>
-      </Card>
+                  <Form.Item
+                    name="ManufacturerId"
+                    label="Manufacturer"
+                    style={styles.formItem}
+                  >
+                    <Select
+                      placeholder={
+                        initialValues.ManufacturerName ||
+                        "Select a manufacturer"
+                      }
+                      onChange={(value) => {
+                        if (value === 0) {
+                          form.setFieldsValue({ ManufacturerId: 0 });
+                        }
+                      }}
+                      style={{
+                        width: "200px",
+                        borderColor:
+                          form.getFieldValue("ManufacturerId") === 0
+                            ? "#ff4d4f"
+                            : undefined,
+                      }}
+                    >
+                      <Option key={0} value={0} style={{ color: "red" }}>
+                        Clear Manufacturer
+                      </Option>
+                      {manufacturers.map((manufacturer) => (
+                        <Option key={manufacturer.Id} value={manufacturer.Id}>
+                          {manufacturer.Name}
+                        </Option>
+                      ))}
+                    </Select>
+                    {form.getFieldValue("ManufacturerId") === 0 && (
+                      <Typography.Text
+                        type="danger"
+                        style={{ marginLeft: "8px" }}
+                      >
+                        Manufacturer will be removed on update
+                      </Typography.Text>
+                    )}
+                  </Form.Item>
+
+                  <Space
+                    style={{
+                      width: "100%",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <Form.Item
+                      name="Price"
+                      label="Price"
+                      rules={[{ required: true }]}
+                      style={styles.formItem}
+                    >
+                      <InputNumber
+                        min={0}
+                        step={0.01}
+                        style={{ width: "100%" }}
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="OldPrice"
+                      label="Old Price"
+                      style={styles.formItem}
+                    >
+                      <InputNumber
+                        min={0}
+                        step={0.01}
+                        style={{ width: "100%" }}
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="DiscountId"
+                      label="Discount"
+                      initialValue={initialValues.DiscountId}
+                      style={styles.formItem}
+                    >
+                      <Select
+                        placeholder={
+                          initialValues.DiscountName || "Select a discount"
+                        }
+                        style={{ width: "100%" }}
+                      >
+                        {discounts.map((discount) => (
+                          <Option key={discount.Id} value={discount.Id}>
+                            {discount.Name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Space>
+
+                  <Space
+                    style={{
+                      width: "100%",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <Form.Item
+                      name="StockQuantity"
+                      label="Stock Quantity"
+                      style={styles.formItem}
+                    >
+                      <InputNumber min={0} style={{ width: "100%" }} />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="OrderMinimumQuantity"
+                      label="Minimum Order Quantity"
+                      style={styles.formItem}
+                    >
+                      <InputNumber min={1} style={{ width: "100%" }} />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="OrderMaximumQuantity"
+                      label="Maximum Order Quantity"
+                      style={styles.formItem}
+                    >
+                      <InputNumber min={1} style={{ width: "100%" }} />
+                    </Form.Item>
+                  </Space>
+
+                  <Form.Item
+                    name="AllowedQuantities"
+                    label="Allowed Quantities"
+                    style={styles.formItem}
+                  >
+                    <Input placeholder="Comma-separated values, e.g. 1, 5, 10" />
+                  </Form.Item>
+
+                  <Space
+                    style={{
+                      width: "100%",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <Form.Item
+                      name="Barcode"
+                      label="Barcode"
+                      style={styles.formItem}
+                    >
+                      <Input style={{ width: "100%" }} />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="Barcode2"
+                      label="Box Barcode"
+                      style={styles.formItem}
+                    >
+                      <Input style={{ width: "100%" }} />
+                    </Form.Item>
+                  </Space>
+
+                  <Form.Item
+                    name="ItemLocation"
+                    label="Item Location"
+                    style={styles.formItem}
+                  >
+                    <Input />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="BoxQty"
+                    label="Box Quantity"
+                    style={styles.formItem}
+                  >
+                    <InputNumber min={0} style={{ width: "100%" }} />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="AdminComment"
+                    label="Admin Comment"
+                    style={styles.formItem}
+                  >
+                    <TextArea rows={2} />
+                  </Form.Item>
+
+                  <Space
+                    style={{
+                      width: "100%",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <Form.Item
+                      name="Published"
+                      valuePropName="checked"
+                      label="Published"
+                      style={styles.formItem}
+                    >
+                      <Switch />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="VisibleIndividually"
+                      valuePropName="checked"
+                      label="Visible Individually"
+                      style={styles.formItem}
+                    >
+                      <Switch />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="MarkAsNew"
+                      valuePropName="checked"
+                      label="Mark as New"
+                      style={styles.formItem}
+                    >
+                      <Switch />
+                    </Form.Item>
+                  </Space>
+
+                  <Title level={4}>Tier Prices</Title>
+                  {[1, 2, 3, 4, 5].map((index) => (
+                    <div key={index} style={styles.tierPriceContainer}>
+                      <Form.Item
+                        name={`Role${index}`}
+                        label={`Role ${index}`}
+                        style={styles.tierPriceItem}
+                      >
+                        <Select
+                          style={{ width: "100%" }}
+                          onChange={() =>
+                            form.setFieldsValue({ [`Price${index}`]: null })
+                          }
+                        >
+                          {roles.map((role) => (
+                            <Option key={role.Id} value={role.Id}>
+                              {role.Name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
+                        name={`Price${index}`}
+                        label={`Price ${index}`}
+                        style={styles.tierPriceItem}
+                      >
+                        <InputNumber
+                          min={0}
+                          step={0.01}
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                      <Popconfirm
+                        title="Are you sure you want to delete this tier price?"
+                        onConfirm={() => handleDeleteTierPrice(index)}
+                        okText="Yes"
+                        cancelText="No"
+                        disabled={!form.getFieldValue(`Role${index}`)}
+                      >
+                        <Button
+                          icon={<DeleteOutlined />}
+                          style={{
+                            ...styles.deleteButton,
+                            opacity: form.getFieldValue(`Role${index}`)
+                              ? 1
+                              : 0.5,
+                          }}
+                          type="text"
+                          disabled={!form.getFieldValue(`Role${index}`)}
+                          loading={deletingTierPrice}
+                        />
+                      </Popconfirm>
+                    </div>
+                  ))}
+
+                  <Form.Item style={{ textAlign: "center" }}>
+                    <Button type="primary" htmlType="submit" loading={loading}>
+                      {id ? "Update Product" : "Add Product"}
+                    </Button>
+                  </Form.Item>
+                </Space>
+              </Form>
+            </div>
+          </Card>
+        </TabPane>
+        <TabPane tab="SEO" key="2">
+        <EditSeo />
+      </TabPane>
+      <TabPane tab="Pictures" key="3">
+        <EditPictures />
+      </TabPane>
+      <TabPane tab="Product Attribute" key="4">
+        <EditProductAttribute />
+      </TabPane>
+      <TabPane tab="Specification Attribute" key="5">
+        <EditSpecificationAttribute/>
+      </TabPane>
+      <TabPane tab="Purchase with Order" key="6">
+        <EditPurchaseOrder />
+      </TabPane>
+      <TabPane tab="Stock Quantity History" key="7">
+        <StockQuantityHistory />
+      </TabPane>
+      </Tabs>
     </CustomLayout>
   );
 };
