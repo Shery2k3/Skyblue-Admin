@@ -1,3 +1,5 @@
+//@desc: "Dwonlaod as catalog button" work properly and download the pdf file of product list
+
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -17,8 +19,12 @@ import {
   DeleteOutlined,
   EditOutlined,
   ZoomInOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
 } from "@ant-design/icons";
+
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import CustomLayout from "../../../Components/Layout/Layout";
 import API_BASE_URL from "../../../constants";
@@ -26,6 +32,9 @@ import axiosInstance from "../../../Api/axiosConfig"; // Use the custom Axios in
 import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
+
+import { Menu, Dropdown } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -46,6 +55,7 @@ const Product = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
   const [hoveredImage, setHoveredImage] = useState(null); // New state for hovered image
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
@@ -98,7 +108,7 @@ const Product = () => {
         );
         setManufacturers(response.data);
       } catch (error) {
-        console.error('Error fetching manufacturers:', error);
+        console.error("Error fetching manufacturers:", error);
       }
     };
 
@@ -113,7 +123,7 @@ const Product = () => {
         );
         setVendors(response.data.data);
       } catch (error) {
-        console.error('Error fetching vendors:', error);
+        console.error("Error fetching vendors:", error);
       }
     };
 
@@ -145,6 +155,35 @@ const Product = () => {
     }
   };
 
+
+  const handleDownloadCatalog = () => {
+    const doc = new jsPDF();
+
+    // Add title to PDF
+    doc.text("Product List", 14, 10);
+
+    // Define table columns
+    const columns = ["ID", "Name", "Price", "Stock"];
+
+
+    const rows = products.map((product) => [
+      product.Id,
+      product.Name,
+      product.Price,
+      product.StockQuantity,
+    ]);
+
+    // Generate table in the PDF
+    doc.autoTable({
+      startY: 20,
+      head: [columns],
+      body: rows,
+    });
+
+    // Save the PDF
+    doc.save("ProductList.pdf");
+  };
+
   const handleImageClick = (imageUrl) => {
     setSelectedImage(imageUrl);
     setIsModalVisible(true);
@@ -164,7 +203,7 @@ const Product = () => {
       dataIndex: "imageUrl",
       key: "imageUrl",
       align: "center",
-      fixed: 'left',
+      fixed: "left",
       render: (text) => (
         <div
           style={{
@@ -308,6 +347,28 @@ const Product = () => {
     },
   ];
 
+  const exportMenu = (
+    <Menu>
+      <Menu.Item key="1" onClick={() => console.log("Export to XML")}>
+        Export to XML
+      </Menu.Item>
+      <Menu.Item key="2" onClick={() => console.log("Export to Excel (All)")}>
+        Export to Excel (All)
+      </Menu.Item>
+      <Menu.Item
+        key="3"
+        onClick={() => console.log("Export to Excel (Selected)")}
+      >
+        Export to Excel (Selected)
+      </Menu.Item>
+    </Menu>
+  );
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
+  };
+
   return (
     <CustomLayout pageTitle="Products" menuKey="3">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
@@ -345,9 +406,9 @@ const Product = () => {
           />
           <Select
             placeholder={
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <SearchOutlined style={{ color: 'black' }} />
-                <p style={{ margin: 0, paddingLeft: '5px' }}>Manufacturer</p>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <SearchOutlined style={{ color: "black" }} />
+                <p style={{ margin: 0, paddingLeft: "5px" }}>Manufacturer</p>
               </div>
             }
             value={selectedManufacturer}
@@ -355,7 +416,7 @@ const Product = () => {
             style={{ width: 200 }}
           >
             <Select.Option value={null}>
-              <span style={{ color: 'red' }}>Remove Manufacturer</span>
+              <span style={{ color: "red" }}>Remove Manufacturer</span>
             </Select.Option>
             {manufacturers.map((manufacturer) => (
               <Select.Option key={manufacturer.Id} value={manufacturer.Id}>
@@ -365,9 +426,9 @@ const Product = () => {
           </Select>
           <Select
             placeholder={
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <SearchOutlined style={{ color: 'black' }} />
-                <p style={{ margin: 0, paddingLeft: '5px' }}>Vendor</p>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <SearchOutlined style={{ color: "black" }} />
+                <p style={{ margin: 0, paddingLeft: "5px" }}>Vendor</p>
               </div>
             }
             value={selectedVendor}
@@ -375,7 +436,7 @@ const Product = () => {
             style={{ width: 200 }}
           >
             <Select.Option value={null}>
-              <span style={{ color: 'red' }}>Remove Vendor</span>
+              <span style={{ color: "red" }}>Remove Vendor</span>
             </Select.Option>
             {vendors.map((vendor) => (
               <Select.Option key={vendor.Id} value={vendor.Id}>
@@ -402,12 +463,15 @@ const Product = () => {
           </Button>
         </Space>
       </div>
+
       <div
         style={{
           textAlign: "right",
           marginTop: "40px",
           marginBottom: "20px",
-          float: "center",
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "10px",
         }}
       >
         <Button
@@ -417,11 +481,31 @@ const Product = () => {
         >
           Add Product
         </Button>
+        <Dropdown overlay={exportMenu}>
+          <Button size="small">
+            Export <DownOutlined />
+          </Button>
+        </Dropdown>
+        <Button size="small" onClick={handleDownloadCatalog}>
+          Download as Catalog
+        </Button>
+        <Button
+          size="small"
+          danger
+          onClick={() => console.log("Delete Selected")}
+        >
+          Delete Selected
+        </Button>
+        <Button size="small" onClick={() => console.log("Unpublish Selected")}>
+          Unpublish Selected
+        </Button>
       </div>
+
       <Card
         style={{ borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
       >
         <Table
+          rowSelection={rowSelection}
           columns={columns}
           dataSource={products}
           loading={loading}
