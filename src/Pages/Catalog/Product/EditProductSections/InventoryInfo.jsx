@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Select, Checkbox, message, Spin } from "antd";
+import { Form, Input, Button, Select, Checkbox, message, Spin, Row, Col } from "antd";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../../../Api/axiosConfig";
 import useRetryRequest from "../../../../Api/useRetryRequest";
@@ -86,79 +86,126 @@ const InventoryInfo = () => {
     <div style={{ padding: 20 }}>
       <h2>Inventory Edit</h2>
       <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Form.Item label="Inventory Method" name="inventoryMethod">
-          <Select>
-            {Object.entries(manageInventoryMethodMap).map(([key, value]) => (
-              <Option key={key} value={key}>
-                {value}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item label="Stock Quantity" name="stockQuantity">
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item
-          label="Display Availability"
-          name="displayStockAvailability"
-          valuePropName="checked"
-        >
-          <Checkbox />
-        </Form.Item>
-        <Form.Item
-          label="Display Stock Quantity"
-          name="displayStockQuantity"
-          valuePropName="checked"
-        >
-          <Checkbox />
-        </Form.Item>
-        <Form.Item label="Minimum Stock Quantity" name="minStockQuantity">
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item label="Low Stock Activity" name="lowStockActivity">
-          <Select>
-            {Object.entries(lowStockActivityMap).map(([key, value]) => (
-              <Option key={key} value={key}>
-                {value}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item label="Notify for Quantity Below" name="notifyAdminForQuantityBelow">
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item label="Backorders" name="backorderMode">
-          <Select>
-            {Object.entries(backorderModeMap).map(([key, value]) => (
-              <Option key={key} value={key}>
-                {value}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          label="Allow Back in Stock Subscriptions"
-          name="allowBackInStockSubscriptions"
-          valuePropName="checked"
-        >
-          <Checkbox />
-        </Form.Item>
-        <Form.Item label="Minimum Cart Quantity" name="minCartQuantity">
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item label="Maximum Cart Quantity" name="maxCartQuantity">
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item label="Allowed Quantities" name="allowedQuantities">
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Not Returnable"
-          name="notReturnable"
-          valuePropName="checked"
-        >
-          <Checkbox />
-        </Form.Item>
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item label="Inventory Method" name="inventoryMethod">
+              <Select>
+                {Object.entries(manageInventoryMethodMap).map(([key, value]) => (
+                  <Option key={key} value={key}>
+                    {value}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Stock Quantity" name="stockQuantity">
+              <Input type="number" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item
+              label="Display Availability"
+              name="displayStockAvailability"
+              valuePropName="checked"
+            >
+              <Checkbox />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Display Stock Quantity"
+              name="displayStockQuantity"
+              valuePropName="checked"
+            >
+              <Checkbox />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item label="Minimum Stock Quantity" name="minStockQuantity">
+              <Input type="number" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Low Stock Activity" name="lowStockActivity">
+              <Select>
+                {Object.entries(lowStockActivityMap).map(([key, value]) => (
+                  <Option key={key} value={key}>
+                    {value}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item label="Notify for Quantity Below" name="notifyAdminForQuantityBelow">
+              <Input type="number" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Backorders" name="backorderMode">
+              <Select>
+                {Object.entries(backorderModeMap).map(([key, value]) => (
+                  <Option key={key} value={key}>
+                    {value}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item
+              label="Allow Back in Stock Subscriptions"
+              name="allowBackInStockSubscriptions"
+              valuePropName="checked"
+            >
+              <Checkbox />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Minimum Cart Quantity" name="minCartQuantity">
+              <Input type="number" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item label="Maximum Cart Quantity" name="maxCartQuantity">
+              <Input type="number" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Allowed Quantities" name="allowedQuantities">
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item
+              label="Not Returnable"
+              name="notReturnable"
+              valuePropName="checked"
+            >
+              <Checkbox />
+            </Form.Item>
+          </Col>
+        </Row>
+
         <Form.Item>
           <Button type="primary" htmlType="submit">
             Save Changes
