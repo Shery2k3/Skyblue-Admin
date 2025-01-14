@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Select, Checkbox, message, Spin, Row, Col } from "antd";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  Checkbox,
+  message,
+  Spin,
+  Row,
+  Col,
+} from "antd";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../../../Api/axiosConfig";
 import useRetryRequest from "../../../../Api/useRetryRequest";
@@ -31,16 +41,24 @@ const InventoryInfo = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [initialData, setInitialData] = useState(null);
+  const [availabilityRangeData, setAvailabilityRangeData] = useState([]);
 
   const fetchProductInventory = async () => {
     try {
       setLoading(true);
       const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/product-detail-inventory/${id}`)
+        axiosInstance.get(
+          `${API_BASE_URL}/admin/product-detail-inventory/${id}`
+        )
       );
       const { result } = response.data;
       console.log("Product Inventory: ", result);
       setInitialData(result);
+
+      const availabilityRangeValue = result.productAvailabilityRange
+        ? result.productAvailabilityRange // You need the ID here for matching
+        : "None";
+
       form.setFieldsValue({
         inventoryMethod: Object.keys(manageInventoryMethodMap).find(
           (key) => manageInventoryMethodMap[key] === result.inventoryMethod
@@ -61,11 +79,25 @@ const InventoryInfo = () => {
         maxCartQuantity: result.maxCartQuantity,
         allowedQuantities: result.allowedQuantities,
         notReturnable: result.notReturnable,
+        productAvailabilityRange: availabilityRangeValue, // Set the availability range ID here
       });
+
       setLoading(false);
     } catch (error) {
       message.error("Failed to fetch product inventory");
       setLoading(false);
+    }
+  };
+
+  const fetchProductAvailability = async () => {
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/product-avaliability`)
+      );
+      console.log("Product Availability Range: ", response.data);
+      setAvailabilityRangeData(response.data); // Set the fetched availability ranges
+    } catch (error) {
+      message.error("Failed to fetch product availability range");
     }
   };
 
@@ -76,11 +108,22 @@ const InventoryInfo = () => {
 
   useEffect(() => {
     fetchProductInventory();
+    fetchProductAvailability();
   }, []);
 
   if (loading || !initialData) {
     return <Spin tip="Loading inventory details..." />;
   }
+
+  console.log("/availabilityRangeData", availabilityRangeData);
+
+  const handleAvailabilityChange = (value) => {
+    if (value === "None") {
+      form.setFieldsValue({ productAvailabilityRange: 0 });
+    } else {
+      form.setFieldsValue({ productAvailabilityRange: value });
+    }
+  };
 
   return (
     <div style={{ padding: 20 }}>
@@ -90,11 +133,13 @@ const InventoryInfo = () => {
           <Col span={12}>
             <Form.Item label="Inventory Method" name="inventoryMethod">
               <Select>
-                {Object.entries(manageInventoryMethodMap).map(([key, value]) => (
-                  <Option key={key} value={key}>
-                    {value}
-                  </Option>
-                ))}
+                {Object.entries(manageInventoryMethodMap).map(
+                  ([key, value]) => (
+                    <Option key={key} value={key}>
+                      {value}
+                    </Option>
+                  )
+                )}
               </Select>
             </Form.Item>
           </Col>
@@ -147,7 +192,10 @@ const InventoryInfo = () => {
 
         <Row gutter={24}>
           <Col span={12}>
-            <Form.Item label="Notify for Quantity Below" name="notifyAdminForQuantityBelow">
+            <Form.Item
+              label="Notify for Quantity Below"
+              name="notifyAdminForQuantityBelow"
+            >
               <Input type="number" />
             </Form.Item>
           </Col>
@@ -202,6 +250,24 @@ const InventoryInfo = () => {
               valuePropName="checked"
             >
               <Checkbox />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item
+              label="Product Availability Range"
+              name="productAvailabilityRange"
+            >
+              <Select onChange={handleAvailabilityChange}>
+                <Option value="None">None</Option>
+                {availabilityRangeData.map((range) => (
+                  <Option key={range.Id} value={range.Id}>
+                    {range.Name}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
         </Row>
