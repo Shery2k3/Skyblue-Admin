@@ -35,6 +35,8 @@ import EditSpecificationAttribute from "./Sections/EditSpecificationAttribute";
 import EditPurchaseOrder from "./Sections/EditPurchaseOrder";
 import StockQuantityHistory from "./Sections/StockQuantityHistory";
 import GeneralInfo from "./EditProductSections/GeneralInfo";
+import Prices from "./EditProductSections/Prices";
+import InventoryInfo from "./EditProductSections/InventoryInfo";
 const { TabPane } = Tabs;
 
 const EditProducts = () => {
@@ -241,7 +243,10 @@ const EditProducts = () => {
       </Title>
       <Tabs defaultActiveKey="1">
         <TabPane tab="Product Details" key="1">
-        <GeneralInfo productInfo ={product} />
+        <GeneralInfo />
+        <Prices/>
+        <InventoryInfo/>
+
 
 
         

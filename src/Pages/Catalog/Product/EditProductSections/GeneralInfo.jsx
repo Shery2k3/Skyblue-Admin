@@ -1,8 +1,45 @@
-import React, { useEffect } from "react";
-import { Form, Input, Button, Switch, DatePicker, Row, Col, Card } from "antd";
+import React, { useEffect, useState } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Switch,
+  DatePicker,
+  Row,
+  Col,
+  Card,
+  message,
+} from "antd";
 import moment from "moment";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import API_BASE_URL from "../../../../constants";
+import axiosInstance from "../../../../Api/axiosConfig";
+import useRetryRequest from "../../../../Api/useRetryRequest";
+import { useParams } from "react-router-dom";
 
-const GeneralInfo = ({ productInfo }) => {
+const GeneralInfo = () => {
+  const { id } = useParams();
+  const retryRequest = useRetryRequest();
+  const [product, setProduct] = useState({});
+
+  const productDetail = async () => {
+    try {
+      const responses = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/product-detail/${id}`)
+      );
+      setProduct(responses.data.result); // Assuming `responses.data.result` is the product data
+    } catch (error) {
+      message.error("Failed to fetch product details");
+    }
+  };
+
+  const productInfo = product.products;
+
+  useEffect(() => {
+    productDetail();
+  }, [id]);
+
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -90,7 +127,13 @@ const GeneralInfo = ({ productInfo }) => {
         </Row>
 
         <Form.Item label="Full Description" name="FullDescription">
-          <Input.TextArea rows={4} placeholder="Enter full description" />
+          <ReactQuill
+            theme="snow"
+            onChange={(content) =>
+              form.setFieldsValue({ FullDescription: content })
+            }
+            value={form.getFieldValue("FullDescription")}
+          />
         </Form.Item>
 
         <Row gutter={16}>
@@ -121,12 +164,20 @@ const GeneralInfo = ({ productInfo }) => {
 
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="Allow Customer Reviews" name="AllowCustomerReviews" valuePropName="checked">
+            <Form.Item
+              label="Allow Customer Reviews"
+              name="AllowCustomerReviews"
+              valuePropName="checked"
+            >
               <Switch />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Show on Homepage" name="ShowOnHomePage" valuePropName="checked">
+            <Form.Item
+              label="Show on Homepage"
+              name="ShowOnHomePage"
+              valuePropName="checked"
+            >
               <Switch />
             </Form.Item>
           </Col>
@@ -134,12 +185,20 @@ const GeneralInfo = ({ productInfo }) => {
 
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="Published" name="Published" valuePropName="checked">
+            <Form.Item
+              label="Published"
+              name="Published"
+              valuePropName="checked"
+            >
               <Switch />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Mark as New" name="MarkAsNew" valuePropName="checked">
+            <Form.Item
+              label="Mark as New"
+              name="MarkAsNew"
+              valuePropName="checked"
+            >
               <Switch />
             </Form.Item>
           </Col>
