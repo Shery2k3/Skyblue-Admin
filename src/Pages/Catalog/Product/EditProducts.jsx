@@ -37,6 +37,7 @@ import StockQuantityHistory from "./Sections/StockQuantityHistory";
 import GeneralInfo from "./EditProductSections/GeneralInfo";
 import Prices from "./EditProductSections/Prices";
 import InventoryInfo from "./EditProductSections/InventoryInfo";
+import Mapping from "./EditProductSections/Mapping";
 const { TabPane } = Tabs;
 
 const EditProducts = () => {
@@ -246,6 +247,7 @@ const EditProducts = () => {
         <GeneralInfo />
         <Prices/>
         <InventoryInfo/>
+        <Mapping/>
 
 
 

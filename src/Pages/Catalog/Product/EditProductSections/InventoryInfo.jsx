@@ -52,7 +52,6 @@ const InventoryInfo = () => {
         )
       );
       const { result } = response.data;
-      console.log("Product Inventory: ", result);
       setInitialData(result);
 
       const availabilityRangeValue = result.productAvailabilityRange
@@ -94,7 +93,6 @@ const InventoryInfo = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/product-avaliability`)
       );
-      console.log("Product Availability Range: ", response.data);
       setAvailabilityRangeData(response.data); // Set the fetched availability ranges
     } catch (error) {
       message.error("Failed to fetch product availability range");
@@ -114,8 +112,6 @@ const InventoryInfo = () => {
   if (loading || !initialData) {
     return <Spin tip="Loading inventory details..." />;
   }
-
-  console.log("/availabilityRangeData", availabilityRangeData);
 
   const handleAvailabilityChange = (value) => {
     if (value === "None") {
@@ -278,6 +274,7 @@ const InventoryInfo = () => {
           </Button>
         </Form.Item>
       </Form>
+      <h1>ability of add product-avaliability</h1>
     </div>
   );
 };
