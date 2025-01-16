@@ -22,6 +22,19 @@ const GeneralInfo = () => {
   const { id } = useParams();
   const retryRequest = useRetryRequest();
   const [product, setProduct] = useState({});
+  const [productTypes, setProductTypes] = useState([]);
+  const [productTemplates, setProductTemplates] = useState([]);
+
+  // Dummy data for Product Types and Templates, replace with actual API calls if needed
+  const productTypeNames = {
+    5: "Simple",
+    // Add other IDs and their corresponding names
+  };
+
+  const productTemplateNames = {
+    1: "Simple Product",
+    // Add other IDs and their corresponding names
+  };
 
   const productDetail = async () => {
     try {
@@ -44,8 +57,14 @@ const GeneralInfo = () => {
 
   useEffect(() => {
     if (productInfo) {
-      form.setFieldsValue({
+      // Replace the IDs with names
+      const updatedProductInfo = {
         ...productInfo,
+        ProductType:
+          productTypeNames[productInfo.ProductType] || "Unknown Type", // Replace ID with name
+        ProductTemplate:
+          productTemplateNames[productInfo.ProductTemplate] ||
+          "Unknown Template", // Replace ID with name
         AvailableStartDate: productInfo.AvailableStartDate
           ? moment(productInfo.AvailableStartDate)
           : null,
@@ -58,13 +77,24 @@ const GeneralInfo = () => {
         MarkAsNewEndDate: productInfo.MarkAsNewEndDate
           ? moment(productInfo.MarkAsNewEndDate)
           : null,
-      });
+      };
+      form.setFieldsValue(updatedProductInfo);
     }
   }, [productInfo, form]);
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     console.log("Form Submitted:", values);
-    // Handle form submission
+    try {
+      await retryRequest(() =>
+        axiosInstance.patch(
+          `${API_BASE_URL}/admin/product/generalinfo/${id}`,
+          values
+        )
+      );
+      message.success("Product mapping updated successfully!");
+    } catch (error) {
+      message.error("Failed to save product mapping");
+    }
   };
 
   return (
@@ -78,7 +108,7 @@ const GeneralInfo = () => {
           </Col>
           <Col span={12}>
             <Form.Item label="Product Type" name="ProductType">
-              <Input placeholder="Enter product type" />
+              <Input placeholder="Enter product type" disabled />
             </Form.Item>
           </Col>
         </Row>
@@ -86,7 +116,7 @@ const GeneralInfo = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item label="Product Template" name="ProductTemplate">
-              <Input placeholder="Enter product template" />
+              <Input placeholder="Enter product template" disabled />
             </Form.Item>
           </Col>
           <Col span={12}>

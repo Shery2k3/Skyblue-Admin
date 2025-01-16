@@ -31,9 +31,7 @@ import { Tabs } from "antd";
 import EditSeo from "./Sections/EditSeo";
 import EditPictures from "./Sections/EditPictures";
 import EditProductAttribute from "./Sections/EditProductAttribute";
-import EditSpecificationAttribute from "./Sections/EditSpecificationAttribute";
 import EditPurchaseOrder from "./Sections/EditPurchaseOrder";
-import StockQuantityHistory from "./Sections/StockQuantityHistory";
 const { TabPane } = Tabs;
 
 const EditProduct = () => {
@@ -741,14 +739,8 @@ const EditProduct = () => {
       <TabPane tab="Product Attribute" key="4">
         <EditProductAttribute />
       </TabPane>
-      <TabPane tab="Specification Attribute" key="5">
-        <EditSpecificationAttribute/>
-      </TabPane>
       <TabPane tab="Purchase with Order" key="6">
         <EditPurchaseOrder />
-      </TabPane>
-      <TabPane tab="Stock Quantity History" key="7">
-        <StockQuantityHistory />
       </TabPane>
       </Tabs>
     </CustomLayout>
