@@ -36,6 +36,7 @@ import GeneralInfo from "./EditProductSections/GeneralInfo";
 import Prices from "./EditProductSections/Prices";
 import InventoryInfo from "./EditProductSections/InventoryInfo";
 import Mapping from "./EditProductSections/Mapping";
+import TierPrices from "./EditProductSections/TierPrices";
 const { TabPane } = Tabs;
 
 const EditProducts = () => {
@@ -244,6 +245,7 @@ const EditProducts = () => {
         <TabPane tab="Product Details" key="1">
         <GeneralInfo />
         <Prices/>
+        <TierPrices/>
         <InventoryInfo/>
         <Mapping/>
 
