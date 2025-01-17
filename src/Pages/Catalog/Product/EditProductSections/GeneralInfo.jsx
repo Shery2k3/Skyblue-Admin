@@ -25,15 +25,12 @@ const GeneralInfo = () => {
   const [productTypes, setProductTypes] = useState([]);
   const [productTemplates, setProductTemplates] = useState([]);
 
-  // Dummy data for Product Types and Templates, replace with actual API calls if needed
   const productTypeNames = {
     5: "Simple",
-    // Add other IDs and their corresponding names
   };
 
   const productTemplateNames = {
     1: "Simple Product",
-    // Add other IDs and their corresponding names
   };
 
   const productDetail = async () => {
@@ -83,12 +80,24 @@ const GeneralInfo = () => {
   }, [productInfo, form]);
 
   const onFinish = async (values) => {
-    console.log("Form Submitted:", values);
+    // Map names back to their corresponding IDs for submission
+    const updatedValues = {
+      ...values,
+      ProductType:
+        Object.keys(productTypeNames).find(
+          (key) => productTypeNames[key] === values.ProductType
+        ) || values.ProductType, // Retain original value if not found
+      ProductTemplate:
+        Object.keys(productTemplateNames).find(
+          (key) => productTemplateNames[key] === values.ProductTemplate
+        ) || values.ProductTemplate, // Retain original value if not found
+    };
+
     try {
       await retryRequest(() =>
         axiosInstance.patch(
           `${API_BASE_URL}/admin/product/generalinfo/${id}`,
-          values
+          updatedValues
         )
       );
       message.success("Product mapping updated successfully!");
