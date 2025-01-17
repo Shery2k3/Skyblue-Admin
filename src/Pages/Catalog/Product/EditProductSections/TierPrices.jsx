@@ -108,6 +108,8 @@ const TierPrices = () => {
     try {
       console.log("Edited Tier Price:", { ...record, ...values });
 
+      console.log("values", values.CustomerRoleId, record.CustomerRoleId);
+
       // Prepare the data to send in the API request
       const updatedTierPrice = {
         CustomerRoleId: values.CustomerRoleId || record.CustomerRoleId,
@@ -180,10 +182,11 @@ const TierPrices = () => {
       key: "CustomerRoleName",
       render: (text, record) => {
         return editingRow === record.CustomerRoleId ? (
+          // Disable the select input to prevent role changes
           <Select
             defaultValue={record.CustomerRoleId}
             style={{ width: 200 }}
-            onChange={(value) => (record.CustomerRoleId = value)}
+            disabled // Make the select input disabled so the user cannot change the role
           >
             {roles
               .filter(
@@ -207,6 +210,7 @@ const TierPrices = () => {
         );
       },
     },
+
     {
       title: "Price",
       dataIndex: "Price",
