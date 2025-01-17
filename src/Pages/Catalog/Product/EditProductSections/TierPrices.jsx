@@ -14,7 +14,7 @@ import {
   Card,
   DatePicker,
 } from "antd";
-import dayjs from "dayjs";  // Import dayjs
+import dayjs from "dayjs"; // Import dayjs
 
 const { Option } = Select;
 
@@ -107,7 +107,7 @@ const TierPrices = () => {
   const handleEdit = async (record, values) => {
     try {
       console.log("Edited Tier Price:", { ...record, ...values });
-    
+
       // Prepare the data to send in the API request
       const updatedTierPrice = {
         CustomerRoleId: values.CustomerRoleId || record.CustomerRoleId,
@@ -120,7 +120,7 @@ const TierPrices = () => {
           ? dayjs(values.EndDateTimeUtc).toISOString() // Same for EndDateTimeUtc
           : record.EndDateTimeUtc,
       };
-    
+
       // Send the PUT request to update the tier price
       const response = await retryRequest(() =>
         axiosInstance.patch(
@@ -128,10 +128,10 @@ const TierPrices = () => {
           updatedTierPrice
         )
       );
-    
+
       if (response.data.success) {
         message.success("Tier price updated successfully.");
-          
+
         // Update the local state to reflect the changes
         setTierPrices((prev) =>
           prev.map((tierPrice) =>
@@ -151,7 +151,6 @@ const TierPrices = () => {
       setEditingRow(null);
     }
   };
-  
 
   const handleDelete = async (record) => {
     console.log("Deleted Tier Price:", record);
@@ -186,11 +185,22 @@ const TierPrices = () => {
             style={{ width: 200 }}
             onChange={(value) => (record.CustomerRoleId = value)}
           >
-            {roles.map((role) => (
-              <Option key={role.Id} value={role.Id}>
-                {role.Name}
-              </Option>
-            ))}
+            {roles
+              .filter(
+                (role) =>
+                  // Exclude roles that are already present in the tierPrices list,
+                  // but keep the current role (record.CustomerRoleId) available for editing
+                  !tierPrices.some(
+                    (tierPrice) =>
+                      tierPrice.CustomerRoleId === role.Id &&
+                      tierPrice.CustomerRoleId !== record.CustomerRoleId
+                  )
+              )
+              .map((role) => (
+                <Option key={role.Id} value={role.Id}>
+                  {role.Name}
+                </Option>
+              ))}
           </Select>
         ) : (
           text
@@ -232,7 +242,9 @@ const TierPrices = () => {
       render: (text, record) =>
         editingRow === record.CustomerRoleId ? (
           <DatePicker
-            defaultValue={record.StartDateTimeUtc ? dayjs(record.StartDateTimeUtc) : null}
+            defaultValue={
+              record.StartDateTimeUtc ? dayjs(record.StartDateTimeUtc) : null
+            }
             onChange={(date) =>
               (record.StartDateTimeUtc = date ? date.toISOString() : null)
             }
@@ -250,7 +262,9 @@ const TierPrices = () => {
       render: (text, record) =>
         editingRow === record.CustomerRoleId ? (
           <DatePicker
-            defaultValue={record.EndDateTimeUtc ? dayjs(record.EndDateTimeUtc) : null}
+            defaultValue={
+              record.EndDateTimeUtc ? dayjs(record.EndDateTimeUtc) : null
+            }
             onChange={(date) =>
               (record.EndDateTimeUtc = date ? date.toISOString() : null)
             }
@@ -321,25 +335,37 @@ const TierPrices = () => {
           <Form.Item
             label="Customer Role"
             name="CustomerRoleId"
-            rules={[{ required: true, message: "Please select a role!" }]}>
+            rules={[{ required: true, message: "Please select a role!" }]}
+          >
             <Select placeholder="Select a role">
-              {roles.map((role) => (
-                <Option key={role.Id} value={role.Id}>
-                  {role.Name}
-                </Option>
-              ))}
+              {roles
+                .filter(
+                  (role) =>
+                    // Exclude roles that are already present in the tierPrices list
+                    !tierPrices.some(
+                      (tierPrice) => tierPrice.CustomerRoleId === role.Id
+                    )
+                )
+                .map((role) => (
+                  <Option key={role.Id} value={role.Id}>
+                    {role.Name}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
+
           <Form.Item
             label="Price"
             name="Price"
-            rules={[{ required: true, message: "Please enter a price!" }]}>
+            rules={[{ required: true, message: "Please enter a price!" }]}
+          >
             <Input type="number" prefix="$" />
           </Form.Item>
           <Form.Item
             label="Quantity"
             name="Quantity"
-            rules={[{ required: true, message: "Please enter a quantity!" }]}>
+            rules={[{ required: true, message: "Please enter a quantity!" }]}
+          >
             <Input type="number" />
           </Form.Item>
           <Form.Item label="Start Date" name="StartDateTimeUtc">
