@@ -81,7 +81,7 @@ const BestSeller = () => {
   };
 
   const handleView = (product) => {
-    navigate(`/edit-product/${product.key}`);
+    navigate(`/products/${product.key}`);
   };
 
   const columns = [
