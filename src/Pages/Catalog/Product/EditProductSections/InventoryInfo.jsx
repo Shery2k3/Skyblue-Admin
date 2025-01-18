@@ -9,6 +9,8 @@ import {
   Spin,
   Row,
   Col,
+  Tooltip,
+  Card,
 } from "antd";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../../../Api/axiosConfig";
@@ -40,7 +42,7 @@ const InventoryInfo = () => {
   const retryRequest = useRetryRequest();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [initialData, setInitialData] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const [availabilityRangeData, setAvailabilityRangeData] = useState([]);
 
   const fetchProductInventory = async () => {
@@ -52,10 +54,9 @@ const InventoryInfo = () => {
         )
       );
       const { result } = response.data;
-      setInitialData(result);
 
       const availabilityRangeValue = result.productAvailabilityRange
-        ? result.productAvailabilityRange // You need the ID here for matching
+        ? result.productAvailabilityRange
         : "None";
 
       form.setFieldsValue({
@@ -78,7 +79,7 @@ const InventoryInfo = () => {
         maxCartQuantity: result.maxCartQuantity,
         allowedQuantities: result.allowedQuantities,
         notReturnable: result.notReturnable,
-        productAvailabilityRange: availabilityRangeValue, // Set the availability range ID here
+        productAvailabilityRange: availabilityRangeValue,
       });
 
       setLoading(false);
@@ -93,188 +94,237 @@ const InventoryInfo = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/product-avaliability`)
       );
-      setAvailabilityRangeData(response.data); // Set the fetched availability ranges
+      setAvailabilityRangeData(response.data);
     } catch (error) {
       message.error("Failed to fetch product availability range");
     }
   };
 
-  const onFinish = (values) => {
-    console.log("Form Values: ", values);
-    message.success("Changes saved successfully!");
+  const onFinish = async (values) => {
+    setSubmitting(true);
+    try {
+      await retryRequest(() =>
+        axiosInstance.patch(
+          `${API_BASE_URL}/admin/product/updateInventory/${id}`,
+          values
+        )
+      );
+      message.success("Changes saved successfully!");
+    } catch {
+      message.error("Failed to save changes");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   useEffect(() => {
     fetchProductInventory();
     fetchProductAvailability();
-  }, []);
+  }, [id]);
 
-  if (loading || !initialData) {
+  if (loading) {
     return <Spin tip="Loading inventory details..." />;
   }
 
   const handleAvailabilityChange = (value) => {
-    if (value === "None") {
-      form.setFieldsValue({ productAvailabilityRange: 0 });
-    } else {
-      form.setFieldsValue({ productAvailabilityRange: value });
-    }
+    form.setFieldsValue({
+      productAvailabilityRange: value === "None" ? 0 : value,
+    });
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div>
       <h2>Inventory Edit</h2>
-      <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item label="Inventory Method" name="inventoryMethod">
-              <Select>
-                {Object.entries(manageInventoryMethodMap).map(
-                  ([key, value]) => (
+      <Card>
+        <Form form={form} layout="vertical" onFinish={onFinish}>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Inventory Method</b>}
+                name="inventoryMethod"
+                tooltip="Select inventory method. There are three methods: Don't Track inventory, Track inventory, Track inventory by product attributes. You should use Track inventory by attributes when the product has different combinations of these attributes and then manage inventory for this combination."
+              >
+                <Select>
+                  {Object.entries(manageInventoryMethodMap).map(
+                    ([key, value]) => (
+                      <Option key={key} value={key}>
+                        {value}
+                      </Option>
+                    )
+                  )}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Stock Quantity</b>}
+                name="stockQuantity"
+                tooltip="The Current Stock Quantity of this product."
+              >
+                <Input type="number" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Display Availability</b>}
+                name="displayStockAvailability"
+                valuePropName="checked"
+                tooltip="Check to display stock availability. When enabled, customer will see stock availability."
+              >
+                <Checkbox />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Display Stock Quantity</b>}
+                name="displayStockQuantity"
+                valuePropName="checked"
+                tooltip="Check to display stock quantity. When enabled, customer will see stock quantity."
+              >
+                <Checkbox />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Minimum Stock Quantity</b>}
+                name="minStockQuantity"
+                tooltip="Enter the minimum stock quantity"
+              >
+                <Input type="number" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Low Stock Activity</b>}
+                name="lowStockActivity"
+                tooltip="Select the low stock activity"
+              >
+                <Select>
+                  {Object.entries(lowStockActivityMap).map(([key, value]) => (
                     <Option key={key} value={key}>
                       {value}
                     </Option>
-                  )
-                )}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Stock Quantity" name="stockQuantity">
-              <Input type="number" />
-            </Form.Item>
-          </Col>
-        </Row>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-        <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item
-              label="Display Availability"
-              name="displayStockAvailability"
-              valuePropName="checked"
-            >
-              <Checkbox />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Display Stock Quantity"
-              name="displayStockQuantity"
-              valuePropName="checked"
-            >
-              <Checkbox />
-            </Form.Item>
-          </Col>
-        </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Notify for Quantity Below</b>}
+                name="notifyAdminForQuantityBelow"
+                tooltip="Enter the quantity below which to notify admin"
+              >
+                <Input type="number" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Backorders</b>}
+                name="backorderMode"
+                tooltip="Select the backorder mode"
+              >
+                <Select>
+                  {Object.entries(backorderModeMap).map(([key, value]) => (
+                    <Option key={key} value={key}>
+                      {value}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-        <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item label="Minimum Stock Quantity" name="minStockQuantity">
-              <Input type="number" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Low Stock Activity" name="lowStockActivity">
-              <Select>
-                {Object.entries(lowStockActivityMap).map(([key, value]) => (
-                  <Option key={key} value={key}>
-                    {value}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Allow Back in Stock Subscriptions</b>}
+                name="allowBackInStockSubscriptions"
+                valuePropName="checked"
+                tooltip="Check to allow back in stock subscriptions"
+              >
+                <Checkbox />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Minimum Cart Quantity</b>}
+                name="minCartQuantity"
+                tooltip="Enter the minimum cart quantity"
+              >
+                <Input type="number" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-        <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item
-              label="Notify for Quantity Below"
-              name="notifyAdminForQuantityBelow"
-            >
-              <Input type="number" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Backorders" name="backorderMode">
-              <Select>
-                {Object.entries(backorderModeMap).map(([key, value]) => (
-                  <Option key={key} value={key}>
-                    {value}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Maximum Cart Quantity</b>}
+                name="maxCartQuantity"
+                tooltip="Enter the maximum cart quantity"
+              >
+                <Input type="number" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Allowed Quantities</b>}
+                name="allowedQuantities"
+                tooltip="Enter a comma seperated list of quantities you want this product to be restricted to. Insted of qunatity textbox that allow them to enter any quantity, this will show a dropdown with these quantities."
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
 
-        <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item
-              label="Allow Back in Stock Subscriptions"
-              name="allowBackInStockSubscriptions"
-              valuePropName="checked"
-            >
-              <Checkbox />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Minimum Cart Quantity" name="minCartQuantity">
-              <Input type="number" />
-            </Form.Item>
-          </Col>
-        </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Not Returnable</b>}
+                name="notReturnable"
+                valuePropName="checked"
+                tooltip="Check if the product is not returnable"
+              >
+                <Checkbox />
+              </Form.Item>
+            </Col>
+          </Row>
 
-        <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item label="Maximum Cart Quantity" name="maxCartQuantity">
-              <Input type="number" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Allowed Quantities" name="allowedQuantities">
-              <Input />
-            </Form.Item>
-          </Col>
-        </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Product Availability Range</b>}
+                name="productAvailabilityRange"
+                tooltip="Select the product availability range"
+              >
+                <Select onChange={handleAvailabilityChange}>
+                  <Option value="None">None</Option>
+                  {availabilityRangeData.map((range) => (
+                    <Option key={range.Id} value={range.Id}>
+                      {range.Name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-        <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item
-              label="Not Returnable"
-              name="notReturnable"
-              valuePropName="checked"
-            >
-              <Checkbox />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item
-              label="Product Availability Range"
-              name="productAvailabilityRange"
-            >
-              <Select onChange={handleAvailabilityChange}>
-                <Option value="None">None</Option>
-                {availabilityRangeData.map((range) => (
-                  <Option key={range.Id} value={range.Id}>
-                    {range.Name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Save Changes
-          </Button>
-        </Form.Item>
-      </Form>
-      <h1>ability of add product-avaliability</h1>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" disabled={submitting}>
+              {submitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };
