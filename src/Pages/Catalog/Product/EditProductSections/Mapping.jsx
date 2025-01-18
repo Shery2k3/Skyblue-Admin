@@ -70,12 +70,12 @@ const Mapping = () => {
         vendor: selectedVendor,
       };
       console.log("payload", payload);
-      // await retryRequest(() =>
-      //   axiosInstance.post(
-      //     `${API_BASE_URL}/admin/save-product-mapping/${id}`,
-      //     payload
-      //   )
-      // );
+       await retryRequest(() =>
+         axiosInstance.patch(
+           `${API_BASE_URL}/admin/product/updateMapping/${id}`,
+           payload
+         )
+       );
       message.success("Product mapping updated successfully!");
     } catch (error) {
       message.error("Failed to save product mapping");
