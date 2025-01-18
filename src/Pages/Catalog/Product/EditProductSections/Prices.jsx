@@ -1,3 +1,5 @@
+//@desc: disale price1-2-3-4-5 and discount insted add tooltip there, on each prices it should display "You can manage price from TierPicesection" and on discount it should display "You can manage discount from Discount section, Promotions>Discounts"
+
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useRetryRequest from "../../../../Api/useRetryRequest";

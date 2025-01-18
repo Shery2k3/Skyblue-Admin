@@ -1,3 +1,5 @@
+//@desc: please check for update mapping of product with manufacturer and vendor, add category
+
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useRetryRequest from "../../../../Api/useRetryRequest";
