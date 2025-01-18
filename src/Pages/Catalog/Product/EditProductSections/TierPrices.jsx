@@ -186,7 +186,7 @@ const TierPrices = () => {
           <Select
             defaultValue={record.CustomerRoleId}
             style={{ width: 200 }}
-            disabled // Make the select input disabled so the user cannot change the role
+          // Make the select input disabled so the user cannot change the role
           >
             {roles
               .filter(

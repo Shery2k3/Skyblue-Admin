@@ -10,6 +10,7 @@ import {
   Pagination,
   Typography,
 } from "antd";
+import moment from "moment";
 
 const CurrentCarts = () => {
   const [loading, setLoading] = useState(false);
@@ -18,7 +19,7 @@ const CurrentCarts = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { Title } = Typography;
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const retryRequest = useRetryRequest();
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
@@ -28,7 +29,7 @@ const CurrentCarts = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`/admin/current-carts`, {
           params: { size: 20, page },
-        } )
+        })
       );
       const products = response.data.data;
       const productData = products.map((item) => ({
@@ -36,12 +37,14 @@ const CurrentCarts = () => {
         email: item.Email,
         totalItems: item.TotalItems,
         totalQuantity: item.TotalQuantity,
+        lastCreatedDate: item.LastCreatedDate,
+        lastUpdatedDate: item.LastUpdatedDate,
       }));
       setDataSource(productData);
       setTotalItems(response.data.TotalItems);
       setCurrentPage(response.data.CurrentPage);
     } catch (error) {
-      console.error("Error fetching bestseller data:", error);
+      console.error("Error fetching current carts data:", error);
     } finally {
       setLoading(false);
     }
@@ -86,6 +89,20 @@ const CurrentCarts = () => {
       align: "center",
     },
     {
+      title: "Last Created Date",
+      dataIndex: "lastCreatedDate",
+      key: "lastCreatedDate",
+      align: "center",
+      render: (text) => (text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : "N/A"),
+    },
+    {
+      title: "Last Updated Date",
+      dataIndex: "lastUpdatedDate",
+      key: "lastUpdatedDate",
+      align: "center",
+      render: (text) => (text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : "N/A"),
+    },
+    {
       title: "Action",
       key: "action",
       align: "center",
@@ -104,7 +121,7 @@ const CurrentCarts = () => {
         dataSource={dataSource}
         columns={columns}
         loading={loading}
-        rowKey="Id"
+        rowKey="key"
         pagination={false}
         scroll={{ x: "max-content" }}
         style={{ marginBottom: 24 }}

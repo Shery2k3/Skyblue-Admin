@@ -4,6 +4,7 @@ import { Table, Button, Spin, Typography, Skeleton } from "antd";
 import CustomLayout from "../../../Components/Layout/Layout";
 import axiosInstance from "../../../Api/axiosConfig";
 import useRetryRequest from "../../../Api/useRetryRequest";
+import moment from "moment";
 
 const { Title } = Typography;
 
@@ -56,17 +57,17 @@ const CurrentCartDetails = () => {
           quantity: item.Quantity,
           unitPrice: "$" + item.Price,
           total: "$" + (item.Price * item.Quantity).toFixed(2),
-          totalQuantity: item.TotalQuantity,
+          createdOn: item.CreatedOnUTC,
         }));
         setDataSource(productData);
       } catch (error) {
-        console.error("Error fetching bestseller data:", error);
+        console.error("Error fetching cart details:", error);
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
-  }, [retryRequest]);
+  }, [retryRequest, id]);
 
   const handleTableChange = () => {
     window.scrollTo({
@@ -76,7 +77,7 @@ const CurrentCartDetails = () => {
   };
 
   const handleNameClick = (product) => {
-    navigate(`/edit-product/${product.key}`);
+    navigate(`/products/${product.key}`);
   };
 
   const columns = [
@@ -106,10 +107,17 @@ const CurrentCartDetails = () => {
       key: "total",
       align: "center",
     },
+    {
+      title: "Created On",
+      dataIndex: "createdOn",
+      key: "createdOn",
+      align: "center",
+      render: (text) => (text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : "N/A"),
+    },
   ];
 
   return (
-    <CustomLayout pageTitle="Best Sellers" menuKey="8">
+    <CustomLayout pageTitle="Cart Details" menuKey="8">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Cart Details
       </Title>
