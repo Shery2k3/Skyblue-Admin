@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Typography, Spin, Row, Col, message } from 'antd';
+import { Table, Typography, Spin, Row, Col, message, Checkbox } from 'antd';
 import axiosInstance from '../../../Api/axiosConfig';
 import API_BASE_URL from '../../../constants';
 
@@ -8,6 +8,7 @@ const { Title } = Typography;
 const AccessControl = () => {
   const [customerRoles, setCustomerRoles] = useState([]);
   const [permissionRecords, setPermissionRecords] = useState([]);
+  const [permissionRoleMappings, setPermissionRoleMappings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,6 +19,7 @@ const AccessControl = () => {
         if (result.success) {
           setCustomerRoles(result.CustomerRoles);
           setPermissionRecords(result.PermissionRecords);
+          setPermissionRoleMappings(result.PermissionRoleMappings);
         } else {
           message.error("Failed to fetch access control data");
         }
@@ -32,6 +34,20 @@ const AccessControl = () => {
     fetchData();
   }, []);
 
+  // Check if a permission is mapped to a role
+  const isPermissionMapped = (permissionId, roleId) => {
+    return permissionRoleMappings.some(
+      (mapping) => mapping.PermissionId === permissionId && mapping.RoleId === roleId
+    );
+  };
+
+  // Handle checkbox toggle (placeholder for now)
+  const handleCheckboxChange = (permissionId, roleId, checked) => {
+    console.log(`PermissionId: ${permissionId}, RoleId: ${roleId}, Checked: ${checked}`);
+    // Update logic here (e.g., API call to update the mapping)
+  };
+
+  // Table columns
   const columns = [
     {
       title: 'Permission Name',
@@ -43,12 +59,20 @@ const AccessControl = () => {
       title: role.RoleName,
       dataIndex: role.RoleSystemName,
       key: role.RoleId,
-      render: () => <span>-</span>, // Placeholder for future mapping
+      render: (_, record) => (
+        <Checkbox
+          checked={isPermissionMapped(record.PermissionId, role.RoleId)}
+          onChange={(e) =>
+            handleCheckboxChange(record.PermissionId, role.RoleId, e.target.checked)
+          }
+        />
+      ),
     })),
   ];
 
   const dataSource = permissionRecords.map((permission) => ({
     key: permission.PermissionId,
+    PermissionId: permission.PermissionId,
     PermissionName: permission.PermissionName,
   }));
 
