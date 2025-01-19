@@ -393,11 +393,11 @@ const Product = () => {
     console.log("Delete Selected IDs:", selectedRowKeys);
   };
 
-  const handleUnpublishSelected = () => {
+  const handleUnpublishSelected = async () => {
     console.log("Unpublish Selected IDs:", selectedRowKeys);
   };
 
-  const handlepPublishSelected = () => {
+  const handlepPublishSelected = async () => {
     console.log("Publish Selected IDs:", selectedRowKeys);
   };
 
