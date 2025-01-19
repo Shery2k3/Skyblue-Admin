@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import CustomLayout from "../../../Components/Layout/Layout";
-import { Table, Button, Modal, Form, Input, message, Typography } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  message,
+  Typography,
+  Popconfirm,
+} from "antd";
 import { useParams } from "react-router-dom";
 import useRetryRequest from "../../../Api/useRetryRequest";
 import axiosInstance from "../../../Api/axiosConfig";
@@ -189,9 +198,14 @@ const Shippingprovider = () => {
             >
               Edit
             </Button>
-            <Button type="danger" onClick={() => handleDelete(record.Id)}>
-              Delete
-            </Button>
+            <Popconfirm
+              title="Are you sure you want to delete this Shipping Method?"
+              onConfirm={() => handleDelete(record.Id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="danger">Delete</Button>
+            </Popconfirm>
           </>
         );
       },
@@ -249,8 +263,11 @@ const Shippingprovider = () => {
   };
 
   return (
-    <CustomLayout pageTitle="Shippingprovider" menuKey="20">
-    <Title level={2} style={{ textAlign: "center", marginBottom: 20, fontWeight: "bold" }}>
+    <CustomLayout pageTitle="Shipping Methods" menuKey="21">
+      <Title
+        level={2}
+        style={{ textAlign: "center", marginBottom: 20, fontWeight: "bold" }}
+      >
         Shipping Methods
       </Title>
       <div style={{ marginBottom: 20 }}>
@@ -270,7 +287,7 @@ const Shippingprovider = () => {
           columns={mergedColumns}
           rowClassName="editable-row"
           rowKey="Id"
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: "max-content" }}
         />
       </Form>
       <Modal

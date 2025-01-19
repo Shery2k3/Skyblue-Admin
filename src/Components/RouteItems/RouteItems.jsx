@@ -16,6 +16,10 @@ import {
   MailOutlined,
   NotificationOutlined,
   EditOutlined,
+  SettingOutlined,
+  DockerOutlined,
+  CarOutlined,
+  ClusterOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { Menu } from "antd";
@@ -162,6 +166,23 @@ const routeItems = [
         key: "19",
         icon: <PictureOutlined />,
         label: <Link to="/banners">Banners</Link>,
+      },
+    ],
+  },
+  {
+    key: "sub7",
+    icon: <SettingOutlined />,
+    label: "Configuration",
+    children: [
+      {
+        key: "21",
+        icon: <CarOutlined />,
+        label: <Link to="/shipping-methods">Shipping Methods</Link>,
+      },
+      {
+        key: "22",
+        icon: <ClusterOutlined />,
+        label: <Link to="/access-control-list">Access Control List</Link>,
       },
     ],
   },
