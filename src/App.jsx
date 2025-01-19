@@ -41,6 +41,7 @@ import EditVendor from './Pages/Vendors/EditVendor';
 import VendorProduct from './Pages/Vendors/VendorProduct';
 import EditProducts from './Pages/Catalog/Product/EditProducts';
 import Shippingprovider from './Pages/ContentManagement/Shippingprovider/Shippingprovider';
+import AccessControl from './Pages/ContentManagement/AccessControlList/AccessControl';
 
 
 function App() {
@@ -102,6 +103,7 @@ function App() {
         <Route path="/banners" element={<ProtectedRoute element={Banner} />} />
         <Route path="/banners/add-banner" element={<ProtectedRoute element={AddBanner} />} />
         <Route path="/shippingprovider" element={<ProtectedRoute element={Shippingprovider} />} />
+        <Route path='/access-control-list' element={<ProtectedRoute element={AccessControl} />} />
 
         {/* Catch-all for non-existent routes */}
         <Route path="*" element={<Error404 />} />
