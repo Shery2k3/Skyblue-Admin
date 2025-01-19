@@ -1,11 +1,3 @@
-//@desc: Vendor changes I will tell on discord
-
-//@desc: Shery
-//@desc: Just check api of getting all bulk product "Controller/admin/bulkRepo.js", Route on BE is "/bulk-products", will it work with category and product search filter? oo not, if not then modify the api to work with these filters
-//? WORKS WITH FILTERS -Shery
-//@desc: Make simple delete api of deleting many product at once, ig take product id in array and delete them(Please Keep track whatever youre deleting)
-//? DELETE /admin/bulk-delete-products/ #body JSON: { productIds: [1, 2, 3] } -Shery
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomLayout from "../../Components/Layout/Layout";
@@ -20,6 +12,7 @@ import {
   Spin,
   Tooltip,
   Typography,
+  Popconfirm,
 } from "antd";
 import API_BASE_URL from "../../constants";
 import useRetryRequest from "../../Api/useRetryRequest";
@@ -104,7 +97,6 @@ const BulkEdit = () => {
           message.error("Failed to fetch products.");
         }
       } catch (error) {
-        message.error("An error occurred while fetching products.");
         console.error(error);
       } finally {
         setLoading(false);
@@ -163,11 +155,28 @@ const BulkEdit = () => {
       } else {
         message.error("Failed to update products.");
       }
+      fetchProducts();
+      setEditMode(false);
     } catch (error) {
       console.error("Error updating products:", error);
       message.error("An error occurred while updating products.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (productID) => {
+    const productIds = [productID];
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.delete(`${API_BASE_URL}/admin/bulk-delete-products`, {
+          data: { productIds },
+        })
+      );
+      fetchProducts();
+      message.success("Product Deleted Successfully");
+    } catch (error) {
+      message.error("Please Try Again Later!");
     }
   };
 
@@ -243,29 +252,26 @@ const BulkEdit = () => {
       key: "VendorId",
       render: (text, record) =>
         editMode ? (
-          <Tooltip title="Red vendor name means they are already a vendor.">
-            <Select
-              value={record.VendorId}
-              onChange={(value) =>
-                handleEditChange(record.key, "VendorId", value)
-              }
-              style={{ width: 200 }}
-              placeholder="Select a vendor"
-            >
-              {vendors.map((vendor) => (
-                <Option key={vendor.Id} value={vendor.Id}>
-                  <span
-                    style={{
-                      color:
-                        vendor.Name === record.VendorName ? "red" : "black",
-                    }}
-                  >
-                    {vendor.Name}
-                  </span>
-                </Option>
-              ))}
-            </Select>
-          </Tooltip>
+          <Select
+            defaultValue={record.VendorName}
+            onChange={(value) =>
+              handleEditChange(record.key, "VendorId", value)
+            }
+            style={{ width: 200 }}
+            placeholder="Select a vendor"
+          >
+            {vendors.map((vendor) => (
+              <Option key={vendor.Id} value={vendor.Id}>
+                <span
+                  style={{
+                    color: vendor.Name === record.VendorName ? "red" : "black",
+                  }}
+                >
+                  {vendor.Name}
+                </span>
+              </Option>
+            ))}
+          </Select>
         ) : (
           record.VendorName || "N/A"
         ),
@@ -299,14 +305,14 @@ const BulkEdit = () => {
           <Button onClick={() => navigate(`/edit-product/${record.Id}`)}>
             View
           </Button>
-          <Button
-            danger
-            onClick={() => {
-              console.log(record.Id);
-            }}
+          <Popconfirm
+            title="Are you sure you want to delete this product?"
+            onConfirm={() => handleDelete(record.Id)} 
+            okText="Yes"
+            cancelText="No"
           >
-            Delete
-          </Button>
+            <Button danger>Delete</Button>
+          </Popconfirm>
         </Space>
       ),
     },
