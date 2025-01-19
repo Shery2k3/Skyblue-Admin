@@ -13,6 +13,7 @@ import {
   Card,
   Popconfirm,
   Modal,
+  message,
 } from "antd";
 import {
   SearchOutlined,
@@ -155,33 +156,50 @@ const Product = () => {
     }
   };
 
+  const handleDownloadCatalog = async (page = 1) => {
+    try {
+      const params = {
+        category,
+        product,
+        published,
+        size: 50000, //50 thousand
+        page,
+      };
+      // Fetch all products
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/product/search`, { params })
+      );
+      console.log("response", response.data.products);
+      const allProducts = response.data.products;
 
-  const handleDownloadCatalog = () => {
-    const doc = new jsPDF();
+      // Create a new jsPDF instance
+      const doc = new jsPDF();
 
-    // Add title to PDF
-    doc.text("Product List", 14, 10);
+      // Define columns for the table
+      const columns = ["ID", "Name", "Price", "Stock Quantity", "Published"];
 
-    // Define table columns
-    const columns = ["ID", "Name", "Price", "Stock"];
+      // Map products to rows
+      const rows = allProducts.map((product) => [
+        product.Id,
+        product.Name,
+        product.Price,
+        product.StockQuantity,
+        product.Published,
+      ]);
 
+      // Generate table in the PDF
+      doc.autoTable({
+        startY: 20,
+        head: [columns],
+        body: rows,
+      });
 
-    const rows = products.map((product) => [
-      product.Id,
-      product.Name,
-      product.Price,
-      product.StockQuantity,
-    ]);
-
-    // Generate table in the PDF
-    doc.autoTable({
-      startY: 20,
-      head: [columns],
-      body: rows,
-    });
-
-    // Save the PDF
-    doc.save("ProductList.pdf");
+      // Save the PDF
+      doc.save("ProductList.pdf");
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      message.error("Failed to download catalog");
+    }
   };
 
   const handleImageClick = (imageUrl) => {
@@ -366,7 +384,21 @@ const Product = () => {
 
   const rowSelection = {
     selectedRowKeys,
-    onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
+    onChange: (selectedRowKeys) => {
+      setSelectedRowKeys(selectedRowKeys);
+    },
+  };
+
+  const handleDeleteSelected = () => {
+    console.log("Delete Selected IDs:", selectedRowKeys);
+  };
+
+  const handleUnpublishSelected = () => {
+    console.log("Unpublish Selected IDs:", selectedRowKeys);
+  };
+
+  const handlepPublishSelected = () => {
+    console.log("Publish Selected IDs:", selectedRowKeys);
   };
 
   return (
@@ -489,15 +521,14 @@ const Product = () => {
         <Button size="small" onClick={handleDownloadCatalog}>
           Download as Catalog
         </Button>
-        <Button
-          size="small"
-          danger
-          onClick={() => console.log("Delete Selected")}
-        >
+        <Button size="small" danger onClick={handleDeleteSelected}>
           Delete Selected
         </Button>
-        <Button size="small" onClick={() => console.log("Unpublish Selected")}>
+        <Button size="small" onClick={handleUnpublishSelected}>
           Unpublish Selected
+        </Button>
+        <Button size="small" onClick={handlepPublishSelected}>
+          Publish Selected
         </Button>
       </div>
 

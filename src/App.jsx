@@ -40,6 +40,7 @@ import BulkEdit from './Pages/Vendors/BulkEdit';
 import EditVendor from './Pages/Vendors/EditVendor';
 import VendorProduct from './Pages/Vendors/VendorProduct';
 import EditProducts from './Pages/Catalog/Product/EditProducts';
+import Shippingprovider from './Pages/ContentManagement/Shippingprovider/Shippingprovider';
 
 
 function App() {
@@ -100,6 +101,7 @@ function App() {
         <Route path="/notice" element={<ProtectedRoute element={Notification} />} />
         <Route path="/banners" element={<ProtectedRoute element={Banner} />} />
         <Route path="/banners/add-banner" element={<ProtectedRoute element={AddBanner} />} />
+        <Route path="/shippingprovider" element={<ProtectedRoute element={Shippingprovider} />} />
 
         {/* Catch-all for non-existent routes */}
         <Route path="*" element={<Error404 />} />
