@@ -41,7 +41,7 @@ import EditVendor from "./Pages/Vendors/EditVendor";
 import VendorProduct from "./Pages/Vendors/VendorProduct";
 import EditProducts from "./Pages/Catalog/Product/EditProducts";
 import Shippingprovider from "./Pages/Configuration/Shippingprovider/Shippingprovider";
-import AccessControl from "./Pages/ContentManagement/AccessControlList/AccessControl";
+import AccessControl from "./Pages/Configuration/AccessControlList/AccessControl";
 
 function App() {
   return (
@@ -198,8 +198,12 @@ function App() {
           element={<ProtectedRoute element={AddBanner} />}
         />
         <Route
-          path="/shippingprovider"
+          path="/shipping-methods"
           element={<ProtectedRoute element={Shippingprovider} />}
+        />
+        <Route
+          path="/access-control-list"
+          element={<ProtectedRoute element={AccessControl} />}
         />
 
         {/* Catch-all for non-existent routes */}

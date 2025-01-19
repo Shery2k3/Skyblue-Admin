@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Typography, Spin, Row, Col, message, Checkbox } from 'antd';
 import axiosInstance from '../../../Api/axiosConfig';
 import API_BASE_URL from '../../../constants';
+import CustomLayout from '../../../Components/Layout/Layout';
 
 const { Title } = Typography;
 
@@ -77,7 +78,8 @@ const AccessControl = () => {
   }));
 
   return (
-    <div style={{ padding: '20px' }}>
+    <CustomLayout pageTitle="AccessControl List" menuKey="22">
+  <div style={{ padding: '20px' }}>
       <Row gutter={[16, 16]}>
         <Col span={24}>
           <Title level={4}>Access Control</Title>
@@ -100,6 +102,8 @@ const AccessControl = () => {
         </Row>
       )}
     </div>
+    </CustomLayout>
+  
   );
 };
 
