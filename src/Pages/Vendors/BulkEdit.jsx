@@ -1,28 +1,47 @@
-//@desc: Arsal
-//@desc: Make Whole page responsive
-//@desc: When we Click "Edit", try to increase width of "product name" column for better view
 //@desc: Vendor changes I will tell on discord
-//@desc: Once backend developer check GET api you'll have to put filter of productSearch and on basis of category(will be dropdwown && already made btn)
 
 //@desc: Shery
 //@desc: Just check api of getting all bulk product "Controller/admin/bulkRepo.js", Route on BE is "/bulk-products", will it work with category and product search filter? oo not, if not then modify the api to work with these filters
+//? WORKS WITH FILTERS -Shery
 //@desc: Make simple delete api of deleting many product at once, ig take product id in array and delete them(Please Keep track whatever youre deleting)
+//? DELETE /admin/bulk-delete-products/ #body JSON: { productIds: [1, 2, 3] } -Shery
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomLayout from "../../Components/Layout/Layout";
 import axiosInstance from "../../Api/axiosConfig";
-import { Table, Button, Input, Select, Space, message, Spin, Tooltip } from "antd";
+import {
+  Table,
+  Button,
+  Input,
+  Select,
+  Space,
+  message,
+  Spin,
+  Tooltip,
+  Typography,
+} from "antd";
 import API_BASE_URL from "../../constants";
 import useRetryRequest from "../../Api/useRetryRequest";
+import useResponsiveButtonSize from "../../Components/ResponsiveSizes/ResponsiveSize";
 
 const { Option } = Select;
+const { Title } = Typography;
 
 const BulkEdit = () => {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 25, total: 0 });
-  const [filters, setFilters] = useState({ category: "", vendor: "", manufacturer: "", productName: "" });
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 25,
+    total: 0,
+  });
+  const [filters, setFilters] = useState({
+    category: "",
+    vendor: "",
+    manufacturer: "",
+    productName: "",
+  });
   const [vendors, setVendors] = useState([]);
   const [manufacturers, setManufacturers] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -30,10 +49,13 @@ const BulkEdit = () => {
   const [changedProducts, setChangedProducts] = useState({});
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
+  const buttonSize = useResponsiveButtonSize();
 
   const fetchVendors = useCallback(async () => {
     try {
-      const response = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/vendors`));
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/vendors`)
+      );
       setVendors(response.data.data || []);
     } catch (error) {
       console.error("Error fetching vendors:", error);
@@ -42,7 +64,9 @@ const BulkEdit = () => {
 
   const fetchManufacturers = useCallback(async () => {
     try {
-      const response = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`));
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`)
+      );
       setManufacturers(response.data || []);
     } catch (error) {
       console.error("Error fetching manufacturers:", error);
@@ -51,7 +75,9 @@ const BulkEdit = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await retryRequest(() => axiosInstance.get(`${API_BASE_URL}/admin/category/all`));
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/category/all`)
+      );
       setCategories(response.data || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -59,33 +85,40 @@ const BulkEdit = () => {
     }
   }, [retryRequest]);
 
-  const fetchProducts = useCallback(async (page = 1) => {
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get("/admin/bulk-products", {
-        params: { page, pageSize: pagination.pageSize, ...filters },
-      });
-      if (response?.data?.success) {
-        const { products, totalItems } = response.data.data;
-        setProducts(products.map((p) => ({ ...p, key: p.Id })));
-        setPagination((prev) => ({ ...prev, current: page, total: totalItems }));
-      } else {
-        message.error("Failed to fetch products.");
+  const fetchProducts = useCallback(
+    async (page = 1) => {
+      setLoading(true);
+      try {
+        const response = await axiosInstance.get("/admin/bulk-products", {
+          params: { page, pageSize: pagination.pageSize, ...filters },
+        });
+        if (response?.data?.success) {
+          const { products, totalItems } = response.data.data;
+          setProducts(products.map((p) => ({ ...p, key: p.Id })));
+          setPagination((prev) => ({
+            ...prev,
+            current: page,
+            total: totalItems,
+          }));
+        } else {
+          message.error("Failed to fetch products.");
+        }
+      } catch (error) {
+        message.error("An error occurred while fetching products.");
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      message.error("An error occurred while fetching products.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, pagination.pageSize]);
+    },
+    [filters, pagination.pageSize]
+  );
 
   useEffect(() => {
     fetchProducts();
     fetchVendors();
     fetchCategories();
     fetchManufacturers();
-  }, [fetchProducts, fetchVendors, fetchCategories, fetchManufacturers]);
+  }, []);
 
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({ ...prev, current: pagination.current }));
@@ -102,7 +135,9 @@ const BulkEdit = () => {
 
   const handleEditChange = (key, field, value) => {
     setProducts((prev) =>
-      prev.map((product) => (product.key === key ? { ...product, [field]: value } : product))
+      prev.map((product) =>
+        product.key === key ? { ...product, [field]: value } : product
+      )
     );
     setChangedProducts((prev) => ({
       ...prev,
@@ -118,7 +153,9 @@ const BulkEdit = () => {
     setLoading(true);
     try {
       const response = await retryRequest(() =>
-        axiosInstance.patch(`${API_BASE_URL}/admin/bulk-products/bulk-edit`, { changes: changedProducts })
+        axiosInstance.patch(`${API_BASE_URL}/admin/bulk-products/bulk-edit`, {
+          changes: changedProducts,
+        })
       );
       if (response?.data?.success) {
         message.success("Products updated successfully.");
@@ -141,7 +178,13 @@ const BulkEdit = () => {
       key: "Name",
       render: (text, record) =>
         editMode ? (
-          <Input value={record.Name} onChange={(e) => handleEditChange(record.key, "Name", e.target.value)} />
+          <Input
+            value={record.Name}
+            style={{ width: "450px" }}
+            onChange={(e) =>
+              handleEditChange(record.key, "Name", e.target.value)
+            }
+          />
         ) : (
           text
         ),
@@ -152,7 +195,12 @@ const BulkEdit = () => {
       key: "BoxQty",
       render: (text, record) =>
         editMode ? (
-          <Input value={record.BoxQty} onChange={(e) => handleEditChange(record.key, "BoxQty", e.target.value)} />
+          <Input
+            value={record.BoxQty}
+            onChange={(e) =>
+              handleEditChange(record.key, "BoxQty", e.target.value)
+            }
+          />
         ) : (
           text
         ),
@@ -163,7 +211,12 @@ const BulkEdit = () => {
       key: "ItemLocation",
       render: (text, record) =>
         editMode ? (
-          <Input value={record.ItemLocation} onChange={(e) => handleEditChange(record.key, "ItemLocation", e.target.value)} />
+          <Input
+            value={record.ItemLocation}
+            onChange={(e) =>
+              handleEditChange(record.key, "ItemLocation", e.target.value)
+            }
+          />
         ) : (
           text
         ),
@@ -174,7 +227,12 @@ const BulkEdit = () => {
       key: "Sku",
       render: (text, record) =>
         editMode ? (
-          <Input value={record.Sku} onChange={(e) => handleEditChange(record.key, "Sku", e.target.value)} />
+          <Input
+            value={record.Sku}
+            onChange={(e) =>
+              handleEditChange(record.key, "Sku", e.target.value)
+            }
+          />
         ) : (
           text || "N/A"
         ),
@@ -188,7 +246,9 @@ const BulkEdit = () => {
           <Tooltip title="Red vendor name means they are already a vendor.">
             <Select
               value={record.VendorId}
-              onChange={(value) => handleEditChange(record.key, "VendorId", value)}
+              onChange={(value) =>
+                handleEditChange(record.key, "VendorId", value)
+              }
               style={{ width: 200 }}
               placeholder="Select a vendor"
             >
@@ -196,7 +256,8 @@ const BulkEdit = () => {
                 <Option key={vendor.Id} value={vendor.Id}>
                   <span
                     style={{
-                      color: vendor.Name === record.VendorName ? "red" : "black",
+                      color:
+                        vendor.Name === record.VendorName ? "red" : "black",
                     }}
                   >
                     {vendor.Name}
@@ -217,13 +278,17 @@ const BulkEdit = () => {
         editMode ? (
           <Select
             value={published}
-            onChange={(value) => handleEditChange(record.key, "Published", value)}
+            onChange={(value) =>
+              handleEditChange(record.key, "Published", value)
+            }
           >
             <Option value={true}>True</Option>
             <Option value={false}>False</Option>
           </Select>
         ) : (
-          <span style={{ color: published ? "green" : "red" }}>{published ? "True" : "False"}</span>
+          <span style={{ color: published ? "green" : "red" }}>
+            {published ? "True" : "False"}
+          </span>
         ),
     },
     {
@@ -231,10 +296,14 @@ const BulkEdit = () => {
       key: "Actions",
       render: (_, record) => (
         <Space>
-          <Button onClick={() => navigate(`/edit-product/${record.Id}`)}>View</Button>
+          <Button onClick={() => navigate(`/edit-product/${record.Id}`)}>
+            View
+          </Button>
           <Button
             danger
-            onClick={() => { console.log(record.Id); }}
+            onClick={() => {
+              console.log(record.Id);
+            }}
           >
             Delete
           </Button>
@@ -245,9 +314,23 @@ const BulkEdit = () => {
 
   return (
     <CustomLayout pageTitle="Bulk Edit" menuKey="20">
-      <div>
-        <h1>Bulk Edit</h1>
-        <Space style={{ marginBottom: 20 }}>
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Bulk Edit
+      </Title>
+      <div
+        style={{
+          marginBottom: 24,
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+        }}
+      >
+        <Space
+          size={buttonSize}
+          align="center"
+          style={{ justifyContent: "center" }}
+          wrap
+        >
           <Input
             placeholder="Search by Product Name"
             value={filters.productName}
@@ -292,21 +375,19 @@ const BulkEdit = () => {
             </Button>
           )}
         </Space>
-        {loading ? (
-          <Spin size="large" />
-        ) : (
-          <Table
-            dataSource={products}
-            columns={columns}
-            pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
-            }}
-            onChange={handleTableChange}
-          />
-        )}
       </div>
+      <Table
+        dataSource={products}
+        columns={columns}
+        loading={loading}
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+        }}
+        scroll={{ x: "max-content" }}
+        onChange={handleTableChange}
+      />
     </CustomLayout>
   );
 };
