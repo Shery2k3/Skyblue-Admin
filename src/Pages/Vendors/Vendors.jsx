@@ -45,7 +45,7 @@ const Vendors = () => {
   }, []);
 
   const fetchVendors = async (query = "") => {
-    setLoading(true); // Set loading to true before fetching
+    setLoading(true);
     try {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/vendors`, {
@@ -58,12 +58,13 @@ const Vendors = () => {
         name: vendor.Name,
         email: vendor.Email,
         active: vendor.Active,
+        picture: vendor.picture
       }));
       setDataSource(data);
     } catch (error) {
       console.error("Error fetching customer data:", error);
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      setLoading(false);
     }
   };
 
@@ -130,6 +131,25 @@ const Vendors = () => {
   };
 
   const columns = [
+    {
+      title: "Picture",
+      dataIndex: "picture",
+      key: "picture",
+      align: "center",
+      width: 100,
+      render: (picture) => (
+        <img
+          src={picture}
+          alt="Vendor"
+          style={{
+            width: '60px',
+            height: '60px',
+            objectFit: 'cover',
+            borderRadius: '4px'
+          }}
+        />
+      ),
+    },
     {
       title: "Name",
       dataIndex: "name",
