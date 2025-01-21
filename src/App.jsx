@@ -58,17 +58,6 @@ function App() {
         />
 
         {/* Catalog */}
-        <Route path="/categories" element={<ProtectedRoute element={Category} />} />
-        <Route path="/categories/:id" element={<ProtectedRoute element={ViewCategory} />} />
-        <Route path="/categories/create" element={<ProtectedRoute element={ViewCategory} />} />
-        <Route path="/products" element={<ProtectedRoute element={Product} />} />
-        <Route path="/edit-product/:id?" element={<ProtectedRoute element={EditProduct} />} />
-        
-        <Route path="/products/:id" element={<ProtectedRoute element={EditProducts} />} />
-        <Route path="/inventory" element={<ProtectedRoute element={Inventory} />} />
-        <Route path="/manufacturers" element={<ProtectedRoute element={Manufacturers} />} />
-        <Route path="/manufacturer/products/:id?" element={<ProtectedRoute element={ManufacturerDetail} />} />
-        <Route path="/manufacturer/products/add/:manufacturerid" element={<ProtectedRoute element={AddProductManufacturer} />} />
         <Route
           path="/categories"
           element={<ProtectedRoute element={Category} />}
