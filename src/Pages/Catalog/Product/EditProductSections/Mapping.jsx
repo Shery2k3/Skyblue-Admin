@@ -28,8 +28,6 @@ const Mapping = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/product-mapping/${id}`)
       );
-
-      console.log(response.data)
       
       // Set category IDs from response
       setSelectedCategoryIds(
