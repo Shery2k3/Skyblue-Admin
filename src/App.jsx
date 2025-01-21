@@ -42,6 +42,7 @@ import EditProduct from "./Pages/Catalog/Product/EditProduct";
 // import EditProducts from "./Pages/Catalog/Product/old-EditProduct"
 import Shippingprovider from "./Pages/Configuration/Shippingprovider/Shippingprovider";
 import AccessControl from "./Pages/Configuration/AccessControlList/AccessControl";
+import ViewCategory from "./Pages/Catalog/Category/ViewCategory";
 
 function App() {
   return (
@@ -61,6 +62,14 @@ function App() {
         <Route
           path="/categories"
           element={<ProtectedRoute element={Category} />}
+        />
+        <Route
+          path="/categories/:id"
+          element={<ProtectedRoute element={ViewCategory} />}
+        />
+        <Route
+          path="/categories/add"
+          element={<ProtectedRoute element={ViewCategory} />}
         />
         <Route
           path="/products"

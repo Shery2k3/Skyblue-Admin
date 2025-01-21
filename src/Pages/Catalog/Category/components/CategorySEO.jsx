@@ -1,8 +1,11 @@
 import { Button, Card, Form, Input, message } from "antd";
 import axiosInstance from "../../../../Api/axiosConfig";
 import API_BASE_URL from "../../../../constants";
+import { useNavigate } from "react-router-dom";
 
 const CategorySEO = ({ id, form }) => {
+  const navigate = useNavigate()
+
   const saveCategory = async () => {
     try {
       const values = await form.validateFields();
@@ -22,7 +25,7 @@ const CategorySEO = ({ id, form }) => {
       const config = {
         headers: { "Content-Type": "multipart/form-data" },
       };
-      if (id !== "create") {
+      if (id && id !== "create") {
         await axiosInstance.patch(
           `${API_BASE_URL}/admin/category/edit/${id}`,
           formData,
@@ -35,9 +38,8 @@ const CategorySEO = ({ id, form }) => {
           formData,
           config
         );
-        console.log(response)
         message.success("Category added successfully");
-        navigate("/categories");
+        navigate(`/categories/${response?.data?.newCategoryId?.Id}`);
       }
     } catch (error) {
       console.error("Error saving category:", error);

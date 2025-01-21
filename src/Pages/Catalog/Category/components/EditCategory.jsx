@@ -17,6 +17,7 @@ import styled from "styled-components";
 import axiosInstance from "../../../../Api/axiosConfig";
 import API_BASE_URL from "../../../../constants";
 import useRetryRequest from "../../../../Api/useRetryRequest";
+import { useNavigate } from "react-router-dom";
 
 const ImagePreviewBox = styled.div`
   width: 200px;
@@ -43,6 +44,7 @@ const EditCategory = ({
   const [previewVisible, setPreviewVisible] = useState(false);
   const [roles, setRoles] = useState([]);
   const retryRequest = useRetryRequest();
+   const navigate = useNavigate()
 
   const { Option } = Select;
 
@@ -81,7 +83,7 @@ const EditCategory = ({
         headers: { "Content-Type": "multipart/form-data" },
       };
 
-      if (id !== "create") {
+      if (id && id !== "create") {
         await axiosInstance.patch(
           `${API_BASE_URL}/admin/category/edit/${id}`,
           formData,
@@ -89,13 +91,13 @@ const EditCategory = ({
         );
         message.success("Category updated successfully");
       } else {
-        await axiosInstance.post(
+        const response = await axiosInstance.post(
           `${API_BASE_URL}/admin/category/add/`,
           formData,
           config
         );
         message.success("Category added successfully");
-        navigate("/categories");
+        navigate(`/categories/${response?.data?.newCategoryId?.Id}`);
       }
     } catch (error) {
       console.error("Error saving category:", error);

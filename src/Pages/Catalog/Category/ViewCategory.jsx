@@ -87,7 +87,7 @@ const ViewCategory = () => {
 
     fetchCategories();
     fetchDiscounts();
-  }, []);
+  }, [id]);
 
   const handleImageRemove = () => {
     form.setFieldsValue({ image: "" });
@@ -132,7 +132,7 @@ const ViewCategory = () => {
       <Button
         type="link"
         onClick={() => {
-          navigate(-1);
+          navigate("/categories");
         }}
         icon={<ArrowLeftOutlined />}
       >
