@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Typography, Spin, Row, Col, message, Checkbox } from 'antd';
-import axiosInstance from '../../../Api/axiosConfig';
-import API_BASE_URL from '../../../constants';
-import CustomLayout from '../../../Components/Layout/Layout';
+import React, { useState, useEffect } from "react";
+import { Table, Typography, Spin, Row, Col, message, Checkbox } from "antd";
+import axiosInstance from "../../../Api/axiosConfig";
+import API_BASE_URL from "../../../constants";
+import CustomLayout from "../../../Components/Layout/Layout";
 
 const { Title } = Typography;
 
@@ -15,7 +15,9 @@ const AccessControl = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get(`${API_BASE_URL}/admin/content-management/access-list-control`);
+        const response = await axiosInstance.get(
+          `${API_BASE_URL}/admin/content-management/access-list-control`
+        );
         const result = response.data.data;
         if (result.success) {
           setCustomerRoles(result.CustomerRoles);
@@ -25,7 +27,7 @@ const AccessControl = () => {
           message.error("Failed to fetch access control data");
         }
       } catch (error) {
-        console.error('Error fetching access control data:', error);
+        console.error("Error fetching access control data:", error);
         message.error("Error fetching access control data");
       } finally {
         setLoading(false);
@@ -38,22 +40,25 @@ const AccessControl = () => {
   // Check if a permission is mapped to a role
   const isPermissionMapped = (permissionId, roleId) => {
     return permissionRoleMappings.some(
-      (mapping) => mapping.PermissionId === permissionId && mapping.RoleId === roleId
+      (mapping) =>
+        mapping.PermissionId === permissionId && mapping.RoleId === roleId
     );
   };
 
   // Handle checkbox toggle (placeholder for now)
   const handleCheckboxChange = (permissionId, roleId, checked) => {
-    console.log(`PermissionId: ${permissionId}, RoleId: ${roleId}, Checked: ${checked}`);
+    console.log(
+      `PermissionId: ${permissionId}, RoleId: ${roleId}, Checked: ${checked}`
+    );
     // Update logic here (e.g., API call to update the mapping)
   };
 
   // Table columns
   const columns = [
     {
-      title: 'Permission Name',
-      dataIndex: 'PermissionName',
-      key: 'PermissionName',
+      title: "Permission Name",
+      dataIndex: "PermissionName",
+      key: "PermissionName",
       render: (text) => <span>{text}</span>,
     },
     ...customerRoles.map((role) => ({
@@ -64,7 +69,11 @@ const AccessControl = () => {
         <Checkbox
           checked={isPermissionMapped(record.PermissionId, role.RoleId)}
           onChange={(e) =>
-            handleCheckboxChange(record.PermissionId, role.RoleId, e.target.checked)
+            handleCheckboxChange(
+              record.PermissionId,
+              role.RoleId,
+              e.target.checked
+            )
           }
         />
       ),
@@ -79,31 +88,24 @@ const AccessControl = () => {
 
   return (
     <CustomLayout pageTitle="AccessControl List" menuKey="22">
-  <div style={{ padding: '20px' }}>
-      <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Title level={4}>Access Control</Title>
-        </Col>
-      </Row>
-
-      {loading ? (
-        <Spin size="large" />
-      ) : (
+      <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
+        Access Control List
+      </Title>
+      <div style={{ padding: "20px" }}>
         <Row gutter={[16, 16]}>
           <Col span={24}>
             <Table
               columns={columns}
               dataSource={dataSource}
+              loading={loading}
               bordered
               pagination={false}
               scroll={{ x: true }}
             />
           </Col>
         </Row>
-      )}
-    </div>
+      </div>
     </CustomLayout>
-  
   );
 };
 
