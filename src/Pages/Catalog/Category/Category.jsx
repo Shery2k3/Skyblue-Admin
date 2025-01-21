@@ -1,17 +1,7 @@
-//@desc: Add "View Product" & "SEO" Button 
 //@desc: Create new dynamic route For view product("/category/:{categoryID}") within the category and a modal of "SEO"
-//@desc: Just Add fields of Meta Title, Meta Description, Meta Keywords on SEO modal
-//@desc: Onclick on "Edit" and "Add Category" add additional fileds i-e description, show on homepage(radioBtn), Limit to customer Role
-//@desc: limite to customer role should be a dropdown with options of Every Role API Endpoint is: const response = await axiosInstance.get(
-//        `${API_BASE_URL}/admin/customer/roles`
-//      );
 
 //@desc: Update the api of Edit and create category (Requirements are above)
-//@desc: Create New API of view products w.r.t categoryID
 //@desc: Create New API of SEO w.r.t categoryID
-
-//@Desc: Please Dont wait for backend developer to end his task just start your task and create a dummy data for testing
-
 
 import React, { useEffect, useState } from "react";
 import CustomLayout from "../../../Components/Layout/Layout";
@@ -44,6 +34,7 @@ import API_BASE_URL from "../../../constants";
 import axiosInstance from "../../../Api/axiosConfig";
 import useRetryRequest from "../../../Api/useRetryRequest";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -119,23 +110,16 @@ const ImagePreviewBox = styled.div`
 
 const Category = () => {
   const [dataSource, setDataSource] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingCategory, setEditingCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [form] = Form.useForm();
   const [currentPage, setCurrentPage] = useState(1);
-  const [imageFile, setImageFile] = useState(null);
-  const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [discounts, setDiscounts] = useState([]);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
   const pageSize = 15;
 
   const retryRequest = useRetryRequest();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCategories();
-    fetchDiscounts();
   }, []);
 
   const fetchCategories = async (search = "") => {
@@ -154,18 +138,6 @@ const Category = () => {
       message.error("Failed to fetch categories");
     } finally {
       setLoading(false); // Set loading to false
-    }
-  };
-
-  const fetchDiscounts = async () => {
-    try {
-      const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/discount/category`)
-      );
-      setDiscounts(response.data);
-    } catch (error) {
-      console.error("Error fetching discounts:", error);
-      message.error("Failed to fetch discounts");
     }
   };
 
@@ -193,75 +165,6 @@ const Category = () => {
       }
     });
     return flatData;
-  };
-
-  const showModal = async (category = null) => {
-    setEditingCategory(category);
-    setImageFile(null);
-    if (category) {
-      try {
-        const response = await retryRequest(() =>
-          axiosInstance.get(`${API_BASE_URL}/admin/category/single/${category.id}`)
-        );
-        const categoryData = response.data;
-        form.setFieldsValue({
-          name: categoryData.Name,
-          parentId: categoryData.ParentId,
-          published: categoryData.Published,
-          image: categoryData.Image || "",
-          discountId: categoryData.DiscountId,
-        });
-        setPreviewImage(categoryData.Image || "");
-      } catch (error) {
-        console.error("Error fetching category details:", error);
-        message.error("Failed to fetch category details");
-      }
-    } else {
-      form.resetFields();
-      setPreviewImage("");
-    }
-    setIsModalVisible(true);
-  };
-
-  const handleOk = async () => {
-    try {
-      const values = await form.validateFields();
-      const formData = new FormData();
-      formData.append("Name", values.name);
-      formData.append("ParentCategoryId", values.parentId || 0);
-      formData.append("Published", values.published);
-      formData.append("DiscountId", values.discountId || null);
-      formData.append("removedImage", values.removedImage || false);
-  
-      if (imageFile) {
-        formData.append("Image", imageFile);
-      }
-  
-      const config = {
-        headers: { "Content-Type": "multipart/form-data" },
-      };
-  
-      if (editingCategory) {
-        await axiosInstance.patch(
-          `${API_BASE_URL}/admin/category/edit/${editingCategory.id}`,
-          formData,
-          config
-        );
-        message.success("Category updated successfully");
-      } else {
-        await axiosInstance.post(`${API_BASE_URL}/admin/category/add`, formData, config);
-        message.success("Category added successfully");
-      }
-      setIsModalVisible(false);
-      fetchCategories();
-    } catch (error) {
-      console.error("Error saving category:", error);
-      message.error("Failed to save category");
-    }
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
   };
 
   const handlePageChange = (page) => {
@@ -309,7 +212,7 @@ const Category = () => {
           <StyledButton
             type="primary"
             icon={<EditOutlined />}
-            onClick={() => showModal(record)}
+            onClick={() => navigate(`/categories/${record.id}`)}
           >
             Edit
           </StyledButton>
@@ -347,22 +250,6 @@ const Category = () => {
     );
   };
 
-  const handleImageRemove = () => {
-    form.setFieldsValue({ image: "" });
-    setImageFile(null);
-    setPreviewImage("");
-    form.setFieldsValue({ removedImage: true });
-  };
-
-  const handleImageUpload = ({ file }) => {
-    setImageFile(file);
-    setPreviewImage(URL.createObjectURL(file));
-  };
-
-  const handlePreview = () => {
-    setPreviewVisible(true);
-  };
-
   return (
     <CustomLayout pageTitle="Categories" menuKey="2">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
@@ -390,7 +277,9 @@ const Category = () => {
           <StyledButton
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => showModal()}
+            onClick={() => {
+              navigate("/categories/create");
+            }}
             size="large"
             style={{ backgroundColor: "green", borderColor: "green" }}
           >
@@ -420,93 +309,6 @@ const Category = () => {
           showSizeChanger={false}
         />
       </CenteredFooter>
-      <Modal
-        title={editingCategory ? "Edit Category" : "Add Category"}
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        centered
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="image"
-            label="Image"
-            style={{ marginBottom: 24 }}
-          >
-            <ImagePreviewBox>
-              {previewImage ? (
-                <Image
-                  src={previewImage}
-                  alt="Category"
-                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-                  preview={{
-                    visible: previewVisible,
-                    onVisibleChange: (visible) => setPreviewVisible(visible),
-                  }}
-                />
-              ) : (
-                <p>No image</p>
-              )}
-            </ImagePreviewBox>
-            <Space>
-              <Upload
-                beforeUpload={() => false}
-                onChange={handleImageUpload}
-                showUploadList={false}
-              >
-                <Button icon={<UploadOutlined />}>Upload Image</Button>
-              </Upload>
-              {previewImage && (
-                <>
-                  <Button onClick={handleImageRemove} icon={<DeleteOutlined />} type="danger">
-                    Remove
-                  </Button>
-                </>
-              )}
-            </Space>
-          </Form.Item>
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: "Please input the category name!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item name="parentId" label="Parent Category">
-            <Select
-              allowClear
-              placeholder="Select parent category"
-              showSearch
-              optionFilterProp="children"
-            >
-              <Option value={0}>None</Option>
-              {dataSource.map((category) => (
-                <Option key={category.id} value={category.id}>
-                  {category.path}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item name="discountId" label="Discount">
-            <Select
-              allowClear
-              placeholder="Select discount"
-              showSearch
-              optionFilterProp="children"
-            >
-              <Option value={null}>None</Option>
-              {discounts.map((discount) => (
-                <Option key={discount.Id} value={discount.Id}>
-                  {discount.Name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item name="published" label="Published" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-        </Form>
-      </Modal>
     </CustomLayout>
   );
 };

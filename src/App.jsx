@@ -41,6 +41,7 @@ import EditVendor from './Pages/Vendors/EditVendor';
 import VendorProduct from './Pages/Vendors/VendorProduct';
 import EditProducts from './Pages/Catalog/Product/EditProducts';
 import Shippingprovider from './Pages/Configuration/Shippingprovider/Shippingprovider';
+import ViewCategory from './Pages/Catalog/Category/ViewCategory';
 
 
 function App() {
@@ -56,6 +57,8 @@ function App() {
 
         {/* Catalog */}
         <Route path="/categories" element={<ProtectedRoute element={Category} />} />
+        <Route path="/categories/:id" element={<ProtectedRoute element={ViewCategory} />} />
+        <Route path="/categories/create" element={<ProtectedRoute element={ViewCategory} />} />
         <Route path="/products" element={<ProtectedRoute element={Product} />} />
         <Route path="/edit-product/:id?" element={<ProtectedRoute element={EditProduct} />} />
         
