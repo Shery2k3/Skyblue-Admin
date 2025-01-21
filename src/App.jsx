@@ -2,46 +2,45 @@ import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./Components/ProtectedRoute/ProtectedRoute";
 import Login from "./Pages/Login/Login";
-import Dashboard from './Pages/Dashboard/Dashboard';
-import Category from './Pages/Catalog/Category/Category';
-import Product from './Pages/Catalog/Product/Product';
-import EditProduct from './Pages/Catalog/Product/EditProduct';
-import Inventory from './Pages/Catalog/Inventory/Inventory';
-import Manufacturers from './Pages/Catalog/Manufacturers/Manufacturers';
-import ManufacturerDetail from './Pages/Catalog/Manufacturers/ManufacturerDetail';
-import Vendors from './Pages/Vendors/Vendors';
-import Orders from './Pages/Sales/Orders/Orders';
-import OrdersDetails from './Pages/Sales/Orders/OrderDetail';
-import CurrentCarts from './Pages/Sales/CurrentCarts/CurrentCarts';
-import CurrentCartDetails from './Pages/Sales/CurrentCarts/CurrentCartDetails';
-import BestSeller from './Pages/Sales/BestSeller/BestSeller';
-import Customer from './Pages/Customers/Customer/Customer';
-import EditCustomer from './Pages/Customers/Customer/EditCustomer';
-import CustomerApproval from './Pages/Customers/CustomerApproval/CustomerApproval';
-import CustomerReport from './Pages/Customers/CustomerReport/CustomerReport';
-import CustomerRoles from './Pages/Customers/CustomerRoles/CustomerRoles';
-import Discounts from './Pages/Promotions/Discount/Discount';
-import Email from './Pages/Promotions/Email/Email';
-import Flyer from './Pages/Promotions/Flyer/Flyer';
-import OrderSheet from './Pages/Promotions/OrderSheet/OrderSheet';
-import Notification from './Pages/ContentManagement/Notification/NotificationForm';
-import Banner from './Pages/ContentManagement/Banner/Banner';
-import AddBanner from './Pages/ContentManagement/Banner/AddBanner';
-import Error404 from './Pages/Error404/Error404';
-import AddProduct from './Pages/Sales/Orders/Sections/AddProduct';
-import OrderNotes from './Pages/Sales/Orders/Sections/Ordernotes';
-import AddFlyer from './Pages/Promotions/Flyer/AddFlyer';
-import Campaign from './Pages/Promotions/Campaign/Campaign';
-import Editcampaign from './Pages/Promotions/Campaign/Sections/Editcampaign';
-import Createcampaign from './Pages/Promotions/Campaign/Sections/Createcampaign';
-import AddProductManufacturer from './Pages/Catalog/Manufacturers/AddProductManufacturer';
-import EditDiscount from './Pages/Promotions/Discount/EditDiscount';
-import BulkEdit from './Pages/Vendors/BulkEdit';
-import EditVendor from './Pages/Vendors/EditVendor';
-import VendorProduct from './Pages/Vendors/VendorProduct';
-import EditProducts from './Pages/Catalog/Product/EditProducts';
-import Shippingprovider from './Pages/Configuration/Shippingprovider/Shippingprovider';
-import ViewCategory from './Pages/Catalog/Category/ViewCategory';
+import Dashboard from "./Pages/Dashboard/Dashboard";
+import Category from "./Pages/Catalog/Category/Category";
+import Product from "./Pages/Catalog/Product/Product";
+import Inventory from "./Pages/Catalog/Inventory/Inventory";
+import Manufacturers from "./Pages/Catalog/Manufacturers/Manufacturers";
+import ManufacturerDetail from "./Pages/Catalog/Manufacturers/ManufacturerDetail";
+import Vendors from "./Pages/Vendors/Vendors";
+import Orders from "./Pages/Sales/Orders/Orders";
+import OrdersDetails from "./Pages/Sales/Orders/OrderDetail";
+import CurrentCarts from "./Pages/Sales/CurrentCarts/CurrentCarts";
+import CurrentCartDetails from "./Pages/Sales/CurrentCarts/CurrentCartDetails";
+import BestSeller from "./Pages/Sales/BestSeller/BestSeller";
+import Customer from "./Pages/Customers/Customer/Customer";
+import EditCustomer from "./Pages/Customers/Customer/EditCustomer";
+import CustomerApproval from "./Pages/Customers/CustomerApproval/CustomerApproval";
+import CustomerReport from "./Pages/Customers/CustomerReport/CustomerReport";
+import CustomerRoles from "./Pages/Customers/CustomerRoles/CustomerRoles";
+import Discounts from "./Pages/Promotions/Discount/Discount";
+import Email from "./Pages/Promotions/Email/Email";
+import Flyer from "./Pages/Promotions/Flyer/Flyer";
+import OrderSheet from "./Pages/Promotions/OrderSheet/OrderSheet";
+import Notification from "./Pages/ContentManagement/Notification/NotificationForm";
+import Banner from "./Pages/ContentManagement/Banner/Banner";
+import AddBanner from "./Pages/ContentManagement/Banner/AddBanner";
+import Error404 from "./Pages/Error404/Error404";
+import AddProduct from "./Pages/Sales/Orders/Sections/AddProduct";
+import OrderNotes from "./Pages/Sales/Orders/Sections/Ordernotes";
+import AddFlyer from "./Pages/Promotions/Flyer/AddFlyer";
+import Campaign from "./Pages/Promotions/Campaign/Campaign";
+import Editcampaign from "./Pages/Promotions/Campaign/Sections/Editcampaign";
+import Createcampaign from "./Pages/Promotions/Campaign/Sections/Createcampaign";
+import AddProductManufacturer from "./Pages/Catalog/Manufacturers/AddProductManufacturer";
+import EditDiscount from "./Pages/Promotions/Discount/EditDiscount";
+import BulkEdit from "./Pages/Vendors/BulkEdit";
+import EditVendor from "./Pages/Vendors/EditVendor";
+import VendorProduct from "./Pages/Vendors/VendorProduct";
+import EditProduct from "./Pages/Catalog/Product/EditProduct";
+// import EditProducts from "./Pages/Catalog/Product/old-EditProduct"
+import Shippingprovider from "./Pages/Configuration/Shippingprovider/Shippingprovider";
 import AccessControl from "./Pages/Configuration/AccessControlList/AccessControl";
 
 function App() {
@@ -78,14 +77,14 @@ function App() {
           path="/products"
           element={<ProtectedRoute element={Product} />}
         />
-        <Route
+        {/* <Route
           path="/edit-product/:id?"
-          element={<ProtectedRoute element={EditProduct} />}
-        />
+          element={<ProtectedRoute element={EditProducts} />}
+        /> */}
 
         <Route
-          path="/products/:id"
-          element={<ProtectedRoute element={EditProducts} />}
+          path="/product/edit/:id?"
+          element={<ProtectedRoute element={EditProduct} />}
         />
         <Route
           path="/inventory"

@@ -15,25 +15,32 @@ const Mapping = () => {
 
   const [manufacturers, setManufacturers] = useState([]);
   const [vendors, setVendors] = useState([]);
-  const [selectedManufacturers, setSelectedManufacturers] = useState([]);
-  const [selectedVendor, setSelectedVendor] = useState(null);
-  const [productData, setProductData] = useState(null);
+  const [categories, setCategories] = useState([]);
 
+  // Update state definitions
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
+  const [selectedManufacturerIds, setSelectedManufacturerIds] = useState([]);
+  const [selectedVendorId, setSelectedVendorId] = useState(-1); // Default to "No Vendor"
+
+  // Update productMapping to set IDs
   const productMapping = async () => {
     try {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/product-mapping/${id}`)
       );
-      console.log("response.data", response.data.manufacturers);
-      setProductData(response.data);
-      setSelectedManufacturers(
-        response.data.manufacturers.map((m) => ({
-          ManufacturerId: m.ManufacturerId,
-          ManufacturerName: m.ManufacturerName,
-        })) || []
+      
+      // Set category IDs from response
+      setSelectedCategoryIds(
+        response.data.category?.map(c => c.CategoryId) || []
       );
 
-      setSelectedVendor(response.data.productVendorMapping?.VendorId || null);
+      // Set manufacturer IDs
+      setSelectedManufacturerIds(
+        response.data.manufacturers?.map(m => m.ManufacturerId) || []
+      );
+
+      // Set vendor ID with fallback to -1
+      setSelectedVendorId(response.data.productVendorMapping?.VendorId || -1);
     } catch (error) {
       message.error("Failed to fetch product details");
     }
@@ -65,64 +72,109 @@ const Mapping = () => {
     }
   };
 
+  // Add categories fetch function
+  const fetchCategories = async () => {
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/category/all`)
+      );
+      const flattenedCategories = flattenCategories(response.data);
+      setCategories(flattenedCategories);
+    } catch (error) {
+      message.error("Failed to fetch categories");
+    }
+  };
+
+  // Add flatten categories helper function
+  const flattenCategories = (categories, parentPath = "") => {
+    let flatData = [];
+    categories.forEach((category) => {
+      const currentPath = parentPath
+        ? `${parentPath} >> ${category.Name}`
+        : category.Name;
+      flatData.push({
+        id: category.Id,
+        name: currentPath,
+      });
+      if (category.children && category.children.length > 0) {
+        flatData = flatData.concat(
+          flattenCategories(category.children, currentPath)
+        );
+      }
+    });
+    return flatData;
+  };
+
+  // Update handleSave to send IDs
   const handleSave = async () => {
     try {
       const payload = {
-        manufacturers: selectedManufacturers,
-        vendor: selectedVendor,
+        manufacturerIds: selectedManufacturerIds,
+        vendorId: selectedVendorId,
+        categoryIds: selectedCategoryIds
       };
-      console.log("payload", payload);
-       await retryRequest(() =>
-         axiosInstance.patch(
-           `${API_BASE_URL}/admin/product/updateMapping/${id}`,
-           payload
-         )
-       );
+      
+      await retryRequest(() =>
+        axiosInstance.patch(
+          `${API_BASE_URL}/admin/product/updateMapping/${id}`,
+          payload
+        )
+      );
       message.success("Product mapping updated successfully!");
     } catch (error) {
       message.error("Failed to save product mapping");
     }
   };
 
+  // Modify useEffect to include categories fetch
   useEffect(() => {
     productMapping();
     fetchManufacturers();
     fetchVendors();
+    fetchCategories(); // Add this
   }, []);
 
   return (
     <div>
       <h1>Product Mapping</h1>
+
       <div>
+        <h3>Categories</h3>
+        <Select
+          mode="multiple"
+          value={selectedCategoryIds}
+          onChange={setSelectedCategoryIds}
+          style={{ width: "100%" }}
+          placeholder="Select categories"
+          showSearch
+          optionFilterProp="children"
+        >
+          {categories.map((category) => (
+            <Option 
+              key={category.id} 
+              value={category.id}
+              label={category.name}
+            >
+              {category.name}
+            </Option>
+          ))}
+        </Select>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
         <h3>Manufacturers</h3>
         <Select
           mode="multiple"
+          value={selectedManufacturerIds}
+          onChange={setSelectedManufacturerIds}
           style={{ width: "100%" }}
           placeholder="Select manufacturers"
-          value={selectedManufacturers.map((m) => m.ManufacturerName)} // Display names in the dropdown
-          onChange={(values) => {
-            const updatedSelections = values
-              .map((name) => {
-                const manufacturer = manufacturers.find(
-                  (m) => m.name === name // Match `name` field
-                );
-                if (manufacturer) {
-                  return {
-                    ManufacturerId: manufacturer.id, // Use `id` for ManufacturerId
-                    ManufacturerName: manufacturer.name, // Use `name` for ManufacturerName
-                  };
-                }
-                return null; // Ignore unmatched values
-              })
-              .filter(Boolean); // Remove any null entries
-            setSelectedManufacturers(updatedSelections);
-          }}
           optionLabelProp="label"
         >
           {manufacturers.map((manufacturer) => (
             <Option
               key={manufacturer.id}
-              value={manufacturer.name} // Use `name` for selection
+              value={manufacturer.id}
               label={manufacturer.name}
             >
               {manufacturer.name}
@@ -133,11 +185,12 @@ const Mapping = () => {
       <div style={{ marginTop: 16 }}>
         <h3>Vendor</h3>
         <Select
+          value={selectedVendorId}
+          onChange={setSelectedVendorId}
           style={{ width: "100%" }}
           placeholder="Select a vendor"
-          value={selectedVendor}
-          onChange={setSelectedVendor}
         >
+          <Option key={0} value={0}>No Vendor</Option>
           {vendors.map((vendor) => (
             <Option key={vendor.Id} value={vendor.Id}>
               {vendor.Name}
