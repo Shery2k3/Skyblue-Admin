@@ -19,6 +19,10 @@ const Mapping = () => {
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [productData, setProductData] = useState(null);
 
+  // Add categories state
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
   const productMapping = async () => {
     try {
       const response = await retryRequest(() =>
@@ -65,11 +69,46 @@ const Mapping = () => {
     }
   };
 
+  // Add categories fetch function
+  const fetchCategories = async () => {
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/category/all`)
+      );
+      const flattenedCategories = flattenCategories(response.data);
+      setCategories(flattenedCategories);
+    } catch (error) {
+      message.error("Failed to fetch categories");
+    }
+  };
+
+  // Add flatten categories helper function
+  const flattenCategories = (categories, parentPath = "") => {
+    let flatData = [];
+    categories.forEach((category) => {
+      const currentPath = parentPath
+        ? `${parentPath} >> ${category.Name}`
+        : category.Name;
+      flatData.push({
+        id: category.Id,
+        name: currentPath,
+      });
+      if (category.children && category.children.length > 0) {
+        flatData = flatData.concat(
+          flattenCategories(category.children, currentPath)
+        );
+      }
+    });
+    return flatData;
+  };
+
+  // Modify the handleSave function to include category
   const handleSave = async () => {
     try {
       const payload = {
         manufacturers: selectedManufacturers,
         vendor: selectedVendor,
+        categoryId: selectedCategory // Add category to payload
       };
       console.log("payload", payload);
        await retryRequest(() =>
@@ -84,16 +123,37 @@ const Mapping = () => {
     }
   };
 
+  // Modify useEffect to include categories fetch
   useEffect(() => {
     productMapping();
     fetchManufacturers();
     fetchVendors();
+    fetchCategories(); // Add this
   }, []);
 
   return (
     <div>
       <h1>Product Mapping</h1>
+
       <div>
+        <h3>Category</h3>
+        <Select
+          style={{ width: "100%" }}
+          placeholder="Select a category"
+          value={selectedCategory}
+          onChange={setSelectedCategory}
+          showSearch
+          optionFilterProp="children"
+        >
+          {categories.map((category) => (
+            <Option key={category.id} value={category.id}>
+              {category.name}
+            </Option>
+          ))}
+        </Select>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
         <h3>Manufacturers</h3>
         <Select
           mode="multiple"
