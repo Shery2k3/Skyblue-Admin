@@ -344,8 +344,7 @@ const Product = () => {
             type="link"
             icon={<EditOutlined />}
             onClick={() => {
-              console.log(`Navigating to /edit-product/${record.Id}`);
-              navigate(`/edit-product/${record.Id}`);
+              navigate(`/product/edit/${record.Id}`);
             }}
           >
             Edit
@@ -508,7 +507,7 @@ const Product = () => {
       >
         <Button
           type="primary"
-          onClick={() => navigate("/edit-product")}
+          onClick={() => navigate("/product/edit")}
           size="small"
         >
           Add Product

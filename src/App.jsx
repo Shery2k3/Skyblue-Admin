@@ -5,7 +5,6 @@ import Login from "./Pages/Login/Login";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import Category from "./Pages/Catalog/Category/Category";
 import Product from "./Pages/Catalog/Product/Product";
-import EditProduct from "./Pages/Catalog/Product/EditProduct";
 import Inventory from "./Pages/Catalog/Inventory/Inventory";
 import Manufacturers from "./Pages/Catalog/Manufacturers/Manufacturers";
 import ManufacturerDetail from "./Pages/Catalog/Manufacturers/ManufacturerDetail";
@@ -39,7 +38,8 @@ import EditDiscount from "./Pages/Promotions/Discount/EditDiscount";
 import BulkEdit from "./Pages/Vendors/BulkEdit";
 import EditVendor from "./Pages/Vendors/EditVendor";
 import VendorProduct from "./Pages/Vendors/VendorProduct";
-import EditProducts from "./Pages/Catalog/Product/EditProducts";
+import EditProduct from "./Pages/Catalog/Product/EditProduct";
+// import EditProducts from "./Pages/Catalog/Product/old-EditProduct"
 import Shippingprovider from "./Pages/Configuration/Shippingprovider/Shippingprovider";
 import AccessControl from "./Pages/Configuration/AccessControlList/AccessControl";
 
@@ -66,14 +66,14 @@ function App() {
           path="/products"
           element={<ProtectedRoute element={Product} />}
         />
-        <Route
+        {/* <Route
           path="/edit-product/:id?"
-          element={<ProtectedRoute element={EditProduct} />}
-        />
+          element={<ProtectedRoute element={EditProducts} />}
+        /> */}
 
         <Route
-          path="/products/:id"
-          element={<ProtectedRoute element={EditProducts} />}
+          path="/product/edit/:id?"
+          element={<ProtectedRoute element={EditProduct} />}
         />
         <Route
           path="/inventory"
