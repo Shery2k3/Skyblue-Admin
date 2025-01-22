@@ -81,21 +81,30 @@ const EditVendor = () => {
 
   //vendorinfo Update
   const handleSaveChangesInfo = async (values) => {
-    const updatedVendorData = {
-      name: values.name,
-      email: values.email,
-      description: values.description,
-      adminComment: values.adminComment,
-      active: values.active,
-      displayOrder: values.displayOrder,
-      pageSize: values.pageSize,
-      pageSizeOptions: values.pageSizeOptions,
-    };
+    const formData = new FormData();
+    // Append all vendor data
+    formData.append("name", values.name);
+    formData.append("email", values.email);
+    formData.append("description", values.description);
+    formData.append("adminComment", values.adminComment);
+    formData.append("active", values.active);
+    formData.append("displayOrder", values.displayOrder);
+    formData.append("pageSize", values.pageSize);
+    formData.append("pageSizeOptions", values.pageSizeOptions);
+
+    // If there's an image file, append it
+    if (values.image && values.image[0]?.originFileObj) {
+      console.log('Image added')
+      formData.append("image", values.image[0].originFileObj);
+    }
 
     try {
       const response = await axiosInstance.patch(
         `${API_BASE_URL}/admin/editvendor/${id}`,
-        updatedVendorData
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
       if (response.data.success) {
         message.success("Vendor updated successfully");
@@ -239,12 +248,39 @@ const EditVendor = () => {
             </Form.Item>
 
             {/* Picture Upload */}
-            <Form.Item label="Picture">
+            <Form.Item
+              label="Picture"
+              name="image"
+              valuePropName="fileList"
+              getValueFromEvent={(e) => {
+                if (Array.isArray(e)) {
+                  return e;
+                }
+                return e?.fileList;
+              }}
+            >
               <Upload
                 listType="picture"
+                maxCount={1}
                 beforeUpload={(file) => {
-                  handlePictureUpload(file); // Custom handler function for uploading
-                  return false; // Prevent auto-upload
+                  // Validate file type
+                  const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+                  if (!allowedTypes.includes(file.type)) {
+                    message.error(
+                      "You can only upload JPG, PNG, or GIF files!"
+                    );
+                    return Upload.LIST_IGNORE;
+                  }
+
+                  // Validate file size
+                  const maxSizeInMB = 2;
+                  if (file.size / 1024 / 1024 > maxSizeInMB) {
+                    message.error(
+                      `File must be smaller than ${maxSizeInMB}MB!`
+                    );
+                    return Upload.LIST_IGNORE;
+                  }
+                  return false; // Prevent auto upload
                 }}
               >
                 <Button icon={<UploadOutlined />}>Upload Picture</Button>
