@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CustomLayout from "../../../../Components/Layout/Layout";
 import axiosInstance from "../../../../Api/axiosConfig";
 import { Form, Input, Button, DatePicker, Select, message, Typography } from "antd";
@@ -16,11 +16,12 @@ const CreateCampaign = () => {
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState([]);
-  
+  const [pictureId, setPictureId] = useState(null); // State for Picture ID
+  const [uploading, setUploading] = useState(false); // State for image uploading status
+  const quillRef = useRef(); // Reference to the Quill editor
   const navigate = useNavigate();
   const retryRequest = useRetryRequest(); // Use the retry request hook
 
-  // Fetch customer roles from the API
   const fetchCustomerRoles = async () => {
     try {
       const response = await retryRequest(() => axiosInstance.get("/admin/roles"));
@@ -34,15 +35,17 @@ const CreateCampaign = () => {
     }
   };
 
-  // Handle form submission
   const onFinish = async (values) => {
     try {
       const payload = {
         ...values,
         Body: body, // Include Quill editor content
+        PictureId: pictureId, // Add the uploaded picture ID to the payload
       };
 
-      const response = await  axiosInstance.post(`/admin/campaigns/create-campaign`, payload);
+      console.log(payload, "payload");
+
+      const response = await axiosInstance.post(`/admin/campaigns/create-campaign`, payload);
 
       if (response.data.success) {
         message.success("Campaign created successfully!");
@@ -56,9 +59,66 @@ const CreateCampaign = () => {
     }
   };
 
-  // Handle body content change
   const handleBodyChange = (content) => {
     setBody(content);
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('image', file); // Append the file to FormData
+      setUploading(true); // Set uploading state to true
+  
+      try {
+        // Upload the image to the server
+        const response = await axiosInstance.post('/admin/upload-image', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+  
+        if (response.data.success) {
+          const uploadedPictureId = response.data.pictureId;
+          setPictureId(uploadedPictureId); // Store the picture ID
+          message.success("Image uploaded successfully!");
+
+          // Display loading message
+          const hideLoadingMessage = message.loading("Processing image...", 0);
+
+          // Add a 7-second delay before retrieving the image URL
+          setTimeout(async () => {
+            try {
+              const pictureResponse = await axiosInstance.get(`/admin/picture/${uploadedPictureId}`);
+              console.log(pictureResponse, "pictureResponse");
+              const imgUrl = pictureResponse.data.url;
+              const quill = quillRef.current.getEditor(); // Get the Quill editor instance
+              const range = quill.getSelection(); // Get the current selection
+  
+              const index = range ? range.index : quill.getLength(); 
+              quill.insertEmbed(index, 'image', imgUrl); 
+              quill.setSelection(index + 1); 
+  
+              setUploading(false); // Set uploading state to false after successful upload
+              hideLoadingMessage(); // Hide loading message
+              message.success("Image processed successfully!");
+            } catch (error) {
+              console.error("Error retrieving the image URL after delay:", error);
+              hideLoadingMessage(); // Hide loading message
+              message.error("Failed to retrieve image. Please try again.");
+              setUploading(false); 
+            }
+          }, 10000); 
+        } else {
+          message.error("Failed to upload image.");
+          setUploading(false); // Set uploading state to false in case of failure
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        message.error("Error uploading image. Please try again.");
+        setUploading(false); // Set uploading state to false in case of error
+      }
+    }
   };
 
   useEffect(() => {
@@ -135,19 +195,26 @@ const CreateCampaign = () => {
           <Form.Item
             label="Don't Send Before Date"
             name="DontSendBeforeDateUtc"
-            rules={[{ required: true, message: "Please select the date" }]}
           >
             <DatePicker showTime style={{ width: '100%' }} />
           </Form.Item>
 
-          {/* Picture ID */}
-          <Form.Item label="Picture ID" name="PictureId">
-            <Input placeholder="Enter picture ID" />
+          {/* File Upload Button */}
+          <Form.Item label="Upload Image">
+            <input type="file" accept="image/*" onChange={handleFileChange} />
           </Form.Item>
+
+          {/* Display Picture ID */}
+          {pictureId && (
+            <Form.Item label="Picture ID">
+              <Button disabled>{`Picture ID: ${pictureId}`}</Button>
+            </Form.Item>
+          )}
 
           {/* Campaign Body (Quill Editor) */}
           <Form.Item label="Body">
             <ReactQuill
+              ref={quillRef} // Assign the ref here
               theme="snow"
               value={body}
               onChange={handleBodyChange}

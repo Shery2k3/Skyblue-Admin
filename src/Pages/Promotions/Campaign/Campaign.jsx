@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Select, Button, Typography, message } from "antd";
+import { Table, Select, Button, Typography, message, Popconfirm } from "antd"; // Import Popconfirm
 import CustomLayout from "../../../Components/Layout/Layout";
 import axiosInstance from "../../../Api/axiosConfig";
 import { useNavigate } from "react-router-dom";
@@ -38,40 +38,67 @@ const Campaign = () => {
 //     fetchCampaigns();
 //   }, []); // Only run once when component mounts
 
-//   // Redirect to the edit page for the selected campaign
-//   const handleEdit = (id) => {
-//     navigate(`/campaign/edit/${id}`);
-//   };
+  // Redirect to the edit page for the selected campaign
+  const handleEdit = (id) => {
+    navigate(`/campaign/edit/${id}`);
+  };
 
-//   // Columns for the Antd Table
-//   const columns = [
-//     {
-//       title: "Campaign Name",
-//       dataIndex: "Name",
-//       key: "name",
-//     },
-//     {
-//       title: "Created On",
-//       dataIndex: "CreatedOnUtc",
-//       key: "createdOn",
-//       render: (text) => dayjs(text).format("YYYY-MM-DD HH:mm:ss"), // Format the date
-//     },
-//     {
-//       title: "Planned Date Of Sending", // Changed column title
-//       dataIndex: "DontSendBeforeDateUtc",
-//       key: "dontSendBefore",
-//       render: (text) => text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "", // Format date or return empty string
-//     },
-//     {
-//       title: "Actions",
-//       key: "actions",
-//       render: (text, record) => (
-//         <Button type="link" onClick={() => handleEdit(record.Id)}>
-//           Edit
-//         </Button>
-//       ),
-//     },
-//   ];
+  // Function to delete a campaign
+  const handleDelete = async (id) => {
+    try {
+      //console.log(id);
+      await retryRequest(() =>
+        axiosInstance.delete(`/admin/delete-campaigns/${id}`) // Adjust the endpoint as needed
+      );
+      message.success("Campaign deleted successfully.");
+      fetchCampaigns(); // Refresh the campaign list after deletion
+    } catch (error) {
+      console.error("Error deleting campaign", error);
+      message.error("Failed to delete campaign. Please try again.");
+    }
+  };
+
+  // Columns for the Antd Table
+  const columns = [
+    {
+      title: "Campaign Name",
+      dataIndex: "Name",
+      key: "name",
+    },
+    {
+      title: "Created On",
+      dataIndex: "CreatedOnUtc",
+      key: "createdOn",
+      render: (text) => dayjs(text).format("YYYY-MM-DD HH:mm:ss"), // Format the date
+    },
+    {
+      title: "Planned Date Of Sending", // Changed column title
+      dataIndex: "DontSendBeforeDateUtc",
+      key: "dontSendBefore",
+      render: (text) => text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "", // Format date or return empty string
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <div>
+          <Button type="link" onClick={() => handleEdit(record.Id)}>
+            Edit
+          </Button>
+          <Popconfirm
+            title="Are you sure you want to delete this campaign?"
+            onConfirm={() => handleDelete(record.Id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" style={{ color: 'red' }}>
+              Delete
+            </Button>
+          </Popconfirm>
+        </div>
+      ),
+    },
+  ];
 
 //   // Handle StoreId change
 //   const handleStoreIdChange = (value) => {
