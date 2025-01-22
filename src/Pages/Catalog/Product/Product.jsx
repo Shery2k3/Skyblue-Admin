@@ -156,52 +156,6 @@ const Product = () => {
     }
   };
 
-  const handleDownloadCatalog = async (page = 1) => {
-    try {
-      const params = {
-        category,
-        product,
-        published,
-        size: 50000, //50 thousand
-        page,
-      };
-      // Fetch all products
-      const response = await retryRequest(() =>
-        axiosInstance.get(`${API_BASE_URL}/admin/product/search`, { params })
-      );
-      console.log("response", response.data.products);
-      const allProducts = response.data.products;
-
-      // Create a new jsPDF instance
-      const doc = new jsPDF();
-
-      // Define columns for the table
-      const columns = ["ID", "Name", "Price", "Stock Quantity", "Published"];
-
-      // Map products to rows
-      const rows = allProducts.map((product) => [
-        product.Id,
-        product.Name,
-        product.Price,
-        product.StockQuantity,
-        product.Published,
-      ]);
-
-      // Generate table in the PDF
-      doc.autoTable({
-        startY: 20,
-        head: [columns],
-        body: rows,
-      });
-
-      // Save the PDF
-      doc.save("ProductList.pdf");
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      message.error("Failed to download catalog");
-    }
-  };
-
   const handleImageClick = (imageUrl) => {
     setSelectedImage(imageUrl);
     setIsModalVisible(true);
@@ -364,22 +318,82 @@ const Product = () => {
     },
   ];
 
-  const exportMenu = (
-    <Menu>
-      <Menu.Item key="1" onClick={() => console.log("Export to XML")}>
-        Export to XML
-      </Menu.Item>
-      <Menu.Item key="2" onClick={() => console.log("Export to Excel (All)")}>
-        Export to Excel (All)
-      </Menu.Item>
-      <Menu.Item
-        key="3"
-        onClick={() => console.log("Export to Excel (Selected)")}
-      >
-        Export to Excel (Selected)
-      </Menu.Item>
-    </Menu>
-  );
+  const handleDownloadCatalog = async (page = 1) => {
+    try {
+      const params = {
+        category,
+        product,
+        published,
+        size: 50000, //50 thousand
+        page,
+      };
+      // Fetch all products
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/product/search`, { params })
+      );
+      console.log("response", response.data.products);
+      const allProducts = response.data.products;
+
+      // Create a new jsPDF instance
+      const doc = new jsPDF();
+
+      // Define columns for the table
+      const columns = ["ID", "Name", "Price", "Stock Quantity", "Published"];
+
+      // Map products to rows
+      const rows = allProducts.map((product) => [
+        product.Id,
+        product.Name,
+        product.Price,
+        product.StockQuantity,
+        product.Published,
+      ]);
+
+      // Generate table in the PDF
+      doc.autoTable({
+        startY: 20,
+        head: [columns],
+        body: rows,
+      });
+
+      // Save the PDF
+      doc.save("ProductList.pdf");
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      message.error("Failed to download catalog");
+    }
+  };
+
+  const updateProductStatus = async (published) => {
+    try {
+      if (!selectedRowKeys || selectedRowKeys.length === 0) {
+        console.error("No products selected.");
+        return message.warning("Please select at least one product.");
+      }
+
+      const response = await axiosInstance.put(
+        `${API_BASE_URL}/admin/product/publish-product`,
+        {
+          productIds: selectedRowKeys,
+          published,
+        }
+      );
+
+      if (response.data.success) {
+        console.log("API Response:", response.data); // Debug log
+        message.success(
+          `${response.data.message} Products updated successfully!`
+        );
+        window.location.reload();
+      } else {
+        console.error("API Error Response:", response.data);
+        message.error(`Failed to update products: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("API Call Failed:", error);
+      message.error("An error occurred while updating the products.");
+    }
+  };
 
   const rowSelection = {
     selectedRowKeys,
@@ -388,17 +402,8 @@ const Product = () => {
     },
   };
 
-  const handleDeleteSelected = () => {
-    console.log("Delete Selected IDs:", selectedRowKeys);
-  };
-
-  const handleUnpublishSelected = async () => {
-    console.log("Unpublish Selected IDs:", selectedRowKeys);
-  };
-
-  const handlepPublishSelected = async () => {
-    console.log("Publish Selected IDs:", selectedRowKeys);
-  };
+  const handleUnpublishSelected = () => updateProductStatus(false);
+  const handlepPublishSelected = () => updateProductStatus(true);
 
   return (
     <CustomLayout pageTitle="Products" menuKey="3">
@@ -512,16 +517,8 @@ const Product = () => {
         >
           Add Product
         </Button>
-        <Dropdown overlay={exportMenu}>
-          <Button size="small">
-            Export <DownOutlined />
-          </Button>
-        </Dropdown>
         <Button size="small" onClick={handleDownloadCatalog}>
           Download as Catalog
-        </Button>
-        <Button size="small" danger onClick={handleDeleteSelected}>
-          Delete Selected
         </Button>
         <Button size="small" onClick={handleUnpublishSelected}>
           Unpublish Selected
