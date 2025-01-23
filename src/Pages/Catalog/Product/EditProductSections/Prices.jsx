@@ -137,44 +137,41 @@ const Prices = () => {
 
         <Row gutter={16}>
           <Col span={8}>
-          <Form.Item label="Discount" name="discounts">
-  {addDiscount.length > 0 ? (
-    <Select
-      mode="multiple"
-      placeholder="Select discounts"
-      // Set value as the IDs to match options' values
-      value={discounts.map((d) => d.Id)} 
-      onChange={(selectedDiscountIds) => {
-        // Map selected IDs to their corresponding discount objects
-        const selectedDiscounts = addDiscount.filter((d) =>
-          selectedDiscountIds.includes(d.Id)
-        );
+            <Form.Item label="Discount" name="discounts">
+              {addDiscount.length > 0 ? (
+                <Select
+                  mode="multiple"
+                  placeholder="Select discounts"
+                  // Set value as the IDs to match options' values
+                  value={discounts.map((d) => d.Id)}
+                  onChange={(selectedDiscountIds) => {
+                    // Map selected IDs to their corresponding discount objects
+                    const selectedDiscounts = addDiscount.filter((d) =>
+                      selectedDiscountIds.includes(d.Id)
+                    );
 
-        // Update the `discounts` state with selected discounts
-        setDiscounts(selectedDiscounts);
+                    // Update the `discounts` state with selected discounts
+                    setDiscounts(selectedDiscounts);
 
-        // Log the selected discount IDs and their corresponding names
-        console.log(
-          "Selected discounts:",
-          selectedDiscounts.map((d) => d.Name) // Log names
-        );
-        console.log(
-          "Selected discount IDs:",
-          selectedDiscountIds // Log IDs
-        );
-      }}
-      options={addDiscount.map((discount) => ({
-        label: discount.Name, // Name to display in the dropdown
-        value: discount.Id,  // Use the ID programmatically
-      }))}
-    />
-  ) : (
-    <p>No discounts available</p>
-  )}
-</Form.Item>
-
-
-
+                    // Log the selected discount IDs and their corresponding names
+                    console.log(
+                      "Selected discounts:",
+                      selectedDiscounts.map((d) => d.Name) // Log names
+                    );
+                    console.log(
+                      "Selected discount IDs:",
+                      selectedDiscountIds // Log IDs
+                    );
+                  }}
+                  options={addDiscount.map((discount) => ({
+                    label: discount.Name, // Name to display in the dropdown
+                    value: discount.Id, // Use the ID programmatically
+                  }))}
+                />
+              ) : (
+                <p>No discounts available</p>
+              )}
+            </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="Tax Category" name="TaxCategoryName">
