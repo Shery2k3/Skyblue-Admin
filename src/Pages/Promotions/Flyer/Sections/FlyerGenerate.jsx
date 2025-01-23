@@ -128,8 +128,8 @@ const FlyerGenerate = () => {
       const blob = await pdf(
         <Flyer
           flyerData={flyerData}
-          startDate={dayjs(start).format("MM-DD-YYYY")}
-          endDate={dayjs(end).format("MM-DD-YYYY")}
+          startDate={dayjs(start).format("MM/DD/YYYY")}
+          endDate={dayjs(end).format("MM/DD/YYYY")}
         />
       ).toBlob();
 
