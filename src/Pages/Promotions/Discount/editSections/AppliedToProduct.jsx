@@ -2,7 +2,7 @@
 //@desc ToBe Done: Issue on Delete button, ahve to refresh after clicking delete, to update ui
 //@desc ToBe Done: Make Modal responsive for mobile view "HeHe @_@"
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   Input,
@@ -32,6 +32,7 @@ const AppliedToProduct = () => {
 
   // State management
   const [productsSearch, setProductsSearch] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("");
   const [product, setProduct] = useState("");
@@ -41,8 +42,6 @@ const AppliedToProduct = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [allProducts, setAllProducts] = useState([]);
-
   // Fetch manufacturers on load
   useEffect(() => {
     const fetchManufacturers = async () => {
@@ -132,7 +131,6 @@ const AppliedToProduct = () => {
       );
 
       if (response.data.success) {
-        console.log("Discount applied to product successfully.");
         fetchProducts();
         setIsModalVisible(false);
       } else {
@@ -157,29 +155,26 @@ const AppliedToProduct = () => {
   const handleDeleteProduct = async (productId) => {
     try {
       setLoading(true); // Optionally show a loading state
-      console.log("productId", productId);
-  
+
       // Call the backend to remove the discount from the product
       await retryRequest(() =>
         axiosInstance.post(`/admin/removeDiscountFromProduct/${id}`, {
           productIds: [productId], // Send the product ID in the body
         })
       );
-      
+
+      fetchProducts();
       message("Discount successfully removed from product.");
-  
+
       setAllProducts((prevProducts) =>
         prevProducts.filter((product) => product.Product_Id !== productId)
       );
-  
     } catch (error) {
       console.error("Error removing discount from product:", error);
     } finally {
       setLoading(false); // Hide loading state
     }
   };
-  
-  
 
   // Columns
   const searchColumns = [
@@ -201,14 +196,22 @@ const AppliedToProduct = () => {
       title: "Action",
       key: "action",
       align: "center",
-      render: (_, record) => (
-        <Button
-          type="primary"
-          onClick={() => handleProductSelection(record.Id)}
-        >
-          Select
-        </Button>
-      ),
+      fixed: "right",
+      render: (_, record) => {
+        const isProductAdded = allProducts.find(
+          (product) => product.Product_Id.toString() === record.Id
+        );
+        return (
+          <Button
+            type="primary"
+            disabled={isProductAdded}
+            onClick={() => handleProductSelection(record.Id)}
+            title={isProductAdded ? "Product already added" : ""}
+          >
+            {isProductAdded ? "Already Added" : "Select"}
+          </Button>
+        );
+      },
     },
   ];
 
