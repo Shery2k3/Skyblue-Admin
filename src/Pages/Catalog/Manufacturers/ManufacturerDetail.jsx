@@ -17,6 +17,7 @@ import useRetryRequest from "../../../Api/useRetryRequest";
 const ManufacturerDetail = () => {
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false); // Add loading state
   const { Title } = Typography;
   const { id } = useParams();
   const retryRequest = useRetryRequest();
@@ -25,6 +26,7 @@ const ManufacturerDetail = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true); // Set loading to true before fetching
       setLoading(true); // Set loading to true before fetching
       try {
         const response = await retryRequest(() =>
@@ -39,6 +41,8 @@ const ManufacturerDetail = () => {
         setDataSource(data);
       } catch (error) {
         console.error("Error fetching manufacturer data:", error);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
       } finally {
         setLoading(false); // Set loading to false after fetching
       }
@@ -116,12 +120,17 @@ const ManufacturerDetail = () => {
     navigate(`/manufacturer/products/add/${id}`);
   };
 
+  const handleAddProduct = () => {
+    navigate(`/manufacturer/products/add/${id}`);
+  };
+
   return (
     <CustomLayout pageTitle="Manufacturer Detail" menuKey="4">
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
         Manufacturer's Products
       </Title>
       <div style={{ textAlign: "right" }}>
+        <Button onClick={handleAddProduct} type="primary" size={buttonSize}>
         <Button onClick={handleAddProduct} type="primary" size={buttonSize}>
           Add Product
         </Button>

@@ -336,6 +336,32 @@ const AddProduct = () => {
               <br />
               <Text>Customer ID: {selectedProduct.customerId}</Text>
               <br />
+          title="Add Product"
+          visible={isModalVisible}
+          footer={null}
+          onCancel={() => setIsModalVisible(false)}
+          centered
+          width={400}
+        >
+          {selectedProduct && (
+            <div style={{ textAlign: "center" }}>
+              {/* Warning Alert in Modal */}
+              <Alert
+                message="Please be sure to update the Price Details tab to avoid conflicts."
+                type="warning"
+                showIcon
+                style={{ marginBottom: 16 }} // Add some space below the alert
+              />
+
+              <Title level={4}>Product Details</Title>
+              <Text strong>ID: {selectedProduct.Id}</Text>
+              <br />
+              <Text>Name: {selectedProduct.Name}</Text>
+              <br />
+              <Text>Order ID: {selectedProduct.orderId}</Text>
+              <br />
+              <Text>Customer ID: {selectedProduct.customerId}</Text>
+              <br />
 
               {/* Quantity Input */}
               <Text>Quantity:</Text>

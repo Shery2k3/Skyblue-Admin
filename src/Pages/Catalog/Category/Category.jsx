@@ -21,6 +21,7 @@ import {
   Upload,
   Image,
   Spin,
+  Spin,
 } from "antd";
 import {
   EditOutlined,
@@ -124,6 +125,7 @@ const Category = () => {
   }, []);
 
   const fetchCategories = async (search = "") => {
+    setLoading(true); // Set loading to true
     setLoading(true); // Set loading to true
     try {
       const response = await retryRequest(() =>

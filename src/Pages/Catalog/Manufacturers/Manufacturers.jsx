@@ -77,6 +77,7 @@ const Manufacturers = () => {
 
   const fetchManufacturers = async (query = "") => {
     setLoading(true); // Set loading to true before fetching
+    setLoading(true); // Set loading to true before fetching
     try {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/manufacturer`, {

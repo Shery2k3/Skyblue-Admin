@@ -38,6 +38,7 @@ import Campaign from './Pages/Promotions/Campaign/Campaign';
 import Editcampaign from './Pages/Promotions/Campaign/Sections/Editcampaign';
 import Createcampaign from './Pages/Promotions/Campaign/Sections/Createcampaign';
 import AddProductManufacturer from './Pages/Catalog/Manufacturers/AddProductManufacturer';
+import AddProductManufacturer from './Pages/Catalog/Manufacturers/AddProductManufacturer';
 
 
 function App() {
