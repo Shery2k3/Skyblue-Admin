@@ -14,6 +14,7 @@ import {
   Popconfirm,
   Modal,
   message,
+  message,
 } from "antd";
 import {
   SearchOutlined,
@@ -44,7 +45,7 @@ const Product = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [category, setCategory] = useState("");
+  // const [category, setCategory] = useState("");
   const [product, setProduct] = useState("");
   const [manufacturers, setManufacturers] = useState([]);
   const [vendors, setVendors] = useState([]);
@@ -61,14 +62,57 @@ const Product = () => {
   const navigate = useNavigate();
   const retryRequest = useRetryRequest();
   const buttonSize = useResponsiveButtonSize();
-
+  const [catagoryId, setCatagoryId] = useState(null);
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+  const [dataSource, setDataSource] = useState([]);
+  const flattenCategories = (categories, parentPath = "", level = 0) => {
+    let flatData = [];
+    categories.forEach((category) => {
+      const currentPath = parentPath
+        ? `${parentPath} >> ${category.Name}`
+        : category.Name;
+      flatData.push({
+        key: category.Id,
+        id: category.Id,
+        name: category.Name,
+        path: currentPath,
+        parentId: category.ParentId,
+        published: category.Published,
+        level,
+        discountName: category.DiscountName,
+        discountId: category.DiscountId,
+      });
+      if (category.children && category.children.length > 0) {
+        flatData = flatData.concat(
+          flattenCategories(category.children, currentPath, level + 1)
+        );
+      }
+    });
+    return flatData;
+  };
+  const fetchCategories = async (search = "") => {
+    setLoading(true); // Set loading to true
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`${API_BASE_URL}/admin/category/all`, {
+          params: { search },
+        })
+      );
+      const flatData = flattenCategories(response.data);
+      setDataSource(flatData);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      message.error("Failed to fetch categories");
+    } finally {
+      setLoading(false); // Set loading to false
+    }
+  };
 
-  const fetchProducts = async (page = 1) => {
+  const fetchProducts = async (catagoryId, page = 1) => {
     setLoading(true);
     try {
       const params = {
-        category,
+        categoryId: catagoryId,
         product,
         published,
         size: 20,
@@ -86,7 +130,6 @@ const Product = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/product/search`, { params })
       );
-      console.log("response", response.data.products);
       setProducts(response.data.products);
       setTotalItems(response.data.totalItems);
       setCurrentPage(response.data.currentPage);
@@ -99,6 +142,7 @@ const Product = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -132,11 +176,11 @@ const Product = () => {
   }, []);
 
   const handleSearch = () => {
-    fetchProducts(1);
+    fetchProducts(catagoryId, 1);
   };
 
   const handlePageChange = (page) => {
-    fetchProducts(page);
+    fetchProducts(catagoryId, page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -150,7 +194,7 @@ const Product = () => {
     try {
       await axiosInstance.delete(`${API_BASE_URL}/admin/product/${productId}`);
       // Refresh the product list after successful deletion
-      fetchProducts(currentPage);
+      fetchProducts(catagoryId, currentPage);
     } catch (err) {
       setError(err);
     }
@@ -168,7 +212,9 @@ const Product = () => {
   const handleVendorChange = (value) => {
     setSelectedVendor(value);
   };
-
+  const handleCategoryChange = (value) => {
+    setCatagoryId(value);
+  };
   const columns = [
     {
       title: "Image",
@@ -424,14 +470,26 @@ const Product = () => {
           style={{ justifyContent: "center" }}
           wrap
         >
-          <Input
+          <Select
+            placeholder="Select a category"
+            onChange={handleCategoryChange}
+            style={{ width: isSmallScreen ? "100%" : 200 }}
+            onKeyDown={handleKeyPress}
+          >
+            {dataSource.map((category) => (
+              <Select.Option key={category.id} value={category.id}>
+                {category.name}
+              </Select.Option>
+            ))}
+          </Select>
+          {/* <Input
             placeholder="Category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             onKeyDown={handleKeyPress}
             style={{ width: isSmallScreen ? "100%" : 200 }}
             prefix={<SearchOutlined />}
-          />
+          /> */}
           <Input
             placeholder="Product"
             value={product}

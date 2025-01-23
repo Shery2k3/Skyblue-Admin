@@ -11,7 +11,6 @@ import {
 } from "recharts";
 
 const Chart = ({ title, datakey, orderTotalData, state, setState }) => {
-  console.log(orderTotalData);
   return (
     <Card title={title} style={{ height: "100%" }}>
       {/* Space for buttons */}

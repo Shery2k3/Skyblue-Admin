@@ -35,6 +35,7 @@ import axiosInstance from "../../../Api/axiosConfig";
 import useRetryRequest from "../../../Api/useRetryRequest";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -130,7 +131,6 @@ const Category = () => {
           params: { search },
         })
       );
-
       const flatData = flattenCategories(response.data);
       setDataSource(flatData);
     } catch (error) {
@@ -167,11 +167,14 @@ const Category = () => {
     return flatData;
   };
 
+  const navigate = useNavigate();
   const handlePageChange = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
+  const handleView = (customer) => {
+    navigate(`/categories/${customer.key}`);
+  };
   const columns = [
     {
       title: "Category Path",
@@ -207,15 +210,17 @@ const Category = () => {
       title: "Action",
       key: "action",
       width: 100,
+      fixed: "right",
       render: (_, record) => (
-        <div style={{ textAlign: "center" }}>
-          <StyledButton
+        <div style={{ display: "flex", gap: "10px", textAlign: "center" }}>
+          <Button
             type="primary"
             icon={<EditOutlined />}
             onClick={() => navigate(`/categories/${record.id}`)}
           >
             Edit
-          </StyledButton>
+          </Button>{" "}
+          <Button onClick={() => handleView(record)}>View</Button>
         </div>
       ),
       align: "center",
@@ -314,3 +319,4 @@ const Category = () => {
 };
 
 export default Category;
+

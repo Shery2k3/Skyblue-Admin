@@ -68,7 +68,6 @@ const OrderSheet = () => {
         setCategories(categoriesData);
       } catch (error) {
         message.error("Failed to fetch data");
-        console.error("Failed to fetch data", error);
       } finally {
         setLoading(false);
       }
@@ -76,10 +75,6 @@ const OrderSheet = () => {
 
     fetchData();
   }, [retryRequest]);
-
-  useEffect(() => {
-    console.log(categoryId);
-  }, [categoryId]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -153,7 +148,9 @@ const OrderSheet = () => {
   const handleDownloadPDF = async () => {
     setPdfLoading(true);
     try {
-      const blob = await pdf(<Sheet products={dataSource} showPrice={showPrice} />).toBlob();
+      const blob = await pdf(
+        <Sheet products={dataSource} showPrice={showPrice} />
+      ).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;

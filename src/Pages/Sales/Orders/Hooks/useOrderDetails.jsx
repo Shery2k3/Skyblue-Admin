@@ -25,9 +25,6 @@ export const useOrderDetails = (orderId) => {
 
         const order = response.data.order;
         const products = response.data.order.items;
-        console.log("order", order.CustomerId);
-
-
 
         const orderData = [
           {
@@ -56,7 +53,6 @@ export const useOrderDetails = (orderId) => {
           },
         ];
 
-        //console.log("orderData", orderData);
         const userData = [
           {
             key: "1",
@@ -124,11 +120,7 @@ export const useOrderDetails = (orderId) => {
           {
             key: "1",
             label: "Order Subtotal(Excl Tax)",
-            children:
-              "$" +
-              order.OrderSubtotalExclTax.toFixed(
-                2
-              ),
+            children: "$" + order.OrderSubtotalExclTax.toFixed(2),
             span: 3,
             editable: true,
             field: "orderSubtotal",
@@ -136,11 +128,7 @@ export const useOrderDetails = (orderId) => {
           {
             key: "2",
             label: "Order Subtotal (Incl Tax)",
-            children:
-              "$" +
-              order.OrderSubtotalInclTax.toFixed(
-                2
-              ),
+            children: "$" + order.OrderSubtotalInclTax.toFixed(2),
             span: 3,
             editable: true,
             field: "orderSubtotal",
@@ -180,10 +168,9 @@ export const useOrderDetails = (orderId) => {
           },
         ];
 
-        //console.log("products", products);
         const productData = products.map((item) => ({
           key: item.OrderItemGuid,
-          customerId : order.CustomerId,
+          customerId: order.CustomerId,
           imageUrl: item.product.imageUrl,
           productName: item.product.Name,
           productid: item.product.Id,

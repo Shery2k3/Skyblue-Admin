@@ -112,20 +112,18 @@ const AddProduct = () => {
         customerId: selectedProduct.customerId, // from selectedProduct
         quantity, // quantity from state
       };
-  
+
       try {
         const response = await axiosInstance.post(
           `${API_BASE_URL}/admin/orders/${orderId}/add-product/${selectedProduct.Id}`,
           productData
         );
-        console.log("Response from server:", response.data);
         setIsModalVisible(false);
       } catch (error) {
         console.error("Error saving product:", error);
       }
     }
   };
-  
 
   const columns = [
     {
@@ -312,54 +310,53 @@ const AddProduct = () => {
         </Card>
 
         <Modal
-  title="Add Product"
-  visible={isModalVisible}
-  footer={null}
-  onCancel={() => setIsModalVisible(false)}
-  centered
-  width={400}
->
-  {selectedProduct && (
-    <div style={{ textAlign: "center" }}>
-      {/* Warning Alert in Modal */}
-      <Alert
-        message="Please be sure to update the Price Details tab to avoid conflicts."
-        type="warning"
-        showIcon
-        style={{ marginBottom: 16 }} // Add some space below the alert
-      />
-      
-      <Title level={4}>Product Details</Title>
-      <Text strong>ID: {selectedProduct.Id}</Text>
-      <br />
-      <Text>Name: {selectedProduct.Name}</Text>
-      <br />
-      <Text>Order ID: {selectedProduct.orderId}</Text>
-      <br />
-      <Text>Customer ID: {selectedProduct.customerId}</Text>
-      <br />
+          title="Add Product"
+          visible={isModalVisible}
+          footer={null}
+          onCancel={() => setIsModalVisible(false)}
+          centered
+          width={400}
+        >
+          {selectedProduct && (
+            <div style={{ textAlign: "center" }}>
+              {/* Warning Alert in Modal */}
+              <Alert
+                message="Please be sure to update the Price Details tab to avoid conflicts."
+                type="warning"
+                showIcon
+                style={{ marginBottom: 16 }} // Add some space below the alert
+              />
 
-      {/* Quantity Input */}
-      <Text>Quantity:</Text>
-      <Input
-        type="number"
-        min={1}
-        value={quantity}
-        onChange={(e) => setQuantity(e.target.value)}
-        style={{ marginTop: 8, width: "100%" }} // Adjust margin for spacing
-        placeholder="Enter quantity"
-      />
-      <Button
-        type="primary"
-        onClick={handleSaveProduct}
-        style={{ marginTop: 20 }}
-      >
-        Save Product
-      </Button>
-    </div>
-  )}
-</Modal>
+              <Title level={4}>Product Details</Title>
+              <Text strong>ID: {selectedProduct.Id}</Text>
+              <br />
+              <Text>Name: {selectedProduct.Name}</Text>
+              <br />
+              <Text>Order ID: {selectedProduct.orderId}</Text>
+              <br />
+              <Text>Customer ID: {selectedProduct.customerId}</Text>
+              <br />
 
+              {/* Quantity Input */}
+              <Text>Quantity:</Text>
+              <Input
+                type="number"
+                min={1}
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                style={{ marginTop: 8, width: "100%" }} // Adjust margin for spacing
+                placeholder="Enter quantity"
+              />
+              <Button
+                type="primary"
+                onClick={handleSaveProduct}
+                style={{ marginTop: 20 }}
+              >
+                Save Product
+              </Button>
+            </div>
+          )}
+        </Modal>
       </CustomLayout>
     </>
   );

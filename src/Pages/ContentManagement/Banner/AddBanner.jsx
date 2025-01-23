@@ -24,12 +24,6 @@ const BannerForm = () => {
       formData.append("displayOrder", 1);
       formData.append("link", values.link); // Add the URL field value to the form data
 
-      // Log the formData content
-      console.log("Form Data:");
-      for (let pair of formData.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }
-
       axiosInstance
         .post(`${API_BASE_URL}/admin/slider/add`, formData)
         .then((response) => {
