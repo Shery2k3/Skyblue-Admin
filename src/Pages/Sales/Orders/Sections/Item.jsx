@@ -151,44 +151,6 @@ const ItemTable = ({ dataSource }) => {
       ),
     },
     {
-      title: "Price",
-      key: "price",
-      render: (text, record) => (
-        <>
-          <div>
-            Excl. Tax:{" "}
-            {editingKey === record.key ? (
-              <Input
-                value={record.priceexcltax}
-                onChange={(e) =>
-                  handleInputChange(e.target.value, record.key, "priceexcltax")
-                }
-                style={{ width: 70 }}
-                size="small"
-              />
-            ) : (
-              `$${record.priceexcltax}`
-            )}
-          </div>
-          <div>
-            Incl. Tax:{" "}
-            {editingKey === record.key ? (
-              <Input
-                value={record.priceincltax}
-                onChange={(e) =>
-                  handleInputChange(e.target.value, record.key, "priceincltax")
-                }
-                style={{ width: 70 }}
-                size="small"
-              />
-            ) : (
-              `$${record.priceincltax}`
-            )}
-          </div>
-        </>
-      ),
-    },
-    {
       title: "Unit Price",
       key: "unitPrice",
       render: (text, record) => (
@@ -251,6 +213,44 @@ const ItemTable = ({ dataSource }) => {
         ) : (
           text
         ),
+    },
+    {
+      title: "Total",
+      key: "price",
+      render: (text, record) => (
+        <>
+          <div>
+            Excl. Tax:{" "}
+            {editingKey === record.key ? (
+              <Input
+                value={record.priceexcltax}
+                onChange={(e) =>
+                  handleInputChange(e.target.value, record.key, "priceexcltax")
+                }
+                style={{ width: 70 }}
+                size="small"
+              />
+            ) : (
+              `$${record.priceexcltax}`
+            )}
+          </div>
+          <div>
+            Incl. Tax:{" "}
+            {editingKey === record.key ? (
+              <Input
+                value={record.priceincltax}
+                onChange={(e) =>
+                  handleInputChange(e.target.value, record.key, "priceincltax")
+                }
+                style={{ width: 70 }}
+                size="small"
+              />
+            ) : (
+              `$${record.priceincltax}`
+            )}
+          </div>
+        </>
+      ),
     },
     {
       title: "Location",

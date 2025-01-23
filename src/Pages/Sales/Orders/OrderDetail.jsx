@@ -1,12 +1,12 @@
 import CustomLayout from "../../../Components/Layout/Layout";
-import { useParams } from "react-router-dom";
-import { Button, Divider, message } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button, Divider, message, Typography } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Descriptions, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import Invoice from "../../../Components/Invoice/Invoice";
 import PackageSlip from "../../../Components/Invoice/PackageSlip";
 import { useOrderDetails } from "./Hooks/useOrderDetails";
-import Title from "antd/es/skeleton/Title";
 import Order from "./Sections/Order";
 import User from "./Sections/User";
 import Price from "./Sections/Price";
@@ -14,8 +14,11 @@ import Item from "./Sections/Item";
 import { useState } from "react";
 import { pdf } from "@react-pdf/renderer"; // Ensure you import the pdf function
 
+const { Title } = Typography;
+
 const OrdersDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const {
     loading,
     orderDetail,
@@ -34,9 +37,13 @@ const OrdersDetails = () => {
     try {
       let blob;
       if (type === "invoice") {
-        blob = await pdf(<Invoice userInfo={userInfo} products={dataSource} />).toBlob();
+        blob = await pdf(
+          <Invoice userInfo={userInfo} products={dataSource} />
+        ).toBlob();
       } else if (type === "packageSlip") {
-        blob = await pdf(<PackageSlip userInfo={userInfo} products={dataSource} />).toBlob();
+        blob = await pdf(
+          <PackageSlip userInfo={userInfo} products={dataSource} />
+        ).toBlob();
       }
 
       const url = URL.createObjectURL(blob);
@@ -55,10 +62,18 @@ const OrdersDetails = () => {
 
   return (
     <CustomLayout pageTitle="Order Details" menuKey="7">
+      <Button
+        type="link"
+        onClick={() => {
+          navigate("/orders");
+        }}
+        icon={<ArrowLeftOutlined />}
+      >
+        Back to Order Page
+      </Button>
       <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>
-        Order Details
+        Edit order details - {id}
       </Title>
-
       {loading ? (
         <div
           style={{
@@ -81,7 +96,14 @@ const OrdersDetails = () => {
                   onClick={() => handleDownloadPDF("invoice")}
                   disabled={loadingPdf !== null}
                 >
-                  {loadingPdf === "invoice" ? <> <LoadingOutlined /> Downloading </> : "Invoice (PDF)"}
+                  {loadingPdf === "invoice" ? (
+                    <>
+                      {" "}
+                      <LoadingOutlined /> Downloading{" "}
+                    </>
+                  ) : (
+                    "Invoice (PDF)"
+                  )}
                 </Button>
 
                 <Button
@@ -91,7 +113,14 @@ const OrdersDetails = () => {
                   onClick={() => handleDownloadPDF("packageSlip")}
                   disabled={loadingPdf !== null}
                 >
-                  {loadingPdf === "packageSlip" ? <> <LoadingOutlined /> Downloading </>  : "Package Slip (PDF)"}
+                  {loadingPdf === "packageSlip" ? (
+                    <>
+                      {" "}
+                      <LoadingOutlined /> Downloading{" "}
+                    </>
+                  ) : (
+                    "Package Slip (PDF)"
+                  )}
                 </Button>
               </>
             ) : (

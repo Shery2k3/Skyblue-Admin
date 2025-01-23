@@ -21,7 +21,6 @@ import {
   Upload,
   Image,
   Spin,
-  Spin,
 } from "antd";
 import {
   EditOutlined,
@@ -35,7 +34,6 @@ import API_BASE_URL from "../../../constants";
 import axiosInstance from "../../../Api/axiosConfig";
 import useRetryRequest from "../../../Api/useRetryRequest";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
@@ -169,7 +167,6 @@ const Category = () => {
     return flatData;
   };
 
-  const navigate = useNavigate();
   const handlePageChange = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });

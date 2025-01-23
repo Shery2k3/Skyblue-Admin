@@ -1,18 +1,18 @@
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./Components/ProtectedRoute/ProtectedRoute";
-import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import ProtectedRoute from "./Components/ProtectedRoute/ProtectedRoute";
 import Login from "./Pages/Login/Login";
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Category from './Pages/Catalog/Category/Category';
+import ViewCategory from './Pages/Catalog/Category/ViewCategory'
 import Product from './Pages/Catalog/Product/Product';
 import EditProduct from './Pages/Catalog/Product/EditProduct';
 import Inventory from './Pages/Catalog/Inventory/Inventory';
 import Manufacturers from './Pages/Catalog/Manufacturers/Manufacturers';
 import ManufacturerDetail from './Pages/Catalog/Manufacturers/ManufacturerDetail';
 import Vendors from './Pages/Vendors/Vendors';
+import VendorProduct from './Pages/Vendors/VendorProduct'
+import EditVendor from "./Pages/Vendors/EditVendor"
 import Orders from './Pages/Sales/Orders/Orders';
 import OrdersDetails from './Pages/Sales/Orders/OrderDetail';
 import CurrentCarts from './Pages/Sales/CurrentCarts/CurrentCarts';
@@ -38,7 +38,10 @@ import Campaign from './Pages/Promotions/Campaign/Campaign';
 import Editcampaign from './Pages/Promotions/Campaign/Sections/Editcampaign';
 import Createcampaign from './Pages/Promotions/Campaign/Sections/Createcampaign';
 import AddProductManufacturer from './Pages/Catalog/Manufacturers/AddProductManufacturer';
-import AddProductManufacturer from './Pages/Catalog/Manufacturers/AddProductManufacturer';
+import BulkEdit from "./Pages/Vendors/BulkEdit";
+import EditDiscount from "./Pages/Promotions/Discount/EditDiscount";
+import Shippingprovider from "./Pages/Configuration/Shippingprovider/Shippingprovider";
+import AccessControl from "./Pages/Configuration/AccessControlList/AccessControl";
 
 
 function App() {
