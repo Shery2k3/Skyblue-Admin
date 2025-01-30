@@ -1,11 +1,9 @@
-//@desc: disale price1-2-3-4-5 and discount insted add tooltip there, on each prices it should display "You can manage price from TierPicesection" and on discount it should display "You can manage discount from Discount section, Promotions>Discounts"
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useRetryRequest from "../../../../Api/useRetryRequest";
 import API_BASE_URL from "../../../../constants";
 import axiosInstance from "../../../../Api/axiosConfig";
-import { message, Form, Input, Button, Row, Col, Table } from "antd";
+import { message, Form, Input, Button, Row, Col, Table, Select } from "antd";
 
 const Prices = () => {
   const { id } = useParams();
@@ -13,6 +11,7 @@ const Prices = () => {
   const [product, setProduct] = useState({});
   const [discounts, setDiscounts] = useState([]); // Store fetched discounts (IDs and names)
   const [taxCategoryID, setTaxCategoryID] = useState(null); // Store TaxCategory ID
+  const [addDiscount, setAddDiscount] = useState([]);
 
   const [form] = Form.useForm();
 
@@ -43,10 +42,28 @@ const Prices = () => {
         TaxCategoryName: taxCategory.TaxCategoryName || "", // Display TaxCategoryName
         discounts: fetchedDiscounts.map((d) => d.DiscountName).join(", "), // Display discount names
       };
+      console.log("productData: ", productData);
+      console.log("Updated form values: ", updatedFormValues);
 
       form.setFieldsValue(updatedFormValues); // Prepopulate form
     } catch (error) {
       message.error("Failed to fetch product details");
+    }
+  };
+
+  const fetchDiscounts = async () => {
+    try {
+      const response = await retryRequest(
+        () => axiosInstance.get(`${API_BASE_URL}/admin/alldiscounts`) // Fetch all discounts
+      );
+      // Filter the discounts to only include those with DiscountTypeId 3
+      const filteredDiscounts = response.data.filter(
+        (discount) => discount.DiscountTypeId === 2
+      );
+      setAddDiscount(filteredDiscounts); // Set the filtered discounts
+    } catch (error) {
+      console.error("Error fetching discounts:", error);
+      message.error("Failed to fetch discounts");
     }
   };
 
@@ -76,6 +93,7 @@ const Prices = () => {
 
   useEffect(() => {
     productDetail();
+    fetchDiscounts();
   }, [id]);
 
   return (
@@ -120,7 +138,39 @@ const Prices = () => {
         <Row gutter={16}>
           <Col span={8}>
             <Form.Item label="Discount" name="discounts">
-              <Input value={form.getFieldValue("discounts") || ""} readOnly />
+              {addDiscount.length > 0 ? (
+                <Select
+                  mode="multiple"
+                  placeholder="Select discounts"
+                  // Set value as the IDs to match options' values
+                  value={discounts.map((d) => d.Id)}
+                  onChange={(selectedDiscountIds) => {
+                    // Map selected IDs to their corresponding discount objects
+                    const selectedDiscounts = addDiscount.filter((d) =>
+                      selectedDiscountIds.includes(d.Id)
+                    );
+
+                    // Update the `discounts` state with selected discounts
+                    setDiscounts(selectedDiscounts);
+
+                    // Log the selected discount IDs and their corresponding names
+                    console.log(
+                      "Selected discounts:",
+                      selectedDiscounts.map((d) => d.Name) // Log names
+                    );
+                    console.log(
+                      "Selected discount IDs:",
+                      selectedDiscountIds // Log IDs
+                    );
+                  }}
+                  options={addDiscount.map((discount) => ({
+                    label: discount.Name, // Name to display in the dropdown
+                    value: discount.Id, // Use the ID programmatically
+                  }))}
+                />
+              ) : (
+                <p>No discounts available</p>
+              )}
             </Form.Item>
           </Col>
           <Col span={8}>

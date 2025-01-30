@@ -440,6 +440,37 @@ const Product = () => {
     }
   };
 
+  const handlepDeleteSelected = async () => {
+    try {
+      if (!selectedRowKeys || selectedRowKeys.length === 0) {
+        console.error("No products selected.");
+        return message.warning("Please select at least one product.");
+      }
+
+      const response = await axiosInstance.put(
+        `${API_BASE_URL}/admin/product/delete-product`,
+        {
+          productIds: selectedRowKeys,
+          deleted: true,
+        }
+      );
+
+      if (response.data.success) {
+        console.log("API Response:", response.data); // Debug log
+        message.success(
+          `${response.data.message} Products updated successfully!`
+        );
+        window.location.reload();
+      } else {
+        console.error("API Error Response:", response.data);
+        message.error(`Failed to update products: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("API Call Failed:", error);
+      message.error("An error occurred while updating the products.");
+    }
+  }
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (selectedRowKeys) => {
@@ -582,6 +613,9 @@ const Product = () => {
         </Button>
         <Button size="small" onClick={handlepPublishSelected}>
           Publish Selected
+        </Button>
+        <Button size="small" onClick={handlepDeleteSelected}>
+          Delete Selected
         </Button>
       </div>
 
