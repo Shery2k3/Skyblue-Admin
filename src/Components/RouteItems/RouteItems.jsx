@@ -55,6 +55,11 @@ const routeItems = [
         icon: <PicRightOutlined />,
         label: <Link to="/inventory">Inventory</Link>,
       },
+      {
+        key: "23",
+        icon: <DockerOutlined />,
+        label: <Link to="/product-attributes">Product Attributes</Link>,
+      }
     ],
   },
  

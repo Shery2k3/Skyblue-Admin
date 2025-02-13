@@ -85,7 +85,7 @@ const CustomLayout = ({ pageTitle, menuKey, children }) => {
   // Determine which submenu should be open based on active menuKey
   const getDefaultOpenKeys = (key) => {
     const submenuKeys = {
-      sub1: ["2", "3", "4", "5"],
+      sub1: ["2", "3", "4", "5", "23"],
       sub2: ["7", "8", "9"],
       sub3: ["10", "11", "12", "13"],
       sub4: ["14", "15", "16", "17"],

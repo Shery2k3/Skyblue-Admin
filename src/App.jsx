@@ -42,6 +42,7 @@ import BulkEdit from "./Pages/Vendors/BulkEdit";
 import EditDiscount from "./Pages/Promotions/Discount/EditDiscount";
 import Shippingprovider from "./Pages/Configuration/Shippingprovider/Shippingprovider";
 import AccessControl from "./Pages/Configuration/AccessControlList/AccessControl";
+import ProductAttributes from "./Pages/Catalog/Attributes/ProductAttributes";
 
 
 function App() {
@@ -88,6 +89,10 @@ function App() {
           path="/inventory"
           element={<ProtectedRoute element={Inventory} />}
         />
+        <Route
+          path="/product-attributes"
+          element={<ProtectedRoute element={ProductAttributes} />}
+         />
         <Route
           path="/manufacturers"
           element={<ProtectedRoute element={Manufacturers} />}
