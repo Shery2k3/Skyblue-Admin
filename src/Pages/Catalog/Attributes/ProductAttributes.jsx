@@ -1,12 +1,22 @@
 import React, { useEffect, useState, useCallback } from "react";
 import CustomLayout from "../../../Components/Layout/Layout";
-import { Button, message, Table, Modal, Input, Tabs, Popconfirm, Space } from "antd";
+import {
+  Button,
+  message,
+  Table,
+  Modal,
+  Input,
+  Tabs,
+  Popconfirm,
+  Space,
+} from "antd";
 import axiosInstance from "../../../Api/axiosConfig";
 import API_BASE_URL from "../../../constants";
 import useRetryRequest from "../../../Api/useRetryRequest";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { use } from "react";
+import EditPreDefined from "./EditPreDefined";
 
 export const GetUsedProductAttribute = async (attributeId) => {
   try {
@@ -25,14 +35,34 @@ export const GetUsedProductAttribute = async (attributeId) => {
   }
 };
 
+export const GetPreDefinedAttribute = async (attributeId) => {
+  try {
+    const response = await axiosInstance.get(
+      `${API_BASE_URL}/admin/product/get-predefined-attributes/${attributeId}`
+    );
+    console.log("response", response);
+    if (response.status === 200 && response.data.success) {
+      return response.data.result;
+    }
+  } catch (error) {
+    console.error("Error fetching preDefined attributes:", error);
+    return [];
+  }
+};
+
 const ProductAttributes = () => {
   const [loading, setLoading] = useState(false);
   const [productAttributes, setProductAttributes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAttribute, setEditingAttribute] = useState(null);
   const [usedProducts, setUsedProducts] = useState([]);
+  const [preDefinedAttributes, setPreDefinedAttributes] = useState([]);
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [newAttribute, setNewAttribute] = useState({ Name: "", Description: "" });
+  const [newAttribute, setNewAttribute] = useState({
+    Name: "",
+    Description: "",
+  });
 
   const retryRequest = useRetryRequest();
 
@@ -62,14 +92,19 @@ const ProductAttributes = () => {
   const handleEdit = useCallback(async (attribute) => {
     setEditingAttribute({ ...attribute });
     setIsModalOpen(true);
+    console.log(attribute);
 
     try {
       const products = await GetUsedProductAttribute(attribute.Id);
+      const preDefined = await GetPreDefinedAttribute(attribute.Id);
       setUsedProducts(products);
+      setPreDefinedAttributes(preDefined);
     } catch (error) {
       message.error("Failed to fetch used products");
     }
   }, []);
+
+  console.log("preDefinedAttributes", preDefinedAttributes);
 
   const handleSave = useCallback(async () => {
     try {
@@ -95,7 +130,9 @@ const ProductAttributes = () => {
 
   const handleDelete = async (attributeId) => {
     try {
-      await axiosInstance.delete(`${API_BASE_URL}/admin/delete-product-attribute/${attributeId}`);
+      await axiosInstance.delete(
+        `${API_BASE_URL}/admin/delete-product-attribute/${attributeId}`
+      );
       message.success("Attribute deleted successfully");
       fetchProductAttributes();
     } catch (error) {
@@ -122,7 +159,9 @@ const ProductAttributes = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Button type="primary" onClick={() => handleEdit(record)}>Edit</Button>
+          <Button type="primary" onClick={() => handleEdit(record)}>
+            Edit
+          </Button>
           <Popconfirm
             title="Are you sure you want to delete this attribute?"
             onConfirm={() => handleDelete(record.Id)}
@@ -164,10 +203,23 @@ const ProductAttributes = () => {
     setIsAddModalOpen(false);
   };
 
+  const fetchPreDefinedAttributes = useCallback(async (attributeId) => {
+    try {
+      const preDefined = await GetPreDefinedAttribute(attributeId);
+      setPreDefinedAttributes(preDefined);
+    } catch (error) {
+      message.error("Failed to fetch predefined attributes");
+    }
+  }, []);
+
   return (
     <CustomLayout pageTitle="Product Attributes" menuKey="23">
       <h1>Product Attributes</h1>
-      <Button type="primary" onClick={addNewAttribute} style={{ marginBottom: 16 }}>
+      <Button
+        type="primary"
+        onClick={addNewAttribute}
+        style={{ marginBottom: 16 }}
+      >
         Add New
       </Button>
 
@@ -235,12 +287,21 @@ const ProductAttributes = () => {
             <ul>
               {usedProducts.length > 0 ? (
                 usedProducts.map((product, index) => (
-                  <li key={index}>{product.Name}</li> 
+                  <li key={index}>{product.Name}</li>
                 ))
               ) : (
                 <p>No products using this attribute</p>
               )}
             </ul>
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="PreDefinedAttributes" key="3">
+            <EditPreDefined
+              preDefinedAttributes={preDefinedAttributes}
+              fetchPreDefinedAttributes={() =>
+                fetchPreDefinedAttributes(editingAttribute?.Id)
+              }
+              editingAttribute={editingAttribute}
+            />
           </Tabs.TabPane>
         </Tabs>
       </Modal>
