@@ -23,6 +23,10 @@ const EditProductAttribute = () => {
   const [loading, setLoading] = useState(false);
   const [allAttributes, setallAttributes] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const [editingKey, setEditingKey] = useState(null);
+  const [editedData, setEditedData] = useState({});
+
   const [form] = Form.useForm();
 
   const fetchProductAttributes = async () => {
@@ -32,7 +36,7 @@ const EditProductAttribute = () => {
         `${API_BASE_URL}/admin/product/attribute-product/${id}`
       );
 
-      console.log("response", response.data);
+      //console.log("response", response.data);
 
       if (!response.data?.data?.length) {
         message.info("No product attributes found.");
@@ -42,7 +46,7 @@ const EditProductAttribute = () => {
 
       setAttributes(response.data.data); // Fixed: Directly using the array
     } catch (error) {
-      console.error(error);
+      //console.error(error);
       setAttributes([]); // Reset attributes on error
       message.error("Failed to fetch product attributes");
     } finally {
@@ -70,7 +74,7 @@ const EditProductAttribute = () => {
   }, [retryRequest]);
 
   const handleDelete = async (record) => {
-    console.log("record", record);
+    //console.log("record", record);
     try {
       const response = await axiosInstance.delete(
         `${API_BASE_URL}/admin/product/delete-product-attribute/${id}`,
@@ -104,12 +108,12 @@ const EditProductAttribute = () => {
               values
             )
           );
-          console.log("values", values);
+         // console.log("values", values);
           if (response.data.success === false) {
             message.error(response.data.message);
             return;
           }
-          console.log("response", response);
+          //console.log("response", response);
           message.success("Attribute added successfully");
           fetchProductAttributes();
           setIsModalVisible(false);
@@ -125,8 +129,56 @@ const EditProductAttribute = () => {
   };
 
   const handleEdit = (record) => {
-    console.log("record", record);
-  }
+    setEditingKey(record.id);
+    setEditedData(record);
+    //console.log(record);
+  };
+
+  const handleChange = (key, value) => {
+    setEditedData((prev) => {
+      const updatedData = { ...prev, [key]: value };
+      //console.log("Updated editedData:", updatedData);
+      return updatedData;
+    });
+  };
+
+  const handleCancel = () => {
+    setEditingKey(null);
+    setEditedData({});
+  };
+
+  const handleSave = async (record) => {
+    try {
+     // console.log("Saving changes...", { editedData, record });
+  
+      // Ensure there's something to update
+      if (!editedData || Object.keys(editedData).length === 0) {
+        message.warning("No changes detected");
+        return;
+      }
+  
+      // Send PATCH request to update product attribute
+      const response = await axiosInstance.patch(
+        `${API_BASE_URL}/admin/product/update-product-attribute/${id}`,
+        editedData
+      );
+  
+      if (response?.data?.success) {
+        message.success("Product attribute updated successfully");
+        console.log("Update response:", response.data);
+        setEditingKey(null);
+        setEditedData({});
+        fetchProductAttributes();
+      } else {
+        throw new Error(response?.data?.message || "Unknown error occurred");
+      }
+    } catch (error) {
+      console.error("Error updating attribute:", error);
+      message.error(
+        error.response?.data?.message || "Failed to update product attribute"
+      );
+    }
+  };
 
   useEffect(() => {
     fetchProductAttributes();
@@ -134,13 +186,55 @@ const EditProductAttribute = () => {
   }, [id]);
 
   const columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Text Prompt", dataIndex: "textPrompt", key: "textPrompt" },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) =>
+        editingKey === record.id ? (
+          <Select
+            value={editedData.attributeid || record.attributeid}
+            onChange={(value) => handleChange("attributeid", value)}
+          >
+            {allAttributes.map((attr) => (
+              <Option key={attr.Id} value={attr.Id}>
+                {attr.Name}
+              </Option>
+            ))}
+          </Select>
+        ) : (
+          text
+        ),
+    },
+    {
+      title: "Text Prompt",
+      dataIndex: "textPrompt",
+      key: "textPrompt",
+      render: (text, record) =>
+        editingKey === record.id ? (
+          <Input
+            value={editedData.textPrompt || record.textPrompt}
+            onChange={(e) => handleChange("textPrompt", e.target.value)}
+          />
+        ) : (
+          text
+        ),
+    },
     {
       title: "Is Required",
       dataIndex: "isRequired",
       key: "isRequired",
-      render: (value) => (value ? "Yes" : "No"),
+      render: (value, record) =>
+        editingKey === record.id ? (
+          <Switch
+            checked={editedData.isRequired ?? record.isRequired}
+            onChange={(checked) => handleChange("isRequired", checked)}
+          />
+        ) : value ? (
+          "Yes"
+        ) : (
+          "No"
+        ),
     },
     {
       title: "Control Type",
@@ -152,10 +246,25 @@ const EditProductAttribute = () => {
       key: "actions",
       render: (_, record) => (
         <>
-          <Button type="danger" onClick={() => handleDelete(record)}>
-            Delete
-          </Button>
-          <Button type="primary" onClick={() => handleEdit(record)}>Edit</Button>
+          {editingKey === record.id ? (
+            <>
+              <Button type="primary" onClick={() => handleSave(record)}>
+                Save
+              </Button>
+              <Button onClick={handleCancel} style={{ marginLeft: 8 }}>
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button type="primary" onClick={() => handleEdit(record)}>
+                Edit
+              </Button>
+              <Button type="danger" onClick={() => handleDelete(record)}>
+                Delete
+              </Button>
+            </>
+          )}
         </>
       ),
     },
