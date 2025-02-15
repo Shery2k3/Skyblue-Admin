@@ -43,6 +43,7 @@ import EditDiscount from "./Pages/Promotions/Discount/EditDiscount";
 import Shippingprovider from "./Pages/Configuration/Shippingprovider/Shippingprovider";
 import AccessControl from "./Pages/Configuration/AccessControlList/AccessControl";
 import ProductAttributes from "./Pages/Catalog/Attributes/ProductAttributes";
+import EditAttributeValues from "./Pages/Catalog/Product/Sections/EditAttributeValues";
 
 
 function App() {
@@ -93,6 +94,7 @@ function App() {
           path="/product-attributes"
           element={<ProtectedRoute element={ProductAttributes} />}
          />
+         <Route path="/product/edit/product-attributes/:id" element={<ProtectedRoute element={EditAttributeValues} />} />
         <Route
           path="/manufacturers"
           element={<ProtectedRoute element={Manufacturers} />}

@@ -3,16 +3,16 @@ import { Button, Table, Popconfirm, Input, message, Modal, Form } from "antd";
 import axiosInstance from "../../../Api/axiosConfig";
 import API_BASE_URL from "../../../constants";
 
-const EditPreDefined = ({ preDefinedAttributes, fetchPreDefinedAttributes,editingAttribute }) => {
+const EditPreDefined = ({
+  preDefinedAttributes,
+  fetchPreDefinedAttributes,
+  editingAttribute,
+}) => {
   const [editingRow, setEditingRow] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [addForm] = Form.useForm();
-
-
-
-  console.log("editingAttribute",editingAttribute)
 
   const showEditModal = (record) => {
     setEditingRow(record);
@@ -23,14 +23,15 @@ const EditPreDefined = ({ preDefinedAttributes, fetchPreDefinedAttributes,editin
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      console.log("editingRow", editingRow, values);
-      
-      const response = await axiosInstance.patch(`${API_BASE_URL}/admin/product/edit-predefined-value/${editingRow.Id}`, {
-        Name: values.Name,
-      });
-  
-      console.log("response", response);
-  
+      //console.log("editingRow", editingRow, values);
+
+      const response = await axiosInstance.patch(
+        `${API_BASE_URL}/admin/product/edit-predefined-value/${editingRow.Id}`,
+        {
+          Name: values.Name,
+        }
+      );
+
       if (response.status === 200 && response.data.success) {
         message.success("Attribute updated successfully");
         setIsModalVisible(false);
@@ -46,8 +47,9 @@ const EditPreDefined = ({ preDefinedAttributes, fetchPreDefinedAttributes,editin
 
   const handleDelete = async (id) => {
     try {
-      console.log("id", id);
-      await axiosInstance.delete(`${API_BASE_URL}/admin/product/delete-predefined-value/${id}`);
+      await axiosInstance.delete(
+        `${API_BASE_URL}/admin/product/delete-predefined-value/${id}`
+      );
       message.success("Attribute deleted successfully");
       fetchPreDefinedAttributes();
     } catch (error) {
@@ -58,14 +60,14 @@ const EditPreDefined = ({ preDefinedAttributes, fetchPreDefinedAttributes,editin
   const handleAdd = async () => {
     try {
       const values = await addForm.validateFields();
-      console.log("Adding new attribute", values,editingAttribute);
-      
-       const response = await axiosInstance.post(`${API_BASE_URL}/admin/product/add-predefined-value/${editingAttribute.Id}`, {
-         Name: values.Name,
-       });
-  
-      console.log("response", response);
-  
+
+      const response = await axiosInstance.post(
+        `${API_BASE_URL}/admin/product/add-predefined-value/${editingAttribute.Id}`,
+        {
+          Name: values.Name,
+        }
+      );
+
       if (response.status === 200 && response.data.success) {
         message.success("Attribute added successfully");
         setIsAddModalVisible(false);
@@ -87,14 +89,18 @@ const EditPreDefined = ({ preDefinedAttributes, fetchPreDefinedAttributes,editin
       key: "actions",
       render: (_, record) => (
         <div>
-          <Button type="default" onClick={() => showEditModal(record)}>Edit</Button>
+          <Button type="default" onClick={() => showEditModal(record)}>
+            Edit
+          </Button>
           <Popconfirm
             title="Are you sure?"
             onConfirm={() => handleDelete(record.Id)}
             okText="Yes"
             cancelText="No"
           >
-            <Button type="danger" style={{ marginLeft: 8 }}>Delete</Button>
+            <Button type="danger" style={{ marginLeft: 8 }}>
+              Delete
+            </Button>
           </Popconfirm>
         </div>
       ),
@@ -103,10 +109,19 @@ const EditPreDefined = ({ preDefinedAttributes, fetchPreDefinedAttributes,editin
 
   return (
     <>
-      <Button type="primary" onClick={() => setIsAddModalVisible(true)} style={{ marginBottom: 16 }}>
+      <Button
+        type="primary"
+        onClick={() => setIsAddModalVisible(true)}
+        style={{ marginBottom: 16 }}
+      >
         Add New
       </Button>
-      <Table columns={columns} dataSource={preDefinedAttributes} rowKey="Id" pagination={false} />
+      <Table
+        columns={columns}
+        dataSource={preDefinedAttributes}
+        rowKey="Id"
+        pagination={false}
+      />
 
       <Modal
         title="Edit Attribute"

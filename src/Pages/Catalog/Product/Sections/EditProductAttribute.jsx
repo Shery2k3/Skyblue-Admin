@@ -11,8 +11,9 @@ import {
   Input,
   Select,
   Switch,
+  Alert,
 } from "antd";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -26,6 +27,7 @@ const EditProductAttribute = () => {
   const [editingKey, setEditingKey] = useState(null);
   const [editedData, setEditedData] = useState({});
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   const fetchProductAttributes = async () => {
     setLoading(true);
@@ -39,6 +41,7 @@ const EditProductAttribute = () => {
         return;
       }
       setAttributes(response.data.data);
+      console.log(response.data.data);
     } catch (error) {
       console.error(error);
       setAttributes([]);
@@ -154,6 +157,12 @@ const EditProductAttribute = () => {
     fetchAllAttributes();
   }, [id, fetchAllAttributes]);
 
+
+  const handleNavigate = (record) => {
+    console.log("record", record);
+    navigate(`/product/edit/product-attributes/${record.id}`);
+  }
+
   const columns = [
     {
       title: "Name",
@@ -204,6 +213,21 @@ const EditProductAttribute = () => {
         ) : (
           "No"
         ),
+    },
+    {
+      title: "Attribute Value",
+      dataIndex: "attributeValues",
+      key: "attributeValues",
+      render: (_, record) => (
+        <div>
+          <Button type="default" onClick={() => handleNavigate(record)}>
+            Edit
+          </Button>
+          <span style={{ marginLeft: 8 }}>
+            Total Number of Values: {record.valuesLength}
+          </span>
+        </div>
+      ),
     },
     {
       title: "Control Type",
@@ -261,7 +285,7 @@ const EditProductAttribute = () => {
       ) : attributes.length === 0 ? (
         <p>No attributes found for this product.</p>
       ) : (
-        <Table columns={columns} dataSource={attributes} rowKey="id" />
+        <Table columns={columns} dataSource={attributes} rowKey="id" scroll={{ x: 'max-content' }}  />
       )}
 
       <Modal
