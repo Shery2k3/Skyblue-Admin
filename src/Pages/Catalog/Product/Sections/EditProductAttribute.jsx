@@ -21,12 +21,10 @@ const EditProductAttribute = () => {
   const retryRequest = useRetryRequest();
   const [attributes, setAttributes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [allAttributes, setallAttributes] = useState([]);
+  const [allAttributes, setAllAttributes] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
   const [editingKey, setEditingKey] = useState(null);
   const [editedData, setEditedData] = useState({});
-
   const [form] = Form.useForm();
 
   const fetchProductAttributes = async () => {
@@ -35,19 +33,15 @@ const EditProductAttribute = () => {
       const response = await axiosInstance.get(
         `${API_BASE_URL}/admin/product/attribute-product/${id}`
       );
-
-      //console.log("response", response.data);
-
       if (!response.data?.data?.length) {
         message.info("No product attributes found.");
         setAttributes([]);
         return;
       }
-
-      setAttributes(response.data.data); // Fixed: Directly using the array
+      setAttributes(response.data.data);
     } catch (error) {
-      //console.error(error);
-      setAttributes([]); // Reset attributes on error
+      console.error(error);
+      setAttributes([]);
       message.error("Failed to fetch product attributes");
     } finally {
       setLoading(false);
@@ -61,7 +55,7 @@ const EditProductAttribute = () => {
         axiosInstance.get(`${API_BASE_URL}/admin/product-attributes`)
       );
       if (response?.status === 200) {
-        setallAttributes(response.data.result);
+        setAllAttributes(response.data.result);
       } else {
         message.error("Failed to fetch product attributes");
       }
@@ -74,20 +68,17 @@ const EditProductAttribute = () => {
   }, [retryRequest]);
 
   const handleDelete = async (record) => {
-    //console.log("record", record);
     try {
       const response = await axiosInstance.delete(
         `${API_BASE_URL}/admin/product/delete-product-attribute/${id}`,
         {
-          data: { id: record.id }, // Ensure correct property name
+          data: { id: record.id },
         }
       );
-
       if (!response.data.success) {
         message.error(response.data.message);
         return;
       }
-
       message.success("Attribute deleted successfully");
       fetchProductAttributes();
     } catch (error) {
@@ -97,49 +88,36 @@ const EditProductAttribute = () => {
   };
 
   const handleAddAttribute = async () => {
-    form
-      .validateFields()
-      .then(async (values) => {
-        values.isRequired = values.isRequired || false;
-        try {
-          const response = await retryRequest(() =>
-            axiosInstance.post(
-              `${API_BASE_URL}/admin/product/add-product-attribute/${id}`,
-              values
-            )
-          );
-         // console.log("values", values);
-          if (response.data.success === false) {
-            message.error(response.data.message);
-            return;
-          }
-          //console.log("response", response);
-          message.success("Attribute added successfully");
-          fetchProductAttributes();
-          setIsModalVisible(false);
-          form.resetFields();
-        } catch (error) {
-          console.error("Error adding attribute:", error);
-          message.error("Failed to add attribute");
-        }
-      })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
-      });
+    try {
+      const values = await form.validateFields();
+      values.isRequired = values.isRequired || false;
+      const response = await retryRequest(() =>
+        axiosInstance.post(
+          `${API_BASE_URL}/admin/product/add-product-attribute/${id}`,
+          values
+        )
+      );
+      if (response.data.success === false) {
+        message.error(response.data.message);
+        return;
+      }
+      message.success("Attribute added successfully");
+      fetchProductAttributes();
+      setIsModalVisible(false);
+      form.resetFields();
+    } catch (error) {
+      console.error("Error adding attribute:", error);
+      message.error("Failed to add attribute");
+    }
   };
 
   const handleEdit = (record) => {
     setEditingKey(record.id);
     setEditedData(record);
-    //console.log(record);
   };
 
   const handleChange = (key, value) => {
-    setEditedData((prev) => {
-      const updatedData = { ...prev, [key]: value };
-      //console.log("Updated editedData:", updatedData);
-      return updatedData;
-    });
+    setEditedData((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleCancel = () => {
@@ -149,26 +127,17 @@ const EditProductAttribute = () => {
 
   const handleSave = async (record) => {
     try {
-     // console.log("Saving changes...", { editedData, record });
-  
-      // Ensure there's something to update
-      if (!editedData || Object.keys(editedData).length === 0) {
-        message.warning("No changes detected");
-        return;
-      }
-  
-      // Send PATCH request to update product attribute
+      const updatedData = { ...record, ...editedData };
       const response = await axiosInstance.patch(
         `${API_BASE_URL}/admin/product/update-product-attribute/${id}`,
-        editedData
+        updatedData
       );
-  
+      console.log("response", response);
       if (response?.data?.success) {
         message.success("Product attribute updated successfully");
-        console.log("Update response:", response.data);
+        fetchProductAttributes();
         setEditingKey(null);
         setEditedData({});
-        fetchProductAttributes();
       } else {
         throw new Error(response?.data?.message || "Unknown error occurred");
       }
@@ -183,7 +152,7 @@ const EditProductAttribute = () => {
   useEffect(() => {
     fetchProductAttributes();
     fetchAllAttributes();
-  }, [id]);
+  }, [id, fetchAllAttributes]);
 
   const columns = [
     {
@@ -240,6 +209,7 @@ const EditProductAttribute = () => {
       title: "Control Type",
       dataIndex: "attributeControlTypeId",
       key: "attributeControlTypeId",
+      render: (value) => (value === 1 ? "Drop-Down" : value),
     },
     {
       title: "Actions",
@@ -281,7 +251,7 @@ const EditProductAttribute = () => {
           setIsModalVisible(true);
           form.resetFields();
         }}
-        disabled={loading} // Disable while loading
+        disabled={loading}
       >
         Add Attribute
       </Button>
@@ -298,9 +268,7 @@ const EditProductAttribute = () => {
         title="Add Attribute"
         visible={isModalVisible}
         onOk={handleAddAttribute}
-        onCancel={() => {
-          setIsModalVisible(false);
-        }}
+        onCancel={() => setIsModalVisible(false)}
       >
         <Form form={form} layout="vertical">
           <Form.Item
@@ -327,16 +295,14 @@ const EditProductAttribute = () => {
             name="isRequired"
             label="Is Required"
             valuePropName="checked"
-            initialValue={false} // Set default value to false
+            initialValue={false}
           >
             <Switch />
           </Form.Item>
           <Form.Item
             name="controlType"
             label="Control Type"
-            rules={[
-              { required: true, message: "Please select a control type!" },
-            ]}
+            rules={[{ required: true, message: "Please select a control type!" }]}
           >
             <Select placeholder="Select a control type">
               <Option value={1}>Drop-Down-List</Option>
