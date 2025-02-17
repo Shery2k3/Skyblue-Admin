@@ -68,16 +68,25 @@ const Prices = () => {
   };
 
   const handleFormSubmit = async (values) => {
+    // Ensure all price-related fields are numbers and replace "" with 0
+    const numericValues = Object.fromEntries(
+      Object.entries(values).map(([key, value]) => [
+        key,
+        value === "" || value === undefined ? 0 : Number(value), // Convert to number, default to 0
+      ])
+    );
+
     // Transform discount names back to their IDs for submission
     const discountIDs = discounts.map((d) => d.Discount_Id);
 
     const submissionData = {
-      ...values,
+      ...numericValues,
       discounts: discountIDs, // Replace discount names with IDs
       TaxCategoryId: taxCategoryID, // Include TaxCategory ID
     };
 
     console.log("Form submission data: ", submissionData);
+
     try {
       await retryRequest(() =>
         axiosInstance.patch(
@@ -172,6 +181,8 @@ const Prices = () => {
                 <p>No discounts available</p>
               )}
             </Form.Item>
+
+            {console.log("Discounts: ", discounts)}
           </Col>
           <Col span={8}>
             <Form.Item label="Tax Category" name="TaxCategoryName">

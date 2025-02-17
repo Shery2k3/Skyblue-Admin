@@ -186,7 +186,7 @@ const TierPrices = () => {
           <Select
             defaultValue={record.CustomerRoleId}
             style={{ width: 200 }}
-          // Make the select input disabled so the user cannot change the role
+            // Make the select input disabled so the user cannot change the role
           >
             {roles
               .filter(
@@ -342,19 +342,11 @@ const TierPrices = () => {
             rules={[{ required: true, message: "Please select a role!" }]}
           >
             <Select placeholder="Select a role">
-              {roles
-                .filter(
-                  (role) =>
-                    // Exclude roles that are already present in the tierPrices list
-                    !tierPrices.some(
-                      (tierPrice) => tierPrice.CustomerRoleId === role.Id
-                    )
-                )
-                .map((role) => (
-                  <Option key={role.Id} value={role.Id}>
-                    {role.Name}
-                  </Option>
-                ))}
+              {roles.map((role) => (
+                <Option key={role.Id} value={role.Id}>
+                  {role.Name}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
 
