@@ -216,44 +216,10 @@ const InventoryInfo = () => {
             </Col>
           </Row>
 
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item
-                label={<b>Notify for Quantity Below</b>}
-                name="notifyAdminForQuantityBelow"
-                tooltip="Enter the quantity below which to notify admin"
-              >
-                <Input type="number" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label={<b>Backorders</b>}
-                name="backorderMode"
-                tooltip="Select the backorder mode"
-              >
-                <Select>
-                  {Object.entries(backorderModeMap).map(([key, value]) => (
-                    <Option key={key} value={key}>
-                      {value}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+         
 
           <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item
-                label={<b>Allow Back in Stock Subscriptions</b>}
-                name="allowBackInStockSubscriptions"
-                valuePropName="checked"
-                tooltip="Check to allow back in stock subscriptions"
-              >
-                <Checkbox />
-              </Form.Item>
-            </Col>
+            
             <Col span={12}>
               <Form.Item
                 label={<b>Minimum Cart Quantity</b>}
@@ -263,9 +229,6 @@ const InventoryInfo = () => {
                 <Input type="number" />
               </Form.Item>
             </Col>
-          </Row>
-
-          <Row gutter={24}>
             <Col span={12}>
               <Form.Item
                 label={<b>Maximum Cart Quantity</b>}
@@ -275,6 +238,10 @@ const InventoryInfo = () => {
                 <Input type="number" />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={24}>
+            
             <Col span={12}>
               <Form.Item
                 label={<b>Allowed Quantities</b>}
@@ -299,24 +266,7 @@ const InventoryInfo = () => {
             </Col>
           </Row>
 
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item
-                label={<b>Product Availability Range</b>}
-                name="productAvailabilityRange"
-                tooltip="Select the product availability range"
-              >
-                <Select onChange={handleAvailabilityChange}>
-                  <Option value="None">None</Option>
-                  {availabilityRangeData.map((range) => (
-                    <Option key={range.Id} value={range.Id}>
-                      {range.Name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+         
 
           <Form.Item>
             <Button type="primary" htmlType="submit" disabled={submitting}>

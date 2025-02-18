@@ -325,6 +325,7 @@ const TierPrices = () => {
       <Table
         columns={columns}
         dataSource={tierPrices || []}
+        scroll={{ x: "max-content" }}
         rowKey="CustomerRoleId"
         pagination={{ pageSize: 5 }} // Add pagination here
         bordered

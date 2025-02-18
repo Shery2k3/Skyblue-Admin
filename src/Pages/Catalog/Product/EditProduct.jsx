@@ -37,6 +37,7 @@ import Prices from "./EditProductSections/Prices";
 import InventoryInfo from "./EditProductSections/InventoryInfo";
 import Mapping from "./EditProductSections/Mapping";
 import TierPrices from "./EditProductSections/TierPrices";
+import RelatedProduct from "./EditProductSections/RelatedProduct";
 const { TabPane } = Tabs;
 
 const EditProduct = () => {
@@ -88,6 +89,7 @@ const EditProduct = () => {
           <TierPrices />
           <InventoryInfo />
           <Mapping />
+          <RelatedProduct />
         </TabPane>
         <TabPane tab="SEO" key="2">
           <EditSeo />
