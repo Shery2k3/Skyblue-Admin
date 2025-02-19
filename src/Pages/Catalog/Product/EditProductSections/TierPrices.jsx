@@ -312,6 +312,8 @@ const TierPrices = () => {
     },
   ];
 
+  console.log("Tier Prices:", tierPrices);
+
   return (
     <Card>
       <h4>Tier Prices</h4>

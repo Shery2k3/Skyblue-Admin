@@ -20,6 +20,9 @@ const Prices = () => {
       const responses = await retryRequest(() =>
         axiosInstance.get(`${API_BASE_URL}/admin/product-detail/${id}`)
       );
+
+      const priceFields = ["P1", "P2", "P3", "P4", "P5"]; // Expected tier price roles
+
       const productData = responses.data.result;
       setProduct(productData);
 
@@ -28,24 +31,30 @@ const Prices = () => {
       setDiscounts(fetchedDiscounts);
 
       const taxCategory = productData.prices.TaxCategory || {};
-      setTaxCategoryID(taxCategory.Id); // Store TaxCategory ID
+      setTaxCategoryID(taxCategory.Id);
 
-      // Map tier prices to form fields dynamically
+      // Map tier prices dynamically based on CustomerRoleName
       const tierPrices = productData.prices.tierPrices || [];
-      const priceFields = ["Price1", "Price2", "Price3", "Price4", "Price5"];
+      // Map tier prices from API
+      const tierPriceMap = tierPrices.reduce((acc, item) => {
+        acc[item.CustomerRoleName] = item.Price; // Store price by role name (P1, P2, etc.)
+        return acc;
+      }, {});
+
       const updatedFormValues = {
         ...productData.prices,
-        ...priceFields.reduce((acc, field, index) => {
-          acc[field] = tierPrices[index]?.Price || ""; // Map tier prices to form fields
+        ...priceFields.reduce((acc, role, index) => {
+          acc[`Price${index + 1}`] = tierPriceMap[role] ?? 0; // Use API price or default to 0
           return acc;
         }, {}),
-        TaxCategoryName: taxCategory.TaxCategoryName || "", // Display TaxCategoryName
-        discounts: fetchedDiscounts.map((d) => d.DiscountName).join(", "), // Display discount names
+        TaxCategoryName: productData.prices.TaxCategory?.TaxCategoryName || "", // Display TaxCategoryName
+        discounts: (productData.prices.discounts || [])
+          .map((d) => d.DiscountName)
+          .join(", "), // Display discount names
       };
-      console.log("productData: ", productData);
-      console.log("Updated form values: ", updatedFormValues);
 
-      form.setFieldsValue(updatedFormValues); // Prepopulate form
+      console.log("Updated form values:", updatedFormValues);
+      form.setFieldsValue(updatedFormValues);
     } catch (error) {
       message.error("Failed to fetch product details");
     }
@@ -85,7 +94,7 @@ const Prices = () => {
       TaxCategoryId: taxCategoryID, // Include TaxCategory ID
     };
 
-    console.log("Form submission data: ", submissionData);
+    
 
     try {
       await retryRequest(() =>
@@ -95,6 +104,7 @@ const Prices = () => {
         )
       );
       message.success("Product prices updated successfully");
+      window.location.reload(); // Reload the page
     } catch (error) {
       message.error("Failed to update product prices");
     }
@@ -133,15 +143,16 @@ const Prices = () => {
         </Row>
 
         <Row gutter={16}>
-          {["Price1", "Price2", "Price3", "Price4", "Price5"].map(
-            (priceField, index) => (
+          {["P1", "P2", "P3", "P4", "P5"].map((role, index) => {
+            const priceField = `Price${index + 1}`;
+            return form.getFieldValue(priceField) !== "" ? (
               <Col span={8} key={index}>
-                <Form.Item label={`Price ${index + 1}`} name={priceField}>
+                <Form.Item label={`Price for ${role}`} name={priceField}>
                   <Input type="number" min={0} step="0.01" />
                 </Form.Item>
               </Col>
-            )
-          )}
+            ) : null;
+          })}
         </Row>
 
         <Row gutter={16}>
@@ -182,7 +193,7 @@ const Prices = () => {
               )}
             </Form.Item>
 
-            {console.log("Discounts: ", discounts)}
+            
           </Col>
           <Col span={8}>
             <Form.Item label="Tax Category" name="TaxCategoryName">
