@@ -31,7 +31,9 @@ const EditDiscount = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`/admin/edit-discount/${id}`)
       );
+      console.log(response);
       const discount = response.data[0]; // Adjust based on API structure
+      
       setDatasource(discount);
     } catch (error) {
       console.error("Error fetching discount data:", error);

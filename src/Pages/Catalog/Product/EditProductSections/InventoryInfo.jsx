@@ -34,7 +34,6 @@ const backorderModeMap = {
 const manageInventoryMethodMap = {
   0: "Don't track inventory",
   1: "Track inventory",
-  2: "Track inventory by product attributes",
 };
 
 const InventoryInfo = () => {
