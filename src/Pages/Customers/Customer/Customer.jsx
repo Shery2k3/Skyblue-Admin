@@ -12,10 +12,10 @@ import {
   Row,
   Col,
   Tag,
-  Typography
+  Typography,
 } from "antd";
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import API_BASE_URL from "../../../constants.js";
 import axiosInstance from "../../../Api/axiosConfig.js";
@@ -29,7 +29,6 @@ const debounce = (func, delay) => {
     timeoutId = setTimeout(() => func(...args), delay);
   };
 };
-
 
 const Customer = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -50,13 +49,12 @@ const Customer = () => {
   const [searchPhoneNumber, setSearchPhoneNumber] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
 
-  
   const retryRequest = useRetryRequest();
   const navigate = useNavigate();
-  
+
   const { Title } = Typography;
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
-  
+
   const fetchCustomers = useCallback(
     debounce(async (page) => {
       if (isFetching) return;
@@ -81,7 +79,7 @@ const Customer = () => {
           zip: customer.zip,
           active: customer.active,
           roles: customer.roles,
-          createdOnUTC: customer.createdOnUTC
+          createdOnUTC: customer.createdOnUTC,
         }));
 
         setDataSource(formattedData);
@@ -112,7 +110,6 @@ const Customer = () => {
         if (searchPhoneNumber) params.phoneNumber = searchPhoneNumber;
         if (searchEmail) params.email = searchEmail;
 
-
         const response = await retryRequest(() =>
           axiosInstance.get(`${API_BASE_URL}/admin/customer/all`, { params })
         );
@@ -128,7 +125,7 @@ const Customer = () => {
           zip: customer.zip,
           active: customer.active,
           roles: customer.roles,
-          createdOnUTC: customer.createdOnUTC
+          createdOnUTC: customer.createdOnUTC,
         }));
 
         setDataSource(formattedData);
@@ -141,8 +138,14 @@ const Customer = () => {
         setIsFetching(false);
       }
     }, 300),
-    [isFetching, pageSize, searchFirstName, searchLastName, searchPhoneNumber, searchEmail]
-
+    [
+      isFetching,
+      pageSize,
+      searchFirstName,
+      searchLastName,
+      searchPhoneNumber,
+      searchEmail,
+    ]
   );
 
   useEffect(() => {
@@ -168,6 +171,15 @@ const Customer = () => {
     // setRemovedRoles([]);
     // setIsModalVisible(true);
     navigate(`/edit-customer/${customer.id}`);
+  };
+
+  const handleClearFilters = () => {
+    setSearchFirstName("");
+    setSearchLastName("");
+    setSearchPhoneNumber("");
+    setSearchEmail("");
+    setCurrentPage(1);
+    fetchCustomers(1);
   };
 
   const handleOk = async () => {
@@ -238,7 +250,7 @@ const Customer = () => {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      fixed: 'left',
+      fixed: "left",
     },
     {
       title: "Email",
@@ -311,10 +323,10 @@ const Customer = () => {
                 onChange={(e) => setSearchLastName(e.target.value)}
               />
               <Input
-  placeholder="Email"
-  value={searchEmail}
-  onChange={(e) => setSearchEmail(e.target.value)}
-/>
+                placeholder="Email"
+                value={searchEmail}
+                onChange={(e) => setSearchEmail(e.target.value)}
+              />
 
               <Input
                 placeholder="Phone Number"
@@ -323,6 +335,9 @@ const Customer = () => {
               />
               <Button onClick={handleSearch} type="primary">
                 Search
+              </Button>
+              <Button onClick={handleClearFilters} type="default">
+                Cancel
               </Button>
             </Space.Compact>
           </Col>

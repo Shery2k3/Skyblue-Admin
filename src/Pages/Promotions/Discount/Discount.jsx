@@ -1,12 +1,23 @@
 import CustomLayout from "../../../Components/Layout/Layout";
-import { Table, Button, Modal, message, Input, InputNumber, Spin, Typography, Select, DatePicker } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  message,
+  Input,
+  InputNumber,
+  Spin,
+  Typography,
+  Select,
+  DatePicker,
+} from "antd";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../Api/axiosConfig"; // Import the custom Axios instance
 import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry hook
 import dayjs from "dayjs";
 import EditDiscount from "./EditDiscount";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Discounts = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -24,6 +35,11 @@ const Discounts = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
+  const [usePercentage, setUsePercentage] = useState(false);
+  const [discountPercentage, setDiscountPercentage] = useState(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
   const navigate = useNavigate();
 
   const retryRequest = useRetryRequest(); // Use the retry logic hook
@@ -37,59 +53,91 @@ const Discounts = () => {
     3: "Assigned to manufacturers",
   };
 
-  useEffect(() => {
-    const fetchDiscounts = async () => {
-      setLoading(true);
-      try {
-        const response = await retryRequest(() =>
-          axiosInstance.get(`/admin/alldiscounts`)
-        );
-        const data = response.data.map((discount) => ({
-          key: discount.Id,
-          id: discount.Id,
-          name: discount.Name,
-          type: discountTypes[discount.DiscountTypeId] || "Unknown",
-          discount: "$" + discount.DiscountAmount,
-          startDate: discount.StartDate ? dayjs(discount.StartDate) : null,
-          endDate: discount.EndDate ? dayjs(discount.EndDate) : null,
-        }));
-        setDataSource(data);
-        setFilteredData(data); // Set initial filtered data
-      } catch (error) {
-        console.error("Error fetching discount data:", error);
-        message.error("Failed to fetch discount data");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    const lowercasedValue = value.toLowerCase();
+    const filtered = dataSource.filter(
+      (item) =>
+        item.name.toLowerCase().includes(lowercasedValue) ||
+        item.type.toLowerCase().includes(lowercasedValue) ||
+        item.discount.toLowerCase().includes(lowercasedValue)
+    );
+    setFilteredData(filtered);
+  };
 
+  const fetchDiscounts = async () => {
+    setLoading(true);
+    try {
+      const response = await retryRequest(() =>
+        axiosInstance.get(`/admin/alldiscounts`)
+      );
+      const data = response.data.map((discount) => ({
+        key: discount.Id,
+        id: discount.Id,
+        name: discount.Name,
+        type: discountTypes[discount.DiscountTypeId] || "Unknown",
+        discount: "$" + discount.DiscountAmount,
+        startDate: discount.StartDate ? dayjs(discount.StartDate) : null,
+        endDate: discount.EndDate ? dayjs(discount.EndDate) : null,
+      }));
+      setDataSource(data);
+      setFilteredData(data); // Set initial filtered data
+    } catch (error) {
+      console.error("Error fetching discount data:", error);
+      message.error("Failed to fetch discount data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchDiscounts();
   }, [retryRequest]);
 
   const addDiscount = async () => {
-    if(!name || !amount || amount <= 0 || !type) {
+    if (
+      !name ||
+      (!amount && !discountPercentage) ||
+      (!usePercentage && amount <= 0) ||
+      !type
+    ) {
       message.error("Please provide valid details");
       return;
     }
 
-     try {
-       const payload = {
-         Name: name,
-         DiscountAmount: amount,
-         DiscountTypeId: type,
-         StartDate: startDate ? startDate.format("YYYY-MM-DD") : null,
-         EndDate: endDate ? endDate.format("YYYY-MM-DD") : null,
-       };
-       await retryRequest(() =>
-         axiosInstance.post(`/admin/post-discounts`, payload)
-       );
-       message.success("Discount added successfully");
-       fetchDiscounts();
-       setAddModal(false);
-     } catch (error) {
-       console.error("Error adding discount: ", error);
-       message.error("Failed to add discount");
-     }
+    try {
+      const payload = {
+        Name: name,
+        DiscountTypeId: type,
+        StartDate: startDate ? startDate.format("YYYY-MM-DD") : null,
+        EndDate: endDate ? endDate.format("YYYY-MM-DD") : null,
+      };
+
+      if (usePercentage) {
+        payload.UsePercentage = true;
+        payload.DiscountPercentage = discountPercentage;
+      } else {
+        payload.DiscountAmount = amount;
+      }
+
+      const response = await retryRequest(() =>
+        axiosInstance.post(`/admin/post-discounts`, payload)
+      );
+
+      //Simulating a successful response for demonstration purposes
+
+      //Optional: Check backend status or response here before showing success
+      if (response.status === 200 || response.status === 201) {
+        message.success("Discount added successfully");
+        fetchDiscounts();
+        handleCancel(); // Reset everything
+      } else {
+        throw new Error("Unexpected response");
+      }
+    } catch (error) {
+      console.error("Error adding discount: ", error);
+      message.error("Failed to add discount");
+    }
   };
 
   const handleAdd = () => {
@@ -100,11 +148,6 @@ const Discounts = () => {
 
   const handleEdit = (discount) => {
     navigate(`/edit-discounts/${discount.id}`);
-    // console.log(discount);
-    // setSelectedDiscount(discount);
-    // setName(discount.name);
-    // setAmount(parseFloat(discount.discount.replace("$", "")));
-    // setIsModalVisible(true);
   };
 
   const handleDelete = async (discount) => {
@@ -120,42 +163,14 @@ const Discounts = () => {
     }
   };
 
-  const handleOk = async () => {
-    if (!name || !amount || amount <= 0) {
-      message.error("Please provide valid details");
-      return;
-    }
-
-    const payload = {};
-    if (name !== selectedDiscount.name) {
-      payload.Name = name;
-    }
-    const parsedAmount = parseFloat(selectedDiscount.discount.replace("$", ""));
-    if (parseFloat(amount) !== parsedAmount) {
-      payload.DiscountAmount = amount;
-    }
-
-    if (Object.keys(payload).length > 0) {
-      try {
-        await retryRequest(() =>
-          axiosInstance.patch(
-            `/admin/editdiscount/${selectedDiscount.id}`,
-            payload
-          )
-        );
-        message.success("Discount updated successfully");
-        fetchDiscounts();
-      } catch (error) {
-        console.error("Error updating discount:", error);
-        message.error("Failed to update discount");
-      }
-    }
-
-    setIsModalVisible(false);
-  };
-
   const handleCancel = () => {
-    setIsModalVisible(false);
+    setName("");
+    setAmount("");
+    setType(null);
+    setStartDate(null);
+    setEndDate(null);
+    setUsePercentage(false);
+    setDiscountPercentage(null);
     setAddModal(false);
   };
 
@@ -164,7 +179,9 @@ const Discounts = () => {
     if (value === "all") {
       setFilteredData(dataSource);
     } else {
-      setFilteredData(dataSource.filter((discount) => discount.type === discountTypes[value]));
+      setFilteredData(
+        dataSource.filter((discount) => discount.type === discountTypes[value])
+      );
     }
   };
 
@@ -236,7 +253,7 @@ const Discounts = () => {
         </div>
       ) : (
         <>
-        <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 20, display: "flex", gap: 10 }}>
             <Select
               value={filterType}
               onChange={handleFilterChange}
@@ -248,7 +265,16 @@ const Discounts = () => {
               <Option value="5">Assigned to categories</Option>
               <Option value="3">Assigned to manufacturers</Option>
             </Select>
+
+            <Input.Search
+              placeholder="Search by name or type"
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              allowClear
+              style={{ width: 300 }}
+            />
           </div>
+
           <div style={{ textAlign: "right" }}>
             <Button type="primary" size={buttonSize} onClick={handleAdd}>
               Add New Discount
@@ -256,7 +282,7 @@ const Discounts = () => {
           </div>
           <br />
           <Table
-             dataSource={filteredData}
+            dataSource={filteredData}
             columns={columns}
             scroll={{ x: "max-content" }}
           />
@@ -264,7 +290,6 @@ const Discounts = () => {
       )}
 
       {/* Edit existing discount */}
-      
 
       {/* Add new discount */}
       <Modal
@@ -273,6 +298,16 @@ const Discounts = () => {
         open={isAddModalVisible}
         onOk={addDiscount}
         onCancel={handleCancel}
+        afterClose={() => {
+          // Reset form state when modal is closed
+          setName("");
+          setAmount("");
+          setDiscountPercentage(null);
+          setType(null);
+          setStartDate(null);
+          setEndDate(null);
+          setUsePercentage(false);
+        }}
       >
         <br />
         <Input
@@ -281,6 +316,42 @@ const Discounts = () => {
           onChange={(e) => setName(e.target.value)}
           style={{ marginBottom: 10 }}
         />
+
+        <div style={{ marginBottom: 10 }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={usePercentage}
+              onChange={(e) => setUsePercentage(e.target.checked)}
+            />{" "}
+            Use Percentage
+          </label>
+        </div>
+
+        {usePercentage ? (
+          <InputNumber
+            value={discountPercentage}
+            placeholder="Discount Percentage"
+            min={1}
+            max={100}
+            formatter={(value) => `${value}%`}
+            parser={(value) => value?.replace("%", "")}
+            onChange={(value) => setDiscountPercentage(value)}
+            style={{ width: "100%", marginBottom: 10 }}
+          />
+        ) : (
+          <InputNumber
+            value={amount}
+            placeholder="Discount Amount"
+            formatter={(value) =>
+              `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            parser={(value) => value?.replace(/\$\s?|(,*)/g, "")}
+            onChange={(value) => setAmount(value)}
+            style={{ width: "100%", marginBottom: 10 }}
+          />
+        )}
+
         <Select
           placeholder="Select Discount Type"
           value={type}
@@ -293,22 +364,14 @@ const Discounts = () => {
             </Option>
           ))}
         </Select>
-        <InputNumber
-          value={amount}
-          placeholder="Discount Amount"
-          formatter={(value) =>
-            `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-          }
-          parser={(value) => value?.replace(/\$\s?|(,*)/g, "")}
-          onChange={(value) => setAmount(value)}
-          style={{ width: "100%", marginBottom: 10 }}
-        />
+
         <DatePicker
           placeholder="Start Date"
           value={startDate}
           onChange={(date) => setStartDate(date)}
           style={{ width: "100%", marginBottom: 10 }}
         />
+
         <DatePicker
           placeholder="End Date"
           value={endDate}

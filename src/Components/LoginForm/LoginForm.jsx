@@ -12,7 +12,7 @@ const LoginForm = () => {
   const [formData, setFormData] = useState({
     loginemail: "",
     password: "",
-    rememberMe: false,
+    rememberMe: true,
   });
   const [passwordVisible, setPasswordVisible] = useState(false); // State to track password visibility
   const [alert, setAlert] = useState({
