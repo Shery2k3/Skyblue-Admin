@@ -1,12 +1,12 @@
-//@desc This component is used to apply discount to a category. It shows a button to open a modal to select a category to apply discount. It also shows a table of applied discounts to categories with an option to delete the discount, You'll have to make all backend Api related to this component as well 
+//@desc This component is used to apply discount to a category. It shows a button to open a modal to select a category to apply discount. It also shows a table of applied discounts to categories with an option to delete the discount, You'll have to make all backend Api related to this component as well
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Modal, Table, Space, message, Input, Checkbox } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import { useParams, useNavigate } from 'react-router-dom';
-import axiosInstance from '../../../../Api/axiosConfig';
-import useRetryRequest from '../../../../Api/useRetryRequest';
-import debounce from 'lodash/debounce';
+import React, { useState, useEffect, useCallback } from "react";
+import { Button, Modal, Table, Space, message, Input, Checkbox } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import { useParams, useNavigate } from "react-router-dom";
+import axiosInstance from "../../../../Api/axiosConfig";
+import useRetryRequest from "../../../../Api/useRetryRequest";
+import debounce from "lodash/debounce";
 
 const AppliedToCategory = () => {
   const { id: discountId } = useParams();
@@ -17,7 +17,7 @@ const AppliedToCategory = () => {
   const [categories, setCategories] = useState([]);
   const [appliedCategories, setAppliedCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [tableLoading, setTableLoading] = useState(false);
 
@@ -33,7 +33,7 @@ const AppliedToCategory = () => {
         id: category.Id,
         name: category.Name,
         path: currentPath,
-        published: category.Published
+        published: category.Published,
       });
       if (category.children && category.children.length > 0) {
         flatData = flatData.concat(
@@ -49,8 +49,8 @@ const AppliedToCategory = () => {
     setLoading(true);
     try {
       const response = await retryRequest(() =>
-        axiosInstance.get('/admin/category/all', {
-          params: { search }
+        axiosInstance.get("/admin/category/all", {
+          params: { search },
         })
       );
       const flatData = flattenCategories(response.data);
@@ -70,14 +70,16 @@ const AppliedToCategory = () => {
       const response = await retryRequest(() =>
         axiosInstance.get(`/admin/get-discount-to-category/${discountId}`)
       );
-      
+
       if (response.data?.success) {
-        setAppliedCategories(response.data.result.map(category => ({
-          key: category.Category_Id,
-          categoryId: category.Category_Id,
-          categoryName: category.Name,
-          discountId: category.Discount_Id
-        })));
+        setAppliedCategories(
+          response.data.result.map((category) => ({
+            key: category.Category_Id,
+            categoryId: category.Category_Id,
+            categoryName: category.Name,
+            discountId: category.Discount_Id,
+          }))
+        );
       }
     } catch (error) {
       console.error("Error fetching applied discounts:", error);
@@ -104,20 +106,19 @@ const AppliedToCategory = () => {
   // Apply discount to selected categories
   const handleApplyDiscount = async () => {
     if (selectedCategories.length === 0) {
-      message.warning('Please select at least one category');
+      message.warning("Please select at least one category");
       return;
     }
 
     setLoading(true);
     try {
-      await retryRequest(() =>
-        {axiosInstance.post(`/admin/applyDiscountToCategory/${discountId}`, {
-          categoryIds: selectedCategories
+      await retryRequest(() => {
+        axiosInstance.post(`/admin/applyDiscountToCategory/${discountId}`, {
+          categoryIds: selectedCategories,
         });
-        console.log(selectedCategories)
-        }
-      );
-      message.success('Discount applied successfully');
+        console.log(selectedCategories);
+      });
+      message.success("Discount applied successfully");
       setIsModalOpen(false);
       fetchAppliedDiscounts(); // Refresh the list after applying
     } catch (error) {
@@ -129,9 +130,9 @@ const AppliedToCategory = () => {
   };
 
   const handleSelectionChange = (categoryId) => {
-    setSelectedCategories(prev => {
+    setSelectedCategories((prev) => {
       if (prev.includes(categoryId)) {
-        return prev.filter(id => id !== categoryId);
+        return prev.filter((id) => id !== categoryId);
       }
       return [...prev, categoryId];
     });
@@ -140,16 +141,16 @@ const AppliedToCategory = () => {
   // Modal columns configuration
   const categoriesColumns = [
     {
-      title: 'Category Path',
-      dataIndex: 'path',
-      key: 'path',
+      title: "Category Path",
+      dataIndex: "path",
+      key: "path",
     },
     {
-      title: 'Select',
-      key: 'select',
+      title: "Select",
+      key: "select",
       render: (_, record) => {
         const isAlreadyApplied = appliedCategories.some(
-          cat => cat.categoryId === record.id
+          (cat) => cat.categoryId === record.id
         );
         return (
           <Checkbox
@@ -159,7 +160,7 @@ const AppliedToCategory = () => {
           />
         );
       },
-    }
+    },
   ];
 
   useEffect(() => {
@@ -170,21 +171,21 @@ const AppliedToCategory = () => {
   // Table columns for applied categories
   const appliedCategoriesColumns = [
     {
-      title: 'Category Name',
-      dataIndex: 'categoryName',
-      key: 'categoryName',
+      title: "Category Name",
+      dataIndex: "categoryName",
+      key: "categoryName",
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: "Action",
+      key: "action",
       render: (_, record) => (
         <Space>
           <Button type="link" onClick={() => handleViewProduct(record)}>
             View
           </Button>
-          <Button 
-            type="link" 
-            danger 
+          <Button
+            type="link"
+            danger
             onClick={() => handleDeleteDiscount(record.categoryId)}
           >
             Delete
@@ -195,7 +196,7 @@ const AppliedToCategory = () => {
   ];
 
   const handleViewProduct = (record) => {
-    navigate(`/category`); // Assuming you have a category view page
+    window.open(`/categories/${record.categoryId}`, "_blank");
   };
 
   // Function to delete a discount from a category
@@ -203,10 +204,10 @@ const AppliedToCategory = () => {
     try {
       await retryRequest(() =>
         axiosInstance.post(`/admin/removeDiscountFromCategory/${discountId}`, {
-          categoryIds: [categoryId]
+          categoryIds: [categoryId],
         })
       );
-      message.success('Discount removed successfully');
+      message.success("Discount removed successfully");
       fetchAppliedDiscounts(); // Refresh the list
     } catch (error) {
       console.error("Error removing discount:", error);
@@ -216,7 +217,11 @@ const AppliedToCategory = () => {
 
   return (
     <div>
-      <Button type="primary" onClick={() => setIsModalOpen(true)} style={{ marginBottom: 20 }}>
+      <Button
+        type="primary"
+        onClick={() => setIsModalOpen(true)}
+        style={{ marginBottom: 20 }}
+      >
         Apply Discount to Category
       </Button>
 
@@ -241,7 +246,7 @@ const AppliedToCategory = () => {
           rowKey="id"
           pagination={{
             pageSize: 10,
-            showSizeChanger: false
+            showSizeChanger: false,
           }}
           loading={loading}
         />

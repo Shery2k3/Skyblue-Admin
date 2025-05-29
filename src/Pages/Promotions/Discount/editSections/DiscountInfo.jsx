@@ -10,6 +10,7 @@ import {
   Divider,
   message,
   Typography,
+  Button,
 } from "antd";
 import axiosInstance from "../../../../Api/axiosConfig";
 import { useParams } from "react-router-dom";
@@ -23,11 +24,11 @@ const DiscountInfo = () => {
   const { id } = useParams();
   const [form] = Form.useForm();
 
-  const [datasource, setDatasource] = useState([]);
   const [usePercentage, setUsePercentage] = useState(false);
   const [requireCouponCode, setRequireCouponCode] = useState(false);
   const [discountType, setDiscountType] = useState(null);
   const [discountLimitation, setDiscountLimitation] = useState("Unlimited");
+  const [loading, setLoading] = useState(false);
 
   const retryRequest = useRetryRequest();
 
@@ -43,9 +44,10 @@ const DiscountInfo = () => {
 
       if (Array.isArray(response.data) && response.data.length > 0) {
         const discount = response.data[0];
-        setDatasource(discount);
 
-        // Set form values using the correct field names
+        const startDate = discount.StartDateUtc ? dayjs(discount.StartDateUtc) : null;
+        const endDate = discount.EndDateUtc ? dayjs(discount.EndDateUtc) : null;
+
         form.setFieldsValue({
           name: discount.Name,
           discountType: discount.DiscountTypeId,
@@ -55,80 +57,69 @@ const DiscountInfo = () => {
           discountAmount: discount.DiscountAmount,
           requireCouponCode: discount.RequiresCouponCode,
           couponCode: discount.CouponCode,
-          startDate: discount.StartDateUtc
-            ? dayjs(discount.StartDateUtc)
-            : null,
-          endDate: discount.EndDateUtc ? dayjs(discount.EndDateUtc) : null,
+          startDate: startDate?.isValid() ? startDate : null,
+          endDate: endDate?.isValid() ? endDate : null,
           discountLimitation:
-            discount.DiscountLimitationId === 0
-              ? "Unlimited"
-              : "N Times Per Customer",
+            discount.DiscountLimitationId === 0 ? "Unlimited" : "N Times Per Customer",
           limitationValue: discount.LimitationTimes,
         });
 
-        // Update states
         setUsePercentage(discount.UsePercentage);
         setRequireCouponCode(discount.RequiresCouponCode);
         setDiscountType(discount.DiscountTypeId);
         setDiscountLimitation(
-          discount.DiscountLimitationId === 0
-            ? "Unlimited"
-            : "N Times Per Customer"
+          discount.DiscountLimitationId === 0 ? "Unlimited" : "N Times Per Customer"
         );
       } else {
-        console.error("Unexpected discount data format:", response.data);
         message.error("Invalid discount data format.");
       }
     } catch (error) {
-      console.error("Error fetching discount data:", error);
       message.error("Failed to fetch discount data.");
     }
   };
 
   const handleFormSubmit = async (values) => {
+    setLoading(true);
     try {
-      // Construct the payload dynamically to include only provided fields
       const payload = {};
-  
       for (const key in values) {
         if (values[key] !== undefined && values[key] !== null) {
           payload[key] = values[key];
         }
       }
-  
-      // Make API request with the dynamically constructed payload
-      const response = await axiosInstance.patch(
-        `/admin/edit-discount/${id}`, // Replace `id` with the actual discount ID from your context
-        payload
-      );
-  
-      if (response.data.success) {
+
+      const response = await axiosInstance.patch(`/admin/edit-discount/${id}`, payload);
+
+      if (response.status === 200) {
         message.success("Discount updated successfully!");
+        window.location.reload()
       } else {
-        message.error(
-          response.data.message || "Failed to update discount. Try again later."
-        );
+        message.error(response.data.message || "Failed to update discount.");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      message.error(
-        error.response?.data?.message || "Failed to update discount."
-      );
+      message.error(error.response?.data?.message || "Failed to update discount.");
+    } finally {
+      setLoading(false);
     }
   };
-  
-  
 
   return (
     <Form
       form={form}
       layout="vertical"
       onFinish={handleFormSubmit}
-      style={{ maxWidth: 900, margin: "0 auto" }}
+      style={{ maxWidth: 900, margin: "0 auto", padding: "20px" }}
     >
       {/* Section 1: Discount Info */}
       <section>
-        <Title level={4}>Discount Info</Title>
+        <Row justify="space-between" align="middle" style={{ marginBottom: 8 }}>
+          <Title level={4} style={{ margin: 0 }}>
+            Discount Info
+          </Title>
+          <Button type="primary" htmlType="submit" loading={loading}>
+            Save
+          </Button>
+        </Row>
         <Divider />
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12}>
@@ -159,10 +150,7 @@ const DiscountInfo = () => {
           </Col>
           {discountType === 5 && (
             <Col span={24}>
-              <Form.Item
-                name="applyToSubCategories"
-                valuePropName="checked"
-              >
+              <Form.Item name="applyToSubCategories" valuePropName="checked">
                 <Checkbox>Apply to Subcategories</Checkbox>
               </Form.Item>
             </Col>
@@ -188,9 +176,7 @@ const DiscountInfo = () => {
           </Col>
           <Col span={24}>
             <Form.Item name="requireCouponCode" valuePropName="checked">
-              <Checkbox
-                onChange={(e) => setRequireCouponCode(e.target.checked)}
-              >
+              <Checkbox onChange={(e) => setRequireCouponCode(e.target.checked)}>
                 Require Coupon Code
               </Checkbox>
             </Form.Item>
@@ -206,7 +192,7 @@ const DiscountInfo = () => {
       </section>
 
       {/* Section 2: Date Management */}
-      <section>
+      <section style={{ marginTop: 40 }}>
         <Title level={4}>Dates</Title>
         <Divider />
         <Row gutter={[16, 16]}>
@@ -224,7 +210,7 @@ const DiscountInfo = () => {
       </section>
 
       {/* Section 3: Discount Limitation */}
-      <section>
+      <section style={{ marginTop: 40 }}>
         <Title level={4}>Discount Limitation</Title>
         <Divider />
         <Row gutter={[16, 16]}>
@@ -235,9 +221,7 @@ const DiscountInfo = () => {
                 onChange={(value) => setDiscountLimitation(value)}
               >
                 <Option value="Unlimited">Unlimited</Option>
-                <Option value="N Times Per Customer">
-                  N Times Per Customer
-                </Option>
+                <Option value="N Times Per Customer">N Times Per Customer</Option>
               </Select>
             </Form.Item>
           </Col>
@@ -250,12 +234,6 @@ const DiscountInfo = () => {
           )}
         </Row>
       </section>
-
-      {/* Action Buttons */}
-      <Divider />
-      <Form.Item style={{ textAlign: "center" }}>
-        <button type="submit">Save</button>
-      </Form.Item>
     </Form>
   );
 };

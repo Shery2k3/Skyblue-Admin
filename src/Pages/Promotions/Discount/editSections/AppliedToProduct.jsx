@@ -38,10 +38,11 @@ const AppliedToProduct = () => {
   const [product, setProduct] = useState("");
   const [manufacturers, setManufacturers] = useState([]);
   const [selectedManufacturer, setSelectedManufacturer] = useState();
-  const [published, setPublished] = useState("");
+  const [published, setPublished] = useState("1");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
+
   // Fetch manufacturers on load
   useEffect(() => {
     const fetchManufacturers = async () => {
@@ -133,6 +134,7 @@ const AppliedToProduct = () => {
       if (response.data.success) {
         fetchProducts();
         setIsModalVisible(false);
+        message.success("Discount successfully applied to product.");
       } else {
         console.error("Failed to apply discount:", response.data.message);
       }
@@ -146,7 +148,7 @@ const AppliedToProduct = () => {
   // Actions
   const handleViewProduct = (productId) => {
     try {
-      navigate(`/edit-product/${productId}`);
+      window.open(`/product/edit/${productId}`, '_blank');
     } catch (error) {
       console.error("Error viewing product:", error);
     }
@@ -164,7 +166,7 @@ const AppliedToProduct = () => {
       );
 
       fetchProducts();
-      message("Discount successfully removed from product.");
+      message.success("Discount successfully removed from product.");
 
       setAllProducts((prevProducts) =>
         prevProducts.filter((product) => product.Product_Id !== productId)
@@ -302,26 +304,41 @@ const AppliedToProduct = () => {
               prefix={<SearchOutlined />}
             />
             <Select
-              placeholder="Manufacturer"
-              value={selectedManufacturer}
-              onChange={setSelectedManufacturer}
-              style={{ width: 200 }}
-            >
-              {manufacturers.map((manufacturer) => (
-                <Option key={manufacturer.Id} value={manufacturer.Id}>
-                  {manufacturer.Name}
-                </Option>
-              ))}
-            </Select>
-            <Select
-              value={published}
-              onChange={setPublished}
-              style={{ width: isSmallScreen ? "100%" : 200 }}
-            >
-              <Option value="1">Published</Option>
-              <Option value="0">Unpublished</Option>
-              <Option value="">All</Option>
-            </Select>
+  placeholder="Manufacturer"
+  value={selectedManufacturer ?? undefined}
+  onChange={(val) => setSelectedManufacturer(val)}
+  allowClear
+  style={{ width: 200 }}
+>
+  {manufacturers.map((manufacturer) => (
+    <Option key={manufacturer.id} value={manufacturer.id}>
+      {manufacturer.name}
+    </Option>
+  ))}
+</Select>
+
+
+            <Button.Group style={{ marginBottom: isSmallScreen ? 8 : 0 }}>
+              <Button
+                type={published === "1" ? "primary" : "default"}
+                onClick={() => setPublished("1")}
+              >
+                Published
+              </Button>
+              <Button
+                type={published === "0" ? "primary" : "default"}
+                onClick={() => setPublished("0")}
+              >
+                Unpublished
+              </Button>
+              <Button
+                type={published === "" ? "primary" : "default"}
+                onClick={() => setPublished("")}
+              >
+                All
+              </Button>
+            </Button.Group>
+
             <Button
               type="primary"
               onClick={handleSearch}

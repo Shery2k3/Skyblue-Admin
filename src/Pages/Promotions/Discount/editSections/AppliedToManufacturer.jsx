@@ -104,7 +104,7 @@ const AppliedToManufacturer = () => {
   };
 
   const handleViewManufacturer = (record) => {
-    navigate(`/manufacturers`);
+    window.open(`/manufacturer/products/${record.Manufacturer_Id}`, "_blank");
   };
 
 
@@ -174,7 +174,7 @@ const AppliedToManufacturer = () => {
         loading={loading}
         style={{ marginBottom: 20 }}
       >
-        Load Manufacturers
+        Add Manufacturers
       </Button>
 
       {loading && <Spin />}
