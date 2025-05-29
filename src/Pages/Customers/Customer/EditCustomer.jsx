@@ -239,23 +239,29 @@ const EditCustomer = () => {
 
   return (
     <CustomLayout pageTitle="Edit Customer" menuKey="10">
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: 20,
+        }}
+      >
         <Title level={2} style={{ marginBottom: 0 }}>
           Edit Customer: {email}
         </Title>
         <ActionButtons navigate={navigate} customerId={id} />
       </div>
       <Tabs defaultActiveKey="1" centered>
-        <TabPane tab="Customer Details" key="4">
+        <TabPane tab="Customer Details" key="1">
           {renderCustomerDetailsForm()}
         </TabPane>
-        <TabPane tab="Orders" key="1">
+        <TabPane tab="Orders" key="2">
           <Orders />
         </TabPane>
-        <TabPane tab="Address" key="2">
+        <TabPane tab="Address" key="3">
           <Address />
         </TabPane>
-        <TabPane tab="Current Shopping Cart" key="3">
+        <TabPane tab="Current Shopping Cart" key="4">
           <CurrentCart />
         </TabPane>
       </Tabs>

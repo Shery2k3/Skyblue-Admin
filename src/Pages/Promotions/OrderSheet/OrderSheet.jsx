@@ -42,6 +42,8 @@ const OrderSheet = () => {
   const { Option } = Select;
   const { Title } = Typography;
 
+  console.log(tierRole, categoryId);
+
   useEffect(() => {
     const fetchRoles = async () => {
       const response = await retryRequest(() =>

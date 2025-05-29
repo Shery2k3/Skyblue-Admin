@@ -48,6 +48,8 @@ const Customer = () => {
   const [searchFirstName, setSearchFirstName] = useState("");
   const [searchLastName, setSearchLastName] = useState("");
   const [searchPhoneNumber, setSearchPhoneNumber] = useState("");
+  const [searchEmail, setSearchEmail] = useState("");
+
   
   const retryRequest = useRetryRequest();
   const navigate = useNavigate();
@@ -66,6 +68,7 @@ const Customer = () => {
             `${API_BASE_URL}/admin/customer/all?size=${pageSize}&page=${page}`
           )
         );
+        //console.log("Customer data fetched successfully:", response);
         const { data, totalCustomers, totalPages, pageNumber } = response.data;
 
         const formattedData = data.map((customer) => ({
@@ -107,6 +110,8 @@ const Customer = () => {
         if (searchFirstName) params.firstName = searchFirstName;
         if (searchLastName) params.lastName = searchLastName;
         if (searchPhoneNumber) params.phoneNumber = searchPhoneNumber;
+        if (searchEmail) params.email = searchEmail;
+
 
         const response = await retryRequest(() =>
           axiosInstance.get(`${API_BASE_URL}/admin/customer/all`, { params })
@@ -136,7 +141,8 @@ const Customer = () => {
         setIsFetching(false);
       }
     }, 300),
-    [isFetching, pageSize, searchFirstName, searchLastName, searchPhoneNumber]
+    [isFetching, pageSize, searchFirstName, searchLastName, searchPhoneNumber, searchEmail]
+
   );
 
   useEffect(() => {
@@ -304,6 +310,12 @@ const Customer = () => {
                 value={searchLastName}
                 onChange={(e) => setSearchLastName(e.target.value)}
               />
+              <Input
+  placeholder="Email"
+  value={searchEmail}
+  onChange={(e) => setSearchEmail(e.target.value)}
+/>
+
               <Input
                 placeholder="Phone Number"
                 value={searchPhoneNumber}
