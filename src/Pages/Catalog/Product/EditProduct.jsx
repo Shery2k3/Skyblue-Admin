@@ -14,6 +14,7 @@ import {
   Select,
   Upload,
   Popconfirm,
+  
 } from "antd";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
@@ -76,6 +77,8 @@ const EditProduct = () => {
     productDetail();
     fetchDiscounts();
   }, [id]);
+
+ 
 
   return (
     <CustomLayout pageTitle={id ? "Edit Product" : "Add Product"} menuKey="3">
