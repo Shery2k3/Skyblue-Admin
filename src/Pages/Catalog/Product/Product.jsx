@@ -34,9 +34,6 @@ import useRetryRequest from "../../../Api/useRetryRequest"; // Import the retry 
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 
-import { Menu, Dropdown } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-
 const { Option } = Select;
 const { Title, Text } = Typography;
 

@@ -45,7 +45,9 @@ const DiscountInfo = () => {
       if (Array.isArray(response.data) && response.data.length > 0) {
         const discount = response.data[0];
 
-        const startDate = discount.StartDateUtc ? dayjs(discount.StartDateUtc) : null;
+        const startDate = discount.StartDateUtc
+          ? dayjs(discount.StartDateUtc)
+          : null;
         const endDate = discount.EndDateUtc ? dayjs(discount.EndDateUtc) : null;
 
         form.setFieldsValue({
@@ -60,7 +62,9 @@ const DiscountInfo = () => {
           startDate: startDate?.isValid() ? startDate : null,
           endDate: endDate?.isValid() ? endDate : null,
           discountLimitation:
-            discount.DiscountLimitationId === 0 ? "Unlimited" : "N Times Per Customer",
+            discount.DiscountLimitationId === 0
+              ? "Unlimited"
+              : "N Times Per Customer",
           limitationValue: discount.LimitationTimes,
         });
 
@@ -68,7 +72,9 @@ const DiscountInfo = () => {
         setRequireCouponCode(discount.RequiresCouponCode);
         setDiscountType(discount.DiscountTypeId);
         setDiscountLimitation(
-          discount.DiscountLimitationId === 0 ? "Unlimited" : "N Times Per Customer"
+          discount.DiscountLimitationId === 0
+            ? "Unlimited"
+            : "N Times Per Customer"
         );
       } else {
         message.error("Invalid discount data format.");
@@ -88,16 +94,21 @@ const DiscountInfo = () => {
         }
       }
 
-      const response = await axiosInstance.patch(`/admin/edit-discount/${id}`, payload);
+      const response = await axiosInstance.patch(
+        `/admin/edit-discount/${id}`,
+        payload
+      );
 
       if (response.status === 200) {
         message.success("Discount updated successfully!");
-        window.location.reload()
+        window.location.reload();
       } else {
         message.error(response.data.message || "Failed to update discount.");
       }
     } catch (error) {
-      message.error(error.response?.data?.message || "Failed to update discount.");
+      message.error(
+        error.response?.data?.message || "Failed to update discount."
+      );
     } finally {
       setLoading(false);
     }
@@ -157,7 +168,15 @@ const DiscountInfo = () => {
           )}
           <Col span={24}>
             <Form.Item name="usePercentage" valuePropName="checked">
-              <Checkbox onChange={(e) => setUsePercentage(e.target.checked)}>
+              <Checkbox
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setUsePercentage(checked);
+                  if (checked) {
+                    form.setFieldsValue({ discountAmount: 0 });
+                  }
+                }}
+              >
                 Use Percentage
               </Checkbox>
             </Form.Item>
@@ -176,7 +195,9 @@ const DiscountInfo = () => {
           </Col>
           <Col span={24}>
             <Form.Item name="requireCouponCode" valuePropName="checked">
-              <Checkbox onChange={(e) => setRequireCouponCode(e.target.checked)}>
+              <Checkbox
+                onChange={(e) => setRequireCouponCode(e.target.checked)}
+              >
                 Require Coupon Code
               </Checkbox>
             </Form.Item>
@@ -221,7 +242,9 @@ const DiscountInfo = () => {
                 onChange={(value) => setDiscountLimitation(value)}
               >
                 <Option value="Unlimited">Unlimited</Option>
-                <Option value="N Times Per Customer">N Times Per Customer</Option>
+                <Option value="N Times Per Customer">
+                  N Times Per Customer
+                </Option>
               </Select>
             </Form.Item>
           </Col>

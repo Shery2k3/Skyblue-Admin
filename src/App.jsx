@@ -79,8 +79,8 @@ function App() {
         />
         {/* <Route
           path="/edit-product/:id?"
-          element={<ProtectedRoute element={EditProducts} />}
-        /> */}
+          element={<ProtectedRoute element={EditProduct} />}
+        />  */}
 
         <Route
           path="/product/edit/:id?"

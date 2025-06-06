@@ -14,7 +14,6 @@ import {
   Select,
   Upload,
   Popconfirm,
-  
 } from "antd";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import useResponsiveButtonSize from "../../../Components/ResponsiveSizes/ResponsiveSize";
@@ -39,6 +38,7 @@ import InventoryInfo from "./EditProductSections/InventoryInfo";
 import Mapping from "./EditProductSections/Mapping";
 import TierPrices from "./EditProductSections/TierPrices";
 import RelatedProduct from "./EditProductSections/RelatedProduct";
+import ProductEdit from "./EditProductSections/ProductEdit";
 const { TabPane } = Tabs;
 
 const EditProduct = () => {
@@ -78,8 +78,6 @@ const EditProduct = () => {
     fetchDiscounts();
   }, [id]);
 
- 
-
   return (
     <CustomLayout pageTitle={id ? "Edit Product" : "Add Product"} menuKey="3">
       <Title level={2} style={{ textAlign: "center" }}>
@@ -87,8 +85,9 @@ const EditProduct = () => {
       </Title>
       <Tabs defaultActiveKey="1">
         <TabPane tab="Product Details" key="1">
-          <GeneralInfo />
-          <Prices />
+          {/* <ProductEdit /> */}
+           <GeneralInfo /> 
+           <Prices /> 
           <TierPrices />
           <InventoryInfo />
           <Mapping />

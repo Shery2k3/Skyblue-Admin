@@ -72,7 +72,8 @@ const Prices = () => {
       ])
     );
 
-    const discountIDs = discounts.map((d) => d.Discount_Id);
+    const discountIDs = discounts.map((d) => d.Id);
+    console.log("Discount IDs:", discountIDs);
 
     const submissionData = {
       ...numericValues,
