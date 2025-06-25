@@ -77,7 +77,7 @@ const CurrentCartDetails = () => {
   };
 
   const handleNameClick = (product) => {
-    navigate(`/products/${product.key}`);
+    navigate(`/product/edit/${product.key}`);
   };
 
   const columns = [

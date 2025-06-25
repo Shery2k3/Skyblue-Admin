@@ -145,11 +145,26 @@ const ItemTable = ({ dataSource }) => {
       key: "productName",
       render: (text, record) => (
         <>
-          <div style={{ fontSize: "14px", fontWeight: "bold" }}>{text}</div>
+          <div
+            style={{
+              fontSize: "14px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              color: "#1890ff",
+            }}
+            onClick={(e) => {
+              e.stopPropagation(); // prevent any row click events
+              window.open(`/product/edit/${record.productid}`, "_blank");
+            }}
+          >
+            {text}
+          </div>
           <div style={{ fontSize: "12px", color: "gray" }}>{record.vendor}</div>
+          <div style={{ fontSize: "12px", color: "gray" }}>Aisle Location: {record.location}</div>
         </>
       ),
     },
+
     {
       title: "Unit Price",
       key: "unitPrice",
