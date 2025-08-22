@@ -44,7 +44,7 @@ import Shippingprovider from "./Pages/Configuration/Shippingprovider/Shippingpro
 import AccessControl from "./Pages/Configuration/AccessControlList/AccessControl";
 import ProductAttributes from "./Pages/Catalog/Attributes/ProductAttributes";
 import EditAttributeValues from "./Pages/Catalog/Product/Sections/EditAttributeValues";
-
+import AddProductCatalog from "./Pages/Catalog/Product/AddProductCatalog";
 
 function App() {
   return (
@@ -77,10 +77,10 @@ function App() {
           path="/products"
           element={<ProtectedRoute element={Product} />}
         />
-        {/* <Route
-          path="/edit-product/:id?"
-          element={<ProtectedRoute element={EditProduct} />}
-        />  */}
+        <Route
+          path="/product/add"
+          element={<ProtectedRoute element={AddProductCatalog} />}
+        /> 
 
         <Route
           path="/product/edit/:id?"

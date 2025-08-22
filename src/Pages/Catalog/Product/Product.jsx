@@ -597,7 +597,7 @@ const Product = () => {
       >
         <Button
           type="primary"
-          onClick={() => navigate("/product/edit")}
+          onClick={() => navigate("/product/add")}
           size="small"
         >
           Add Product
