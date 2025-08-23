@@ -23,6 +23,8 @@ export const useOrderDetails = (orderId) => {
           axiosInstance.get(`/admin/single-order/${orderId}`)
         );
 
+        console.log("PRODUCT AND ORDER", response.data);
+
         const order = response.data.order;
         const products = response.data.order.items;
 
@@ -127,20 +129,21 @@ export const useOrderDetails = (orderId) => {
           },
           {
             key: "2",
-            label: "Order Subtotal (Incl Tax)",
-            children: "$" + order.OrderSubtotalInclTax.toFixed(2),
-            span: 3,
-            editable: true,
-            field: "orderSubtotal",
-          },
-          {
-            key: "3",
             label: "Order Tax",
             children: "$" + order.OrderTax.toFixed(2),
             span: 3,
             editable: true,
             field: "orderTax",
           },
+          {
+            key: "3",
+            label: "Order Subtotal (Incl Tax)",
+            children: "$" + order.OrderSubtotalInclTax.toFixed(2),
+            span: 3,
+            editable: true,
+            field: "orderSubtotal",
+          },
+          
           {
             key: "4",
             label: "Order Discount",
@@ -228,6 +231,7 @@ export const useOrderDetails = (orderId) => {
 
     fetchOrderDetail();
   }, [orderId, retryRequest]);
+
 
   return {
     loading,
