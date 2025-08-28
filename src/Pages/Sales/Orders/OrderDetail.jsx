@@ -29,7 +29,9 @@ const OrdersDetails = () => {
     userInfo,
   } = useOrderDetails(id);
 
-  console.log("priceDetail", priceDetail);
+  // console.log("priceDetail", priceDetail);
+   console.log("Products", dataSource);
+   console.log("userInfo", userInfo);
 
   // State to track which PDF is currently loading
   const [loadingPdf, setLoadingPdf] = useState(null); // null means no PDF is loading

@@ -176,16 +176,18 @@ const Invoice = ({ products, userInfo }) => {
             <Text style={styles.tableCell_3}>Qty</Text>
             <Text style={styles.tableCell_4}>Total</Text>
           </View>
-          {products.map((product, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell_1}>
-                {product.productName || ""}
-              </Text>
-              <Text style={styles.tableCell_2}>{product.price || ""}</Text>
-              <Text style={styles.tableCell_3}>{product.quantity || ""}</Text>
-              <Text style={styles.tableCell_4}>{product.total || ""}</Text>
-            </View>
-          ))}
+           {products.map((product, index) => (
+              <View style={styles.tableRow} key={index}>
+                <Text style={styles.tableCell_1}>
+                  {product.productName}
+                </Text>
+                <Text style={styles.tableCell_2}>${product.unitpriceexcltax}</Text>
+                <Text style={styles.tableCell_3}>{product.quantity}</Text>
+                <Text style={styles.tableCell_4}>
+                  ${product.unitpriceexcltax * product.quantity}
+                </Text>
+              </View>
+            ))}
         </View>
 
         <View style={styles.total}>

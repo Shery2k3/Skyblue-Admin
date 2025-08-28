@@ -23,10 +23,12 @@ export const useOrderDetails = (orderId) => {
           axiosInstance.get(`/admin/single-order/${orderId}`)
         );
 
-        console.log("PRODUCT AND ORDER", response.data);
+        console.log("PRODUCT AND ORDER", response);
 
         const order = response.data.order;
         const products = response.data.order.items;
+
+        console.log("This is orders data from hook", order)
 
         const orderData = [
           {
